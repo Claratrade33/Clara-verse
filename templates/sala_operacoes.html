@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>ClaraVerse | Sala de Operações</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background: black;
+            color: lime;
+            font-family: monospace;
+            text-align: center;
+        }
+        .painel {
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid lime;
+            width: 90%;
+            max-width: 600px;
+        }
+        button {
+            background: black;
+            color: lime;
+            border: 1px solid lime;
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .painel input {
+            padding: 10px;
+            margin: 5px;
+            background: black;
+            color: lime;
+            border: 1px solid lime;
+        }
+        iframe {
+            pointer-events: none;
+            border: 1px solid lime;
+            margin: 20px auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧠 Sala de Operações da Clarinha</h1>
+    <p>💰 Saldo Demo: {{ saldo['USDT'] }} USDT</p>
+
+    <iframe src="https://www.tradingview.com/embed-widget/symbol-overview/?symbol=BINANCE:BTCUSDT" width="600" height="300"></iframe>
+
+    <div class="painel">
+        <h3>Executar Ordem Manual</h3>
+        <form action="/executar-ordem" method="POST">
+            <input type="text" name="par" placeholder="Par (ex: BTCUSDT)">
+            <input type="text" name="direcao" placeholder="buy ou sell">
+            <input type="number" step="0.01" name="quantidade" placeholder="Quantidade">
+            <br><button type="submit">🚀 Executar Ordem</button>
+        </form>
+    </div>
+
+    <div class="painel">
+        <h3>Modo Automático</h3>
+        <form action="/ativar-automatico" method="POST">
+            <button type="submit">🤖 Ativar Clarinha IA</button>
+        </form>
+    </div>
+
+    <div class="painel">
+        <a href="/configuracoes"><button>⚙️ Painel de Configuração</button></a>
+    </div>
+</body>
+</html>
