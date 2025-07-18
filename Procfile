@@ -1,1 +1,1 @@
-web: gunicorn app:app
+web: gunicorn clara_bunker:app
