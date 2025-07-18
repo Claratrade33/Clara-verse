@@ -1,71 +1,122 @@
-# CLARA BUNKER FINALIZADO
-# Plataforma ClaraVerse com IA ClarinhaBubi operando em modo demo e real com Binance blindada
+# CLARA BUNKER FINAL 💎
+# ClaraVerse com IA ClarinhaBubi operando em modo demo com painel de corretora real
 
-from flask import Flask, request, jsonify, render_template_string
-import threading, time, random
+from flask import Flask, render_template_string, request, jsonify
+import threading
+import time
+import random
 
 app = Flask(__name__)
+
+# ==== CONFIGURAÇÕES DE SISTEMA ====
 DEMO_SALDO = 10000.0
 MODO = "demo"
 TOKEN_VALIDO = "SOMA"
 
-html = """
+# ==== HTML INTEGRADO ====
+html_bunker = '''
 <!DOCTYPE html>
-<html lang='pt-br'>
+<html lang="pt-br">
 <head>
-    <meta charset='UTF-8'>
-    <title>ClaraVerse | Sala de Operações</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <style>
-        body { margin:0; font-family:sans-serif; background:#0f0c29; color:white; text-align:center }
-        .topo { padding:30px; font-size:24px; font-weight:bold }
-        .grafico { border:2px solid #00ffcc; margin:20px auto; width:95%; height:400px; pointer-events:none }
-        .botoes { margin:20px }
-        button { margin:5px; padding:15px 30px; background:#00ffcc; border:none; border-radius:5px; font-weight:bold; cursor:pointer }
-        .painel { margin:20px auto; background:#1a1a1a; padding:20px; width:95%; max-width:500px; border-left:6px solid #00ffcc; box-shadow:0 0 8px #00ffcc44 }
-    </style>
+  <meta charset="UTF-8">
+  <title>ClaraVerse | Sala de Operações</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0; font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+      color: white;
+    }
+    .topo {
+      padding: 30px 0; font-size: 28px; font-weight: bold; text-align: center;
+    }
+    .painel {
+      display: flex; flex-direction: column; align-items: center;
+    }
+    iframe {
+      border: 3px solid #00ffcc; border-radius: 8px;
+      width: 90%; max-width: 900px; height: 400px;
+      pointer-events: none;
+      margin-bottom: 20px;
+    }
+    .botoes {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 10px; margin-bottom: 20px;
+    }
+    .botao {
+      padding: 14px 26px;
+      background: #00ffcc;
+      color: #000; font-weight: bold;
+      border: none; border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00ffcc88;
+    }
+    .postit {
+      background: #1a1a1a;
+      border-left: 6px solid #00ffcc;
+      color: #fff;
+      padding: 15px;
+      margin-bottom: 15px;
+      width: 90%; max-width: 500px;
+      font-size: 16px;
+      box-shadow: 0 0 10px #00ffcc66;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
-    <div class='topo'>🚀 ClaraVerse - Sala de Operações Elite 🚀</div>
-    <iframe class='grafico' src='https://www.tradingview.com/embed-widget/mini-symbol-overview/?symbol=BINANCE:BTCUSDT&locale=br' frameborder='0'></iframe>
-    <div class='botoes'>
-        <button onclick='executar()'>🚀 Executar Ordem</button>
-        <button onclick='auto()'>🤖 Ativar Modo Automático</button>
+  <div class="topo">🚀 ClaraVerse - Sala de Operações Elite com ClarinhaBubi 🚀</div>
+  <div class="painel">
+    <iframe src="https://www.tradingview.com/embed-widget/mini-symbol-overview/?symbol=BINANCE:BTCUSDT&locale=br"></iframe>
+    
+    <div class="botoes">
+      <button class="botao" onclick="executarOrdem()">Executar Ordem</button>
+      <button class="botao" onclick="modoAutomatico()">Modo Automático</button>
     </div>
-    <div id='painel' class='painel'>Aguardando ordens...</div>
-<script>
-function executar() {
-    fetch('/executar', {method:'POST'}).then(r=>r.json()).then(data=>{
-        document.getElementById('painel').innerText = data.resultado;
-    });
-}
-function auto() {
-    fetch('/auto', {method:'POST'}).then(r=>r.json()).then(data=>{
-        document.getElementById('painel').innerText = '🤖 Modo automático ativado. A Clarinha está operando...';
-    });
-}
-</script>
+
+    <div id="resultado" class="postit">🔍 Resultados aparecerão aqui após execução.</div>
+  </div>
+
+  <script>
+    function executarOrdem() {
+      fetch("/executar", { method: "POST" })
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById("resultado").innerText = "📈 Resultado: " + data.resultado;
+        });
+    }
+
+    function modoAutomatico() {
+      fetch("/auto", { method: "POST" })
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById("resultado").innerText = "🤖 Modo automático ativado com ClarinhaBubi!";
+        });
+    }
+  </script>
 </body>
 </html>
-"""
+'''
 
+# ==== ROTAS ====
 @app.route("/")
 def index():
-    return render_template_string(html)
+    return render_template_string(html_bunker)
 
 @app.route("/executar", methods=["POST"])
-def executar_ordem():
-    lucro = round(random.uniform(-20, 100), 2)
-    return jsonify({"resultado": f"✅ Ordem executada! Lucro: {lucro} USDT"})
+def executar():
+    lucro = round(random.uniform(-10, 40), 2)
+    return jsonify({"resultado": f"Lucro simulado: {lucro} USDT"})
 
 @app.route("/auto", methods=["POST"])
-def modo_auto():
-    def loop_ia():
-        for i in range(3):
-            time.sleep(3)
-            print("💡 IA executou ordem automática.")
-    threading.Thread(target=loop_ia).start()
-    return jsonify({"resultado": "IA ativada em modo automático."})
+def auto():
+    def rotina_auto():
+        for _ in range(3):
+            time.sleep(2)
+            print("💡 ClarinhaBubi executou ordem automática.")
+    threading.Thread(target=rotina_auto).start()
+    return jsonify({"resultado": "Modo automático ativado."})
 
+# ==== INICIAR ====
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
