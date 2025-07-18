@@ -1,0 +1,9 @@
+flask
+flask-cors
+flask-session
+python-dotenv
+openai
+cryptography
+python-binance
+pandas
+gunicorn
