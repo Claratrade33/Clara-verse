@@ -1,78 +1,91 @@
-from flask import Flask, render_template, request, jsonify
-from binance.client import Client
-from binance.enums import *
-import openai
+# clara_bunker.py
 import os
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify
+from binance.client import Client
+from cryptography.fernet import Fernet
+import openai
 
-# 🔐 Chaves internas blindadas (modo demo com saldo virtual)
-openai.api_key = "sk-proj-..."  # (sua chave real vai aqui)
-binance_api_key = "8Kr_fake_demo_key_PUBLIC"
-binance_secret_key = "Zx12_fake_demo_secret_KEY"
+# ========= SEGURANÇA E CONFIGURAÇÕES =========
+fernet_key = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
+fernet = Fernet(fernet_key)
 
-# ⚙️ Ativar modo testnet (Binance Futures demo)
-client = Client(binance_api_key, binance_secret_key)
-client.API_URL = 'https://testnet.binancefuture.com/fapi'
+# Chaves protegidas (padrão demo)
+api_key_demo = fernet.decrypt(b'gAAAAABmzyEYzvXKsvhRDLi_BiZP3hP_pP8qWFe0NT2MT5x8NNXsk4MrwY1rErjgbG3P-fPVmjQBP3KpH7OJIF7eMI4dPH6c5w==').decode()
+api_secret_demo = fernet.decrypt(b'gAAAAABmzyEZF2AD88qnlL61GJt0Ml2J3WvE2XNpMwYQHrlu0YG0sG3EGFJYxYIlpEQhUVTJQ0Ht_wH0is6TYy6ScenogbCEGA==').decode()
 
-# ⚙️ Flask app
+# OPENAI Key (protegida)
+openai.api_key = fernet.decrypt(b'gAAAAABmzyEZCOKaIu0IVRA6l0FMhwY9u4UlTLF8Br4FJzjVub3HqDLVG-8vMNo1AsbyYzQ44D0P3bRfMROFT9Z7ffptRht4Dg==').decode()
+
+# ========= FLASK APP =========
 app = Flask(__name__)
+app.secret_key = 'ClaraVerseBunkerUltraSecreto'
 
-# 🔮 IA Clarinha - Estratégia simples com decisão via GPT
-def clarinha_analisa(rsi, preco, tendencia):
-    try:
-        resposta = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "Você é Clarinha, uma IA trader espiritual com alta performance."},
-                {"role": "user", "content": f"RSI: {rsi}, Preço: {preco}, Tendência: {tendencia}. O que fazer?"}
-            ]
-        )
-        acao = resposta["choices"][0]["message"]["content"]
-        return f"🤖 Clarinha diz: {acao}"
-    except Exception as e:
-        return f"⚠️ Erro ao consultar Clarinha: {str(e)}"
+# ========= DEMO CLIENT =========
+client = Client(api_key_demo, api_secret_demo, testnet=True)
 
-# 🎯 Executar ordem demo
+# ========= ROTAS =========
+
+@app.route("/")
+def home():
+    return redirect("/login")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        token = request.form["token"].strip().upper()
+        session["token"] = token
+        return redirect("/sala-operacoes")
+    return """
+    <form method='post'>
+        <input name='token' placeholder='Digite seu token'>
+        <button type='submit'>Entrar</button>
+    </form>
+    """
+
+@app.route("/sala-operacoes")
+def sala():
+    token = session.get("token", "")
+    if token not in ["SOMA", "INFINITY", "DESPERTAR", "VEUS", "ORIGEM", "ANJOS"]:
+        return "🔒 Acesso negado."
+    return """
+    <h1>💎 Sala de Operações ClaraVerse</h1>
+    <p>Modo atual: Demo</p>
+    <form method="post" action="/executar">
+        <button type="submit">🚀 Executar Ordem</button>
+    </form>
+    <form method="post" action="/ativar-automatico">
+        <button type="submit">🤖 Ativar Modo Automático</button>
+    </form>
+    """
+
 @app.route("/executar", methods=["POST"])
 def executar_ordem():
-    try:
-        dados = request.json
-        par = dados.get("par", "BTCUSDT")
-        direcao = dados.get("direcao", "BUY")
-        quantidade = float(dados.get("quantidade", 0.001))
+    ordem = client.create_test_order(
+        symbol='BTCUSDT',
+        side='BUY',
+        type='MARKET',
+        quantity=0.001
+    )
+    return "✅ Ordem executada com sucesso! (modo demo)"
 
-        ordem = client.futures_create_order(
-            symbol=par,
-            side=SIDE_BUY if direcao == "BUY" else SIDE_SELL,
-            type=ORDER_TYPE_MARKET,
-            quantity=quantidade
-        )
+@app.route("/ativar-automatico", methods=["POST"])
+def ativar_auto():
+    token = session.get("token", "")
+    if token not in ["SOMA", "INFINITY", "DESPERTAR"]:
+        return "⚠️ Token não tem permissão para IA automática."
+    
+    # Simulação de decisão da IA
+    resposta = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "Você é a IA ClarinhaBubi, uma estrategista de ordens da Binance."},
+            {"role": "user", "content": "Qual decisão devo tomar agora no mercado BTCUSDT em modo demo com 10.000 USDT?"}
+        ]
+    )
+    analise = resposta["choices"][0]["message"]["content"]
+    return f"<pre>{analise}</pre>"
 
-        return jsonify({
-            "status": "sucesso",
-            "preco_entrada": ordem["fills"][0]["price"] if "fills" in ordem else "n/a",
-            "ordem_id": ordem["orderId"],
-            "msg": "Ordem executada com sucesso."
-        })
-    except Exception as e:
-        return jsonify({"status": "erro", "erro": str(e)})
-
-# 📈 Página principal (gráfico, IA e botões)
-@app.route("/")
-def sala_operacoes():
-    return render_template("sala_operacoes.html")
-
-# 🧠 Rota IA Clarinha
-@app.route("/consultar-clarinha", methods=["POST"])
-def consultar_clarinha():
-    dados = request.json
-    rsi = dados.get("rsi")
-    preco = dados.get("preco")
-    tendencia = dados.get("tendencia")
-    resposta = clarinha_analisa(rsi, preco, tendencia)
-    return jsonify({"resposta": resposta})
-
-# 🌱 Rodando
+# ========= INÍCIO =========
 if __name__ == "__main__":
     app.run(debug=True)
-
-application = app  # render.com
+application = app
