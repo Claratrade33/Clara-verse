@@ -1,154 +1,117 @@
-from flask import Flask, render_template_string, request, redirect
-import random
+from flask import Flask, render_template, request, redirect, url_for, session, render_template_string
+from flask_cors import CORS
+import os
+from dotenv import load_dotenv
+import openai
+from binance.client import Client
 
+# ====== CONFIGURAÇÕES ======
+load_dotenv()
 app = Flask(__name__)
+CORS(app)
 
-TOKEN_COMANDANTE = "54E01460FC8BB0AB22FF3DE7"
-CADERNO_MISTICO = {
-    "Linha 01": "K", "Linha 02": "Y", "Linha 03": "Q", "Linha 04": "L",
-    "Linha 05": "R", "Linha 06": "X", "Linha 07": "F", "Linha 08": "E",
-    "Linha 09": "M", "Linha 10": "U", "Linha 11": "O", "Linha 12": "G",
-    "Linha 13": "Y", "Linha 14": "W", "Linha 15": "5", "Linha 16": "Y"
-}
-LINHAS_REQUERIDAS = random.sample(list(CADERNO_MISTICO.keys()), 3)
+app.secret_key = os.getenv("SECRET_KEY", "segredo_padrao")
+openai.api_key = os.getenv("OPENAI")
 
-fachada_template = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ClaraVerse | Entrada</title>
-    <style>
-        body {
-            margin: 0;
-            background: #000;
-            color: #00ffcc;
-            font-family: monospace;
-            overflow: hidden;
-        }
-        iframe {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            filter: blur(1px) brightness(0.7);
-            pointer-events: none;
-            border: none;
-        }
-        .painel {
-            position: absolute;
-            top: 15%;
-            left: 5%;
-            background: rgba(0,0,0,0.5);
-            padding: 30px;
-            border-radius: 10px;
-            border: 1px solid #00ffcc99;
-            box-shadow: 0 0 15px #00ffcc88;
-            z-index: 10;
-        }
-        .botao {
-            margin-top: 20px;
-            background: #00ffcc;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <iframe src="https://www.tradingview.com/embed-widget/mini-symbol-overview/?symbol=BINANCE:BTCUSDT&locale=br"></iframe>
-    <div class="painel">
-        <h2>🌌 ClaraVerse</h2>
-        <p>Corretora de elite guiada pela IA Clarinha.</p>
-        <form method="get" action="/verificar">
-            <button class="botao">🔓 Entrar com Token</button>
-        </form>
-    </div>
-</body>
-</html>
-"""
+# Binance modo testnet (demo)
+api_key = os.getenv("Bia")
+api_secret = os.getenv("Bia1")
+client = Client(api_key, api_secret)
+client.API_URL = 'https://testnet.binancefuture.com/fapi'
 
-verificacao_template = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Verificação</title>
-    <style>
-        body { background-color: #0e0e0e; color: #fff; font-family: monospace; padding: 40px; }
-        input[type=text], input[type=submit] {
-            background-color: #111; border: 1px solid #00ffcc; color: #fff;
-            padding: 10px; margin: 10px;
-        }
-        .bloco {
-            background: #1a1a1a;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 20px #00ffcc88;
-        }
-    </style>
-</head>
-<body>
-    <div class="bloco">
-        <h2>Entrada Mística</h2>
-        <p>Digite as letras do seu Caderno Místico:</p>
-        <form method="post">
-            {% for linha in linhas %}
-                {{ linha }}: <input type="text" name="{{ linha }}" maxlength="1"><br>
-            {% endfor %}
-            <input type="submit" value="Entrar">
-        </form>
-        {% if erro %}
-            <p style="color:red;">{{ erro }}</p>
-        {% endif %}
-    </div>
-</body>
-</html>
-"""
+# Tokens permitidos
+TOKENS_PERMITIDOS = ["ORIGEM", "VEUS", "DESPERTAR", "INFINITY", "SOMA", "ANJOS"]
+LINHAS_REQUERIDAS = 8
 
-sala_template = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sala do Comandante</title>
-    <style>
-        body { background-color: #000; color: #0f0; font-family: monospace; padding: 40px; }
-        .painel {
-            background: #111;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 12px #00ffcc55;
-        }
-    </style>
-</head>
-<body>
-    <div class="painel">
-        <h1>👨‍🚀 Bem-vindo, Comandante!</h1>
-        <p>IA <strong>Clarinha</strong> conectada e aguardando ordens.</p>
-        <p>Token verificado. Sistema 100% operacional.</p>
-        <p>🔐 Frase-Chave: <em>A Luz que rompe o Véu</em></p>
-    </div>
-</body>
-</html>
-"""
+# Saldo demo inicial
+saldo_demo = {"USDT": 10000}
 
-@app.route("/")
-def fachada():
-    return render_template_string(fachada_template)
+# ========= ROTAS =========
 
-@app.route("/verificar", methods=["GET", "POST"])
-def verificar():
+@app.route("/", methods=["GET", "POST"])
+def index():
+    login_template = """
+    <html><head><title>ClaraVerse</title><style>
+    body { background-color: black; color: lime; font-family: monospace; text-align: center; padding-top: 100px; }
+    input { background: black; color: lime; border: 1px solid lime; padding: 10px; font-size: 18px; }
+    </style></head><body>
+    <h2>🔐 Acesso ClaraVerse</h2>
+    <form method="POST">
+        <input type="text" name="token" placeholder="Digite seu token de acesso">
+        <br><br>
+        <input type="submit" value="Entrar">
+    </form>
+    {% if erro %}<p style="color:red;">{{ erro }}</p>{% endif %}
+    </body></html>
+    """
     if request.method == "POST":
-        for linha in LINHAS_REQUERIDAS:
-            letra = request.form.get(linha, "").upper()
-            if letra != CADERNO_MISTICO[linha]:
-                return render_template_string(verificacao_template, linhas=LINHAS_REQUERIDAS, erro="Letra incorreta!")
-        return redirect("/sala")
-    return render_template_string(verificacao_template, linhas=LINHAS_REQUERIDAS, erro=None)
+        token = request.form.get("token", "").strip().upper()
+        if token in TOKENS_PERMITIDOS:
+            session["token"] = token
+            return redirect("/sala-operacoes")
+        else:
+            return render_template_string(login_template, linhas=LINHAS_REQUERIDAS, erro="Token inválido.")
+    return render_template_string(login_template, linhas=LINHAS_REQUERIDAS, erro=None)
 
-@app.route("/sala")
-def sala():
-    return render_template_string(sala_template)
+@app.route("/sala-operacoes")
+def sala_operacoes():
+    if "token" not in session:
+        return redirect("/")
+    return render_template("sala_operacoes.html", saldo=saldo_demo)
 
-# Compatível com gunicorn no Render
-application = app
+@app.route("/configuracoes", methods=["GET", "POST"])
+def configuracoes():
+    if "token" not in session or session["token"] != "SOMA":
+        return redirect("/")
+    if request.method == "POST":
+        session["modo"] = request.form.get("modo")
+        session["meta"] = request.form.get("meta")
+        session["api"] = request.form.get("api")
+        session["secret"] = request.form.get("secret")
+        return redirect("/sala-operacoes")
+    return render_template("painel_configuracoes.html")
+
+@app.route("/executar-ordem", methods=["POST"])
+def executar_ordem():
+    par = request.form.get("par", "BTCUSDT")
+    direcao = request.form.get("direcao", "buy")
+    quantidade = float(request.form.get("quantidade", 10.0))
+
+    preco_entrada = float(client.futures_mark_price(symbol=par)["markPrice"])
+    lucro = round(quantidade * 0.02, 2)
+    resultado = {
+        "par": par,
+        "direcao": direcao,
+        "quantidade": quantidade,
+        "preco": preco_entrada,
+        "lucro": lucro,
+        "roi": f"{round((lucro/quantidade)*100, 2)}%",
+        "status": "executada"
+    }
+    return resultado
+
+@app.route("/ativar-automatico", methods=["POST"])
+def ativar_automatico():
+    par = "BTCUSDT"
+    preco = float(client.futures_mark_price(symbol=par)["markPrice"])
+    tendencia = "alta" if float(preco) % 2 == 0 else "baixa"
+    rsi = 50
+
+    prompt = f"""
+Você é a Clarinha, uma IA estratégica para operações na Binance.
+Com base na tendência {tendencia}, RSI {rsi} e preço atual {preco}, diga se devo comprar ou vender e qual estratégia aplicar.
+Responda de forma direta e clara.
+"""
+    resposta = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    acao = resposta.choices[0].message["content"].strip()
+    return {"resposta": acao}
+
+# ========= INICIAR =========
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
+
+application = app  # Render compatível
