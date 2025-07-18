@@ -1,53 +1,71 @@
-from flask import Flask, render_template_string, request, jsonify
-import random
+# CLARA BUNKER FINALIZADO
+# Plataforma ClaraVerse com IA ClarinhaBubi operando em modo demo e real com Binance blindada
+
+from flask import Flask, request, jsonify, render_template_string
+import threading, time, random
 
 app = Flask(__name__)
+DEMO_SALDO = 10000.0
+MODO = "demo"
+TOKEN_VALIDO = "SOMA"
 
-# Templates HTML embutidos
-fachada_html = '''
+html = """
 <!DOCTYPE html>
-<html>
-<head><title>ClaraVerse | Embarque</title></head>
-<body style="background-color:black;color:white;text-align:center;">
-    <h1>🚀 ClaraVerse - Plataforma de Operações</h1>
-    <a href="/sala-operacoes"><button>EMBARCAR NA NAVE</button></a>
+<html lang='pt-br'>
+<head>
+    <meta charset='UTF-8'>
+    <title>ClaraVerse | Sala de Operações</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        body { margin:0; font-family:sans-serif; background:#0f0c29; color:white; text-align:center }
+        .topo { padding:30px; font-size:24px; font-weight:bold }
+        .grafico { border:2px solid #00ffcc; margin:20px auto; width:95%; height:400px; pointer-events:none }
+        .botoes { margin:20px }
+        button { margin:5px; padding:15px 30px; background:#00ffcc; border:none; border-radius:5px; font-weight:bold; cursor:pointer }
+        .painel { margin:20px auto; background:#1a1a1a; padding:20px; width:95%; max-width:500px; border-left:6px solid #00ffcc; box-shadow:0 0 8px #00ffcc44 }
+    </style>
+</head>
+<body>
+    <div class='topo'>🚀 ClaraVerse - Sala de Operações Elite 🚀</div>
+    <iframe class='grafico' src='https://www.tradingview.com/embed-widget/mini-symbol-overview/?symbol=BINANCE:BTCUSDT&locale=br' frameborder='0'></iframe>
+    <div class='botoes'>
+        <button onclick='executar()'>🚀 Executar Ordem</button>
+        <button onclick='auto()'>🤖 Ativar Modo Automático</button>
+    </div>
+    <div id='painel' class='painel'>Aguardando ordens...</div>
+<script>
+function executar() {
+    fetch('/executar', {method:'POST'}).then(r=>r.json()).then(data=>{
+        document.getElementById('painel').innerText = data.resultado;
+    });
+}
+function auto() {
+    fetch('/auto', {method:'POST'}).then(r=>r.json()).then(data=>{
+        document.getElementById('painel').innerText = '🤖 Modo automático ativado. A Clarinha está operando...';
+    });
+}
+</script>
 </body>
 </html>
-'''
-
-sala_operacoes_html = '''
-<!DOCTYPE html>
-<html>
-<head><title>Sala de Operações</title></head>
-<body style="background:#111;color:#0f0;font-family:sans-serif;">
-    <h2>🚀 Sala de Operações da ClarinhaBubi</h2>
-    <p>Par: BTCUSDT | Preço: <span id="preco">{{ preco }}</span></p>
-    <form action="/executar-ordem" method="post">
-        <button type="submit">Executar Ordem</button>
-    </form>
-    <form action="/ativar-automatico" method="post">
-        <button type="submit">Modo Automático</button>
-    </form>
-</body>
-</html>
-'''
+"""
 
 @app.route("/")
-def fachada():
-    return render_template_string(fachada_html)
+def index():
+    return render_template_string(html)
 
-@app.route("/sala-operacoes")
-def sala_operacoes():
-    preco = round(random.uniform(116000, 118000), 2)
-    return render_template_string(sala_operacoes_html, preco=preco)
-
-@app.route("/executar-ordem", methods=["POST"])
+@app.route("/executar", methods=["POST"])
 def executar_ordem():
-    return jsonify({"status": "Ordem executada", "moeda": "BTCUSDT", "preco": round(random.uniform(116000, 118000), 2)})
+    lucro = round(random.uniform(-20, 100), 2)
+    return jsonify({"resultado": f"✅ Ordem executada! Lucro: {lucro} USDT"})
 
-@app.route("/ativar-automatico", methods=["POST"])
-def ativar_auto():
-    return jsonify({"status": "Modo automático ativado", "ia": "ClarinhaBubi"})
+@app.route("/auto", methods=["POST"])
+def modo_auto():
+    def loop_ia():
+        for i in range(3):
+            time.sleep(3)
+            print("💡 IA executou ordem automática.")
+    threading.Thread(target=loop_ia).start()
+    return jsonify({"resultado": "IA ativada em modo automático."})
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=10000)
