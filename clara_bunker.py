@@ -1,19 +1,58 @@
 # CLARA BUNKER UNIFICADO
 # Plataforma ClaraVerse com IA ClarinhaBubi operando em modo demo/real com Binance
 
-from flask import Flask, render_template_string, request, jsonify
+from flask import Flask, render_template_string, request, jsonify, redirect, url_for
 import threading
 import time
 import random
 
-# ====== CONFIGURAÇÕES INICIAIS ======
 app = Flask(__name__)
 DEMO_SALDO = 10000.0
 MODO = "demo"
 TOKEN_VALIDO = "SOMA"
+ULTIMO_RESULTADO = "🔍 Resultados aparecerão aqui após execução."
 
-# ====== INTERFACE FUTURISTA HTML ======
-html_base = '''
+# ====== HTML FACHADA ======
+html_fachada = '''
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>ClaraVerse - Embarque</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+            color: white; text-align: center;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 50px;
+        }
+        input, button {
+            padding: 14px; font-size: 16px; margin-top: 15px;
+            border-radius: 8px; border: none;
+        }
+        input {
+            width: 240px;
+        }
+        button {
+            background: #00ffcc; color: black; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Bem-vindo à ClaraVerse</h1>
+    <p>Insira seu token de acesso para embarcar:</p>
+    <form method="POST">
+        <input type="text" name="token" placeholder="Digite o token">
+        <br>
+        <button type="submit">EMBARCAR NA NAVE</button>
+    </form>
+</body>
+</html>
+'''
+
+# ====== HTML SALA DE OPERAÇÕES ======
+html_sala = '''
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -39,7 +78,7 @@ html_base = '''
         <button class="botao" onclick="executarOrdem()">Executar Ordem</button>
         <button class="botao" onclick="modoAutomatico()">Modo Automático</button>
     </div>
-    <div id="resultado" class="postit">🔍 Resultados aparecerão aqui após execução.</div>
+    <div id="resultado" class="postit">{{resultado}}</div>
 <script>
 function executarOrdem() {
     fetch("/executar", {method: "POST"})
@@ -52,7 +91,7 @@ function modoAutomatico() {
     fetch("/auto", {method: "POST"})
     .then(r => r.json())
     .then(data => {
-        document.getElementById("resultado").innerText = "🤖 Modo automático iniciado!";
+        document.getElementById("resultado").innerText = "🤖 " + data.resultado;
     });
 }
 </script>
@@ -61,21 +100,34 @@ function modoAutomatico() {
 '''
 
 # ====== ROTAS ======
-@app.route("/")
-def index():
-    return render_template_string(html_base)
+
+@app.route("/", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        token = request.form.get("token", "").strip().upper()
+        if token == TOKEN_VALIDO:
+            return redirect(url_for("sala_operacoes"))
+    return render_template_string(html_fachada)
+
+@app.route("/sala")
+def sala_operacoes():
+    return render_template_string(html_sala, resultado=ULTIMO_RESULTADO)
 
 @app.route("/executar", methods=["POST"])
 def executar():
+    global ULTIMO_RESULTADO
     lucro = round(random.uniform(-15, 75), 2)
-    return jsonify({"resultado": f"Lucro obtido: {lucro} USDT"})
+    ULTIMO_RESULTADO = f"Lucro obtido: {lucro} USDT"
+    return jsonify({"resultado": ULTIMO_RESULTADO})
 
 @app.route("/auto", methods=["POST"])
 def auto():
     def rotina_auto():
+        global ULTIMO_RESULTADO
         for _ in range(3):
-            time.sleep(3)
-            print("IA executou ordem automática.")
+            time.sleep(2)
+            roi = round(random.uniform(-5, 7), 2)
+            ULTIMO_RESULTADO = f"IA executou com ROI de {roi}%"
     threading.Thread(target=rotina_auto).start()
     return jsonify({"resultado": "Modo automático ativado."})
 
