@@ -2,36 +2,30 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel de Configurações</title>
-    <style>
-        body {
-            background-color: #000;
-            color: #0f0;
-            font-family: monospace;
-            text-align: center;
-            padding: 40px;
-        }
-        input, select, button {
-            background-color: black;
-            color: lime;
-            border: 1px solid lime;
-            padding: 10px;
-            margin: 10px;
-            font-size: 16px;
-        }
-    </style>
+    <title>Configurações da IA</title>
 </head>
 <body>
-    <h2>🧬 Painel de Configurações</h2>
-    <form method="POST">
-        <input type="text" name="api" placeholder="API Key da Binance"><br>
-        <input type="text" name="secret" placeholder="Secret Key da Binance"><br>
-        <input type="number" name="meta" placeholder="Meta de Lucro Diário (USDT)"><br>
+    <h2>Configurações da ClarinhaBubi</h2>
+    <form action="/salvar-configuracoes" method="post">
+        <label>Token de Acesso:</label><br>
+        <input type="text" name="token"><br><br>
+
+        <label>Binance API Key:</label><br>
+        <input type="text" name="api_key"><br><br>
+
+        <label>Binance Secret Key:</label><br>
+        <input type="text" name="secret_key"><br><br>
+
+        <label>Meta de Lucro Diário (USDT):</label><br>
+        <input type="number" name="meta"><br><br>
+
+        <label>Modo da IA:</label><br>
         <select name="modo">
-            <option value="manual">Modo Manual</option>
-            <option value="automatico">Modo Automático</option>
-        </select><br>
-        <button type="submit">💾 Salvar Configurações</button>
+            <option value="automatico">Automático</option>
+            <option value="manual">Manual</option>
+        </select><br><br>
+
+        <button type="submit">Salvar Configurações</button>
     </form>
 </body>
 </html>
