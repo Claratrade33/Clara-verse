@@ -1,31 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Configurações da IA</title>
+  <meta charset="UTF-8">
+  <title>Painel de Configurações | ClaraVerse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body>
-    <h2>Configurações da ClarinhaBubi</h2>
-    <form action="/salvar-configuracoes" method="post">
-        <label>Token de Acesso:</label><br>
-        <input type="text" name="token"><br><br>
+<body style="background-color: #111; color: #fff; font-family: sans-serif; padding: 30px;">
+  <h1>⚙️ Painel de Configuração</h1>
+  <form action="/salvar-configuracoes" method="post">
+    <label>Token de Acesso:</label><br>
+    <input type="text" name="token" value="{{ token }}" style="width: 100%;"><br><br>
 
-        <label>Binance API Key:</label><br>
-        <input type="text" name="api_key"><br><br>
+    <label>🔑 API Key da Binance:</label><br>
+    <input type="text" name="binance_api" value="{{ binance_api }}" style="width: 100%;"><br><br>
 
-        <label>Binance Secret Key:</label><br>
-        <input type="text" name="secret_key"><br><br>
+    <label>🔒 Secret Key da Binance:</label><br>
+    <input type="text" name="binance_secret" value="{{ binance_secret }}" style="width: 100%;"><br><br>
 
-        <label>Meta de Lucro Diário (USDT):</label><br>
-        <input type="number" name="meta"><br><br>
+    <label>🎯 Meta de Lucro Diário (%):</label><br>
+    <input type="text" name="meta" value="{{ meta }}" style="width: 100%;"><br><br>
 
-        <label>Modo da IA:</label><br>
-        <select name="modo">
-            <option value="automatico">Automático</option>
-            <option value="manual">Manual</option>
-        </select><br><br>
+    <label>🧠 Modo da IA:</label><br>
+    <select name="modo" style="width: 100%;">
+      <option value="manual" {% if modo == 'manual' %}selected{% endif %}>Manual</option>
+      <option value="automatico" {% if modo == 'automatico' %}selected{% endif %}>Automático</option>
+    </select><br><br>
 
-        <button type="submit">Salvar Configurações</button>
-    </form>
+    <button type="submit" style="padding: 10px 20px;">💾 Salvar Configurações</button>
+  </form>
 </body>
 </html>
