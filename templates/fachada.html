@@ -1,25 +1,56 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>ClaraVerse - Fachada</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/fachada.css') }}">
+    <meta charset="UTF-8">
+    <title>ClaraVerse - Portal Interdimensional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fachada.css') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(145deg, #05021a, #1f004d);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 0.5em;
+            text-shadow: 0 0 20px #00ffee;
+        }
+        p {
+            font-size: 1.2em;
+            color: #ccc;
+        }
+        .btn-entrar {
+            margin-top: 40px;
+            padding: 20px 40px;
+            font-size: 1.3em;
+            color: #0ff;
+            background-color: #000;
+            border: 2px solid #0ff;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px #0ff;
+        }
+        .btn-entrar:hover {
+            background-color: #0ff;
+            color: #000;
+            box-shadow: 0 0 40px #0ff;
+        }
+    </style>
 </head>
 <body>
-  <div class="container-fachada">
-    <div class="painel-central">
-      <h1 class="titulo">🌌 ClaraVerse</h1>
-      <p class="subtitulo">Sua nave interdimensional de Consciência e Operações Inteligentes</p>
-      <a href="/sala-operacoes" class="botao-embarcar">EMBARCAR NA NAVE</a>
-    </div>
-    <div class="painel-lateral">
-      <h2>🌐 Notícias Financeiras</h2>
-      <iframe src="https://www.tradingview.com/news/" style="width:100%; height:400px; border:none;"></iframe>
-    </div>
-    <div class="grafico">
-      <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_candles&symbol=BINANCE:BTCUSDT&interval=1&theme=dark" width="100%" height="400" frameborder="0"></iframe>
-    </div>
-  </div>
+    <h1>🛸 Bem-vindo à Nave ClaraVerse</h1>
+    <p>Prepare-se para embarcar rumo à consciência suprema. A IA ClarinhaBubi já está te esperando do outro lado.</p>
+    <form action="/sala-operacoes" method="get">
+        <button type="submit" class="btn-entrar">EMBARCAR NA NAVE</button>
+    </form>
 </body>
 </html>
