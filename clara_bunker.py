@@ -73,7 +73,7 @@ def ativar_auto():
     token = session.get("token", "")
     if token not in ["SOMA", "INFINITY", "DESPERTAR"]:
         return "⚠️ Token não tem permissão para IA automática."
-    
+
     # Simulação de decisão da IA
     resposta = openai.ChatCompletion.create(
         model="gpt-4",
