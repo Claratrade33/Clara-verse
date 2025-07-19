@@ -1,105 +1,75 @@
 import os
-from flask import Flask, render_template_string, request, jsonify
-from cryptography.fernet import Fernet
+from flask import Flask, request, jsonify, render_template_string
 from binance.client import Client
 from openai import OpenAI
+from cryptography.fernet import Fernet
 
-# ======================= CHAVE DE CRIPTOGRAFIA ===========================
-FERNET_KEY = "0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA="
+# CHAVE FERNET
+FERNET_KEY = "ylh-urjGFbF60dGJcGjEWY5SKGbhui-8SUItRz7YMZk="
 fernet = Fernet(FERNET_KEY.encode())
 
-# =================== FUNÇÃO DE MODO LOCAL: GERAR .env ====================
-def gerar_variaveis_criptografadas():
-    print("\n🔐 Modo de criptografia interativa ativado.\n")
-    openai_key = input("Digite sua chave OPENAI: ")
-    binance_key = input("Digite sua API KEY Binance: ")
-    binance_secret = input("Digite sua SECRET Binance: ")
+# CHAVES CRIPTOGRAFADAS
+API_KEY = fernet.decrypt(b"gAAAAABoe_tmC3u_LkLDxTnp5p-7wgMiHVcKvJIOgEQFfBTWjRx5CC2Ts3Z1PPx-vEA1ChEFZMxi1THdulmp8WK8wCJzBmS8vHAWEU4pooCBt8tVrlf0NkfOur-pEtjpjZt6NSpPUbhFvIqjtwNDnQAtMQL_mPfM8Dype0oShNoTkcMnECOsmF0=").decode()
+API_SECRET = fernet.decrypt(b"gAAAAABoe_tmrN2tKPQsPVYlnxp-wKItqZNirJXN_9eKHhle-_z_eud6i1pGpdG-ZRsDf_g26q2jlRixSXv8h_ZwOv5p4lu3AshCRbHXRpPvcHJ8LaoqGOP2ZQNH4h-8WUdPOSlEXYz2NXJHOlYMigWiyZO8d2w0NYlQa0N2Vv-CpDMOXuIXcN8=").decode()
+OPENAI_KEY = fernet.decrypt(b"gAAAAABoe_xqx7jAACfbXHrmoFSrEU_x2uJbVsrYNvjpn-IWOD02jHr6pAtSznZZkFd0cE50OcdsFukYMR441vQgThN8UaoeQXvbD76jS3wJkvlcGJcwfbwWOi2dEd9MgZuEULE92B9UYLFVzgKzP3ZJ-IRmsF_ppg==").decode()
 
-    encrypted_openai = fernet.encrypt(openai_key.encode()).decode()
-    encrypted_binance_key = fernet.encrypt(binance_key.encode()).decode()
-    encrypted_binance_secret = fernet.encrypt(binance_secret.encode()).decode()
-
-    print("\n📋 Cole essas variáveis no Render (.env):\n")
-    print(f"OPEN={encrypted_openai}")
-    print(f"Bia={encrypted_binance_key}")
-    print(f"Bia1={encrypted_binance_secret}")
-    exit()
-
-# =========== DETECTA SE ESTÁ LOCAL (SEM VARIÁVEIS SETADAS) ==============
-if not os.getenv("Bia") or not os.getenv("Bia1") or not os.getenv("OPEN"):
-    gerar_variaveis_criptografadas()
-
-# ======================== DESCRIPTOGRAFIA DAS CHAVES =====================
-try:
-    API_KEY = fernet.decrypt(os.getenv("Bia").encode()).decode()
-    API_SECRET = fernet.decrypt(os.getenv("Bia1").encode()).decode()
-    OPENAI_KEY = fernet.decrypt(os.getenv("OPEN").encode()).decode()
-except Exception as e:
-    raise Exception(f"❌ Erro ao descriptografar as chaves: {str(e)}")
-
-# =========================== INICIALIZAÇÕES ==============================
-app = Flask(__name__)
+# CLIENTES
 binance = Client(API_KEY, API_SECRET)
-client_openai = OpenAI(api_key=OPENAI_KEY)
+openai = OpenAI(api_key=OPENAI_KEY)
+app = Flask(__name__)
 
-# ============================= INTERFACE =================================
-html = '''
+# HTML EMBUTIDO
+html = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ClaraVerse - Sala de Operações</title>
-    <style>
-        body { background-color: #000; color: #0f0; font-family: monospace; text-align: center; }
-        button { margin: 10px; padding: 20px; font-size: 18px; background: #111; color: #0f0; border: 1px solid #0f0; }
-    </style>
+  <title>Clara Bunker</title>
+  <script src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body>
-    <h1>💹 ClaraVerse - Sala de Operações 💻</h1>
-    <button onclick="acionar('entrada')">ENTRADA</button>
-    <button onclick="acionar('stop')">STOP</button>
-    <button onclick="acionar('alvo')">ALVO</button>
-    <button onclick="acionar('configurar')">CONFIGURAR</button>
-    <button onclick="acionar('automatico')">AUTOMÁTICO</button>
-    <pre id="resposta"></pre>
-    <script>
-        async function acionar(botao) {
-            const res = await fetch('/botao', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ acao: botao })
-            });
-            const data = await res.json();
-            document.getElementById('resposta').innerText = JSON.stringify(data, null, 2);
-        }
-    </script>
+  <h1>≡ƒæü∩╕Å Clara Bunker - Opera├º├╡es Automatizadas</h1>
+  <div id="tv_chart_container"></div>
+  <script>
+    new TradingView.widget({
+      "container_id": "tv_chart_container",
+      "width": "100%",
+      "height": 400,
+      "symbol": "BINANCE:BTCUSDT",
+      "interval": "5",
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": "#f1f3f6",
+      "enable_publishing": false,
+      "hide_side_toolbar": false,
+      "allow_symbol_change": true,
+      "studies": []
+    });
+  </script>
+  <form method="post" action="/auto">
+    <button type="submit">AUTOM├üTICO ≡ƒñû</button>
+  </form>
 </body>
 </html>
-'''
+"""
 
-# ============================ ROTAS FLASK ================================
-@app.route('/')
-def index():
+@app.route("/", methods=["GET"])
+def home():
     return render_template_string(html)
 
-@app.route('/botao', methods=['POST'])
-def botao():
-    acao = request.json.get('acao')
-    if acao == "entrada":
-        return jsonify({"status": "executando ENTRADA", "acao": acao})
-    elif acao == "stop":
-        return jsonify({"status": "executando STOP", "acao": acao})
-    elif acao == "alvo":
-        return jsonify({"status": "executando ALVO", "acao": acao})
-    elif acao == "configurar":
-        return jsonify({"config": {
-            "par": "BTC/USDT",
-            "modelo": "GPT-4o",
-            "modo": "manual"
-        }})
-    elif acao == "automatico":
-        return jsonify({"status": "modo AUTOMÁTICO ativado"})
-    else:
-        return jsonify({"erro": "ação inválida"})
+@app.route("/auto", methods=["POST"])
+def auto_trade():
+    msg = "Clara, analise os pares BTC/USDT, SUI/USDT e PEPE/USDT e diga: entrada, alvo, stop e confian├ºa."
+    response = openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": msg}]
+    )
+    result = response.choices[0].message.content
 
-# ========================= PARA GUNICORN NO RENDER =======================
-application = app
+    # Aqui voc├¬ pode adicionar l├│gica para enviar ordens reais para Binance com base no resultado.
+    print("GPT respondeu:", result)
+    return f"<h2>≡ƒôê Resultado da Clara:</h2><pre>{result}</pre><a href='/'>Voltar</a>"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=7860)
