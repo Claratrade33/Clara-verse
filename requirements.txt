@@ -4,3 +4,4 @@ binance
 cryptography
 gunicorn
 requests
+aiohttp
