@@ -5,61 +5,49 @@ from binance.client import Client
 from fpdf import FPDF
 from cryptography.fernet import Fernet
 
-# Chave Fernet protegida
+# Proteção total
 FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
 fernet = Fernet(FERNET_KEY)
 
-# Chaves criptografadas via ambiente ou fallback
+# Chaves seguras
 API_KEY = os.getenv("Bia") or "CHAVE_BINANCE_CRIPTOGRAFADA"
 SECRET_KEY = os.getenv("Bia1") or "SEGREDO_BINANCE_CRIPTOGRAFADO"
 OPENAI_KEY = os.getenv("OPENAI") or "CHAVE_OPENAI"
 
-# Descriptografar se necessário
 try:
     API_KEY = fernet.decrypt(API_KEY.encode()).decode()
     SECRET_KEY = fernet.decrypt(SECRET_KEY.encode()).decode()
 except:
     pass
 
-# Setar API
 openai.api_key = OPENAI_KEY
 client = Client(API_KEY, SECRET_KEY, testnet=True)
 
 app = Flask(__name__)
 
-# HTML embarcado
 html_template = """
 <!DOCTYPE html>
 <html>
 <head>
     <title>ClaraVerse | Sala de Operações</title>
     <style>
-        body { background-color: #000; color: #fff; font-family: Arial; }
-        .painel { text-align: center; margin-top: 50px; }
+        body { background: #000; color: #00ffcc; font-family: Arial, sans-serif; text-align: center; padding: 30px; }
+        h1 { margin-bottom: 20px; }
         button {
-            padding: 15px 25px;
-            margin: 10px;
-            background: #00ffcc;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            box-shadow: 0 0 10px #00ffcc66;
+            background: #00ffcc; border: none; padding: 15px 30px; margin: 10px;
+            border-radius: 10px; font-size: 18px; cursor: pointer; box-shadow: 0 0 15px #00ffcc66;
         }
-        iframe { border: none; width: 100%; height: 400px; margin-top: 30px; }
+        iframe { margin-top: 40px; width: 100%; height: 450px; border: none; }
     </style>
 </head>
 <body>
-    <div class="painel">
-        <h1>ClaraVerse - IA ClarinhaBubi</h1>
-        <button onclick="fetch('/executar').then(r=>r.json()).then(d=>alert(d.status))">ENTRADA</button>
-        <button onclick="fetch('/stop').then(r=>r.json()).then(d=>alert(d.status))">STOP</button>
-        <button onclick="fetch('/alvo').then(r=>r.json()).then(d=>alert(d.status))">ALVO</button>
-        <button onclick="fetch('/configurar').then(r=>r.json()).then(d=>alert(d.status))">CONFIGURAR</button>
-        <button onclick="fetch('/automatico').then(r=>r.json()).then(d=>alert(d.status))">AUTOMÁTICO</button>
-        <button onclick="fetch('/relatorio').then(r=>r.json()).then(d=>alert(d.status))">RELATÓRIO</button>
-        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=15&theme=dark" allowfullscreen></iframe>
-    </div>
+    <h1>🧠 ClarinhaBubi Operacional</h1>
+    <button onclick="fetch('/executar').then(r=>r.json()).then(d=>alert(d.status))">ENTRADA</button>
+    <button onclick="fetch('/stop').then(r=>r.json()).then(d=>alert(d.status))">STOP</button>
+    <button onclick="fetch('/alvo').then(r=>r.json()).then(d=>alert(d.status))">ALVO</button>
+    <button onclick="fetch('/configurar').then(r=>r.json()).then(d=>alert(d.status))">CONFIGURAR</button>
+    <button onclick="fetch('/automatico').then(r=>r.json()).then(d=>alert(d.status))">AUTOMÁTICO</button>
+    <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=15&theme=dark" allowfullscreen></iframe>
 </body>
 </html>
 """
@@ -71,12 +59,7 @@ def index():
 @app.route('/executar')
 def executar():
     try:
-        ordem = client.futures_create_order(
-            symbol="BTCUSDT",
-            side="BUY",
-            type="MARKET",
-            quantity=0.001
-        )
+        ordem = client.futures_create_order(symbol="BTCUSDT", side="BUY", type="MARKET", quantity=0.001)
         return jsonify({"status": "✅ Ordem de ENTRADA executada com sucesso!"})
     except Exception as e:
         return jsonify({"status": f"❌ Erro na execução: {str(e)}"})
@@ -99,12 +82,12 @@ def automatico():
         resposta = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "Você é ClarinhaBubi, uma IA espiritual que opera na Binance com sabedoria cósmica."},
-                {"role": "user", "content": "Qual a melhor decisão agora para BTC/USDT?"}
+                {"role": "system", "content": "Você é ClarinhaBubi, IA espiritual que decide operações na Binance com sabedoria."},
+                {"role": "user", "content": "Qual melhor ação agora para o par BTC/USDT?"}
             ]
         )
         decisao = resposta.choices[0].message.content
-        return jsonify({"status": f"🤖 Modo automático ativado: {decisao}"})
+        return jsonify({"status": f"🤖 Clarinha ativou automático: {decisao}"})
     except Exception as e:
         return jsonify({"status": f"❌ Erro com Clarinha: {str(e)}"})
 
@@ -121,8 +104,4 @@ def relatorio():
     except Exception as e:
         return jsonify({"status": f"❌ Erro ao gerar relatório: {str(e)}"})
 
-# Executável pelo Render
-application = app
-
-if __name__ == '__main__':
-    app.run(debug=True)
+application = app  # Necessário para Render
