@@ -1,5 +1,3 @@
-# clara_bunker.py
-
 from flask import Flask, render_template_string, request, jsonify
 import os, requests
 import openai
@@ -7,14 +5,16 @@ from binance.client import Client
 from fpdf import FPDF
 from cryptography.fernet import Fernet
 
-# Chaves protegidas (Render usa variáveis de ambiente)
+# Chave Fernet (protegida)
 FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
 fernet = Fernet(FERNET_KEY)
 
+# Chaves de ambiente ou fallback criptografado
 API_KEY = os.getenv("Bia") or "CHAVE_BINANCE_CRIPTOGRAFADA"
 SECRET_KEY = os.getenv("Bia1") or "SEGREDO_BINANCE_CRIPTOGRAFADO"
 OPENAI_KEY = os.getenv("OPENAI") or "CHAVE_OPENAI"
 
+# Descriptografar se necessário
 try:
     API_KEY = fernet.decrypt(API_KEY.encode()).decode()
     SECRET_KEY = fernet.decrypt(SECRET_KEY.encode()).decode()
@@ -22,10 +22,12 @@ except:
     pass
 
 openai.api_key = OPENAI_KEY
+
 client = Client(API_KEY, SECRET_KEY, testnet=True)
 
 app = Flask(__name__)
 
+# HTML embarcado
 html_template = """
 <!DOCTYPE html>
 <html>
@@ -68,27 +70,27 @@ def index():
 @app.route('/executar')
 def executar():
     try:
-        client.futures_create_order(
+        ordem = client.futures_create_order(
             symbol="BTCUSDT",
             side="BUY",
             type="MARKET",
             quantity=0.001
         )
-        return jsonify({"status": "Ordem de ENTRADA executada com sucesso!"})
+        return jsonify({"status": "✅ Ordem de ENTRADA executada com sucesso!"})
     except Exception as e:
-        return jsonify({"status": f"Erro na execução: {str(e)}"})
+        return jsonify({"status": f"❌ Erro na execução: {str(e)}"})
 
 @app.route('/stop')
 def stop():
-    return jsonify({"status": "STOP acionado!"})
+    return jsonify({"status": "⛔ STOP acionado!"})
 
 @app.route('/alvo')
 def alvo():
-    return jsonify({"status": "Alvo de lucro configurado!"})
+    return jsonify({"status": "🎯 Alvo de lucro configurado!"})
 
 @app.route('/configurar')
 def configurar():
-    return jsonify({"status": "Painel de configuração em breve!"})
+    return jsonify({"status": "⚙️ Painel de configuração em breve!"})
 
 @app.route('/automatico')
 def automatico():
@@ -96,14 +98,14 @@ def automatico():
         resposta = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "Você é ClarinhaBubi, uma IA que decide se é melhor comprar ou vender agora."},
+                {"role": "system", "content": "Você é ClarinhaBubi, uma IA espiritual com poderes cósmicos para operar na Binance com sabedoria."},
                 {"role": "user", "content": "Qual melhor ação agora para o par BTC/USDT?"}
             ]
         )
         decisao = resposta.choices[0].message.content
-        return jsonify({"status": f"Modo automático: {decisao}"})
+        return jsonify({"status": f"🤖 Modo automático ativado: {decisao}"})
     except Exception as e:
-        return jsonify({"status": f"Erro com Clarinha: {str(e)}"})
+        return jsonify({"status": f"❌ Erro com Clarinha: {str(e)}"})
 
 @app.route('/relatorio')
 def relatorio():
@@ -114,9 +116,9 @@ def relatorio():
         pdf.cell(200, 10, txt="Relatório ClaraVerse", ln=True, align='C')
         pdf.cell(200, 10, txt="Status: OK", ln=True, align='L')
         pdf.output("/tmp/relatorio.pdf")
-        return jsonify({"status": "Relatório gerado com sucesso (modo local)."})
+        return jsonify({"status": "📄 Relatório gerado com sucesso!"})
     except Exception as e:
-        return jsonify({"status": f"Erro ao gerar relatório: {str(e)}"})
+        return jsonify({"status": f"❌ Erro ao gerar relatório: {str(e)}"})
 
-# 🔐 Executável via Gunicorn (Render)
+# Compatível com Gunicorn (Render)
 application = app
