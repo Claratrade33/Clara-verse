@@ -1,4 +1,7 @@
+flask
 requests
-fpdf
 python-binance
 cryptography
+fpdf
+dateparser
+aiohttp
