@@ -1,6 +1,5 @@
-Flask==2.3.3
-openai==1.16.2
-cryptography==42.0.5
-python-binance==1.0.17
-fpdf==1.7.2
-gunicorn==22.0.0
+flask
+openai
+binance
+cryptography
+gunicorn
