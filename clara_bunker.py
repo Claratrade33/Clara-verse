@@ -5,14 +5,14 @@ from binance.client import Client
 from fpdf import FPDF
 from cryptography.fernet import Fernet
 
-# 🔐 Chave Fernet para criptografia
-FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
+# 🔐 Chave Fernet (pegando do ambiente)
+FERNET_KEY = os.environ.get("FERNET_KEY").encode()
 fernet = Fernet(FERNET_KEY)
 
-# 🔒 Chaves criptografadas (EXEMPLO — substitua pelas suas reais criptografadas)
+# 🔒 Chaves criptografadas (substitua pelos seus valores criptografados reais)
 API_KEY_CRIPTO = b'gAAAAABmTMd7NRhFfhdEw8pTTKPgkoJSixC4JYgM96v9pNYUVRM8KQuHFf_Urzk6r0HLH30G1DgmIf1bWv6gxzYq51yR4WvfrvEoxfA4zKQY2Mx2jMN2Ogg='
 API_SECRET_CRIPTO = b'gAAAAABmTMd7rEQ3G8gZy6o3ZnQ5L6V0_aOKVmT81TbE6Xk7lfUYsgFgUVejFMUDVWkQjZdKYpjsd4VDYfGDN2NK0dz-iF4jM93AoCuXmRPp5D3c79IK2yo='
-OPENAI_KEY = "sk-proj-KJ7TxS0gKDl8a9eAjEowuFJXtqjFZkH8vOtjcC..."
+OPENAI_KEY = os.environ.get("OPENAI_KEY")
 
 # 🔓 Descriptografar chaves
 try:
@@ -24,12 +24,12 @@ except:
 
 # 🔌 Conectar à OpenAI e Binance
 client_openai = OpenAI(api_key=OPENAI_KEY)
-client_binance = Client(API_KEY, API_SECRET, testnet=False)  # REAL MODE
+client_binance = Client(API_KEY, API_SECRET, testnet=False)
 
 # 🚀 Iniciar app Flask
 app = Flask(__name__)
 
-# 🌌 HTML interface ClaraVerse
+# 🌌 Interface HTML ClaraVerse
 html_template = """
 <!DOCTYPE html>
 <html>
@@ -57,12 +57,10 @@ html_template = """
 </html>
 """
 
-# 🌐 Página inicial
 @app.route('/')
 def index():
     return render_template_string(html_template)
 
-# 🟢 Executar ordem de compra real
 @app.route('/executar')
 def executar():
     try:
@@ -72,22 +70,18 @@ def executar():
     except Exception as e:
         return jsonify({"status": f"❌ Erro na execução: {str(e)}"})
 
-# ⛔ Stop manual
 @app.route('/stop')
 def stop():
     return jsonify({"status": "⛔ STOP acionado!"})
 
-# 🎯 Alvo manual
 @app.route('/alvo')
 def alvo():
     return jsonify({"status": "🎯 Alvo de lucro configurado!"})
 
-# ⚙️ Configuração
 @app.route('/configurar')
 def configurar():
     return jsonify({"status": "⚙️ Painel de configuração em breve!"})
 
-# 🤖 Modo automático com nova API OpenAI
 @app.route('/automatico')
 def automatico():
     try:
@@ -103,7 +97,6 @@ def automatico():
     except Exception as e:
         return jsonify({"status": f"❌ Erro com Clarinha: {str(e)}"})
 
-# 📄 Relatório
 @app.route('/relatorio')
 def relatorio():
     try:
