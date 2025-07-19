@@ -27,4 +27,120 @@ html = '''
     <title>ClaraVerse | Painel de Operações</title>
     <style>
         body {
-            margin: 0; padding:
+            margin: 0; padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #0f0f0f;
+            color: #fff;
+        }
+        header {
+            background: #00ffcc;
+            color: #000;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .painel {
+            padding: 40px 20px;
+            max-width: 600px;
+            margin: auto;
+            background: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 0 15px #00ffcc33;
+        }
+        select, button {
+            padding: 15px;
+            font-size: 16px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 5px;
+        }
+        select {
+            width: 100%;
+            background-color: #fff;
+            color: #000;
+        }
+        button {
+            background-color: #00ffcc;
+            color: #000;
+            width: 100%;
+            font-weight: bold;
+        }
+        #result {
+            margin-top: 25px;
+            font-size: 18px;
+            background: #121212;
+            padding: 20px;
+            border-radius: 10px;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+<body>
+    <header>🧠 ClaraVerse - Painel de Operações</header>
+    <div class="painel">
+        <label for="symbol">Escolha o par:</label>
+        <select id="symbol">
+            <option value="PEPEUSDT">PEPE/USDT</option>
+            <option value="SUIUSDT">SUI/USDT</option>
+            <option value="BTCUSDT">BTC/USDT</option>
+            <option value="ETHUSDT">ETH/USDT</option>
+        </select>
+        <button onclick="enviar()">📈 Analisar AUTOMATICAMENTE</button>
+        <div id="result">⏳ Aguardando análise...</div>
+    </div>
+    <script>
+        function enviar() {
+            document.getElementById('result').innerText = "🔍 Gerando análise...";
+            const symbol = document.getElementById('symbol').value;
+            fetch('/analise', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ symbol: symbol })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('result').innerText =
+                    "🎯 ENTRADA: " + data.entrada + "\\n" +
+                    "🛑 STOP: " + data.stop + "\\n" +
+                    "🎯 ALVO: " + data.alvo + "\\n" +
+                    "📊 CONFIANÇA: " + data.confianca;
+            })
+            .catch(err => {
+                document.getElementById('result').innerText = "❌ Erro ao buscar análise.";
+            });
+        }
+    </script>
+</body>
+</html>
+'''
+
+@app.route('/')
+def index():
+    return render_template_string(html)
+
+@app.route('/analise', methods=['POST'])
+def analise():
+    data = request.get_json()
+    symbol = data['symbol']
+    candles = binance.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_15MINUTE, limit=100)
+    closes = [float(c[4]) for c in candles]
+    contexto = f"Últimos fechamentos de {symbol}: {closes}\nRetorne uma análise de trading com entrada, alvo, stop e confiança."
+    resposta = client_openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "Você é uma IA trader especialista."},
+            {"role": "user", "content": contexto}
+        ],
+        temperature=0.3
+    )
+    texto = resposta.choices[0].message.content
+    partes = {k: '' for k in ['entrada', 'stop', 'alvo', 'confianca']}
+    for linha in texto.splitlines():
+        for chave in partes:
+            if chave in linha.lower():
+                partes[chave] = ''.join(c for c in linha if c.isdigit() or c in ',.')
+    return jsonify(partes)
+
+# PARA RENDER
+application = app
