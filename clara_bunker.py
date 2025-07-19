@@ -5,26 +5,30 @@ from binance.client import Client
 from fpdf import FPDF
 from cryptography.fernet import Fernet
 
-# Proteção total
+# 🔒 Proteção total
 FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
 fernet = Fernet(FERNET_KEY)
 
-# Chaves seguras
-API_KEY = os.getenv("Bia") or "CHAVE_BINANCE_CRIPTOGRAFADA"
-SECRET_KEY = os.getenv("Bia1") or "SEGREDO_BINANCE_CRIPTOGRAFADO"
-OPENAI_KEY = os.getenv("OPENAI") or "CHAVE_OPENAI"
+# 🔐 Chaves seguras criptografadas
+API_KEY = os.getenv("Bia") or "gAAAAABmS..."  # Coloque aqui a chave criptografada
+SECRET_KEY = os.getenv("Bia1") or "gAAAAABmS..."  # Coloque aqui a chave criptografada
+OPENAI_KEY = os.getenv("OPENAI") or "sk-proj-..."
 
+# 🔓 Descriptografar se necessário
 try:
     API_KEY = fernet.decrypt(API_KEY.encode()).decode()
     SECRET_KEY = fernet.decrypt(SECRET_KEY.encode()).decode()
-except:
-    pass
+except Exception as e:
+    pass  # Usa como está se não for criptografado
 
+# 🔌 Conectar APIs
 openai.api_key = OPENAI_KEY
 client = Client(API_KEY, SECRET_KEY, testnet=True)
 
+# 🚀 Iniciar app Flask
 app = Flask(__name__)
 
+# 🌌 HTML com gráfico e botões
 html_template = """
 <!DOCTYPE html>
 <html>
@@ -52,10 +56,12 @@ html_template = """
 </html>
 """
 
+# 🌐 Rota principal
 @app.route('/')
 def index():
     return render_template_string(html_template)
 
+# 🟢 Executar ordem de compra
 @app.route('/executar')
 def executar():
     try:
@@ -64,18 +70,22 @@ def executar():
     except Exception as e:
         return jsonify({"status": f"❌ Erro na execução: {str(e)}"})
 
+# ⛔ Simular STOP
 @app.route('/stop')
 def stop():
     return jsonify({"status": "⛔ STOP acionado!"})
 
+# 🎯 Simular alvo
 @app.route('/alvo')
 def alvo():
     return jsonify({"status": "🎯 Alvo de lucro configurado!"})
 
+# ⚙️ Simular painel
 @app.route('/configurar')
 def configurar():
     return jsonify({"status": "⚙️ Painel de configuração em breve!"})
 
+# 🤖 Modo automático com ClarinhaBubi
 @app.route('/automatico')
 def automatico():
     try:
@@ -91,6 +101,7 @@ def automatico():
     except Exception as e:
         return jsonify({"status": f"❌ Erro com Clarinha: {str(e)}"})
 
+# 📄 Gerar relatório em PDF
 @app.route('/relatorio')
 def relatorio():
     try:
@@ -104,4 +115,5 @@ def relatorio():
     except Exception as e:
         return jsonify({"status": f"❌ Erro ao gerar relatório: {str(e)}"})
 
-application = app  # Necessário para Render
+# 🔁 Compatível com Render
+application = app
