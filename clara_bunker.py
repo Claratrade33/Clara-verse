@@ -1,35 +1,35 @@
 from flask import Flask, render_template_string, request, jsonify
-import os
 from openai import OpenAI
 from binance.client import Client
 from fpdf import FPDF
 from cryptography.fernet import Fernet
 
-# 🔐 Chave Fernet (pegando do ambiente)
-FERNET_KEY = os.environ.get("FERNET_KEY").encode()
+# 🔐 Chave Fernet (modo bunker)
+FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
 fernet = Fernet(FERNET_KEY)
 
-# 🔒 Chaves criptografadas (substitua pelos seus valores criptografados reais)
-API_KEY_CRIPTO = b'gAAAAABmTMd7NRhFfhdEw8pTTKPgkoJSixC4JYgM96v9pNYUVRM8KQuHFf_Urzk6r0HLH30G1DgmIf1bWv6gxzYq51yR4WvfrvEoxfA4zKQY2Mx2jMN2Ogg='
-API_SECRET_CRIPTO = b'gAAAAABmTMd7rEQ3G8gZy6o3ZnQ5L6V0_aOKVmT81TbE6Xk7lfUYsgFgUVejFMUDVWkQjZdKYpjsd4VDYfGDN2NK0dz-iF4jM93AoCuXmRPp5D3c79IK2yo='
-OPENAI_KEY = os.environ.get("OPENAI_KEY")
+# 🔒 Chaves criptografadas
+API_KEY_CRIPTO = b'gAAAAABoe9iObom4xwGtEl9H2uZGFtFnDl2ar4j94Q-vlyw99enohpfxFmPmRjhBO2q4InocU78uYEFRNCq4CmgJKtEwlV4Rgw=='
+API_SECRET_CRIPTO = b'gAAAAABoe9iObcfu1GXbT93iU2Lcp3ZY07Wy3WoG6MLF0hpNgbYwcOQkt670--qQGokWjK4zMljsdulf6z8nnI2Tsr0wLkTeEw=='
+OPENAI_KEY_CRIPTO = b'gAAAAABoe9iOIK9Lx6CtSQ8aZNegSgktg8-4zD1aJjG0KUG8GsSh4HmJ3-CLu_77-nUA-u4FYQTZ18uU_VrJP3JiN4-fDgqdLg=='
 
-# 🔓 Descriptografar chaves
+# 🔓 Descriptografar
 try:
     API_KEY = fernet.decrypt(API_KEY_CRIPTO).decode()
     API_SECRET = fernet.decrypt(API_SECRET_CRIPTO).decode()
+    OPENAI_KEY = fernet.decrypt(OPENAI_KEY_CRIPTO).decode()
 except:
     API_KEY = "erro"
     API_SECRET = "erro"
+    OPENAI_KEY = "erro"
 
-# 🔌 Conectar à OpenAI e Binance
-client_openai = OpenAI(api_key=OPENAI_KEY)
+# 🔌 Conectar
 client_binance = Client(API_KEY, API_SECRET, testnet=False)
+client_openai = OpenAI(api_key=OPENAI_KEY)
 
-# 🚀 Iniciar app Flask
+# 🚀 App Flask
 app = Flask(__name__)
 
-# 🌌 Interface HTML ClaraVerse
 html_template = """
 <!DOCTYPE html>
 <html>
@@ -86,7 +86,7 @@ def configurar():
 def automatico():
     try:
         resposta = client_openai.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "Você é ClarinhaBubi, IA espiritual que decide operações com sabedoria e responsabilidade."},
                 {"role": "user", "content": "Clarinha, o que devo fazer agora com BTC/USDT?"}
@@ -110,5 +110,4 @@ def relatorio():
     except Exception as e:
         return jsonify({"status": f"❌ Erro ao gerar relatório: {str(e)}"})
 
-# 🔁 Compatível com Render
 application = app
