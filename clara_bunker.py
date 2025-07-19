@@ -5,11 +5,11 @@ from binance.client import Client
 from fpdf import FPDF
 from cryptography.fernet import Fernet
 
-# Chave Fernet (protegida)
+# Chave Fernet protegida
 FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
 fernet = Fernet(FERNET_KEY)
 
-# Chaves de ambiente ou fallback criptografado
+# Chaves criptografadas via ambiente ou fallback
 API_KEY = os.getenv("Bia") or "CHAVE_BINANCE_CRIPTOGRAFADA"
 SECRET_KEY = os.getenv("Bia1") or "SEGREDO_BINANCE_CRIPTOGRAFADO"
 OPENAI_KEY = os.getenv("OPENAI") or "CHAVE_OPENAI"
@@ -21,8 +21,8 @@ try:
 except:
     pass
 
+# Setar API
 openai.api_key = OPENAI_KEY
-
 client = Client(API_KEY, SECRET_KEY, testnet=True)
 
 app = Flask(__name__)
@@ -57,6 +57,7 @@ html_template = """
         <button onclick="fetch('/alvo').then(r=>r.json()).then(d=>alert(d.status))">ALVO</button>
         <button onclick="fetch('/configurar').then(r=>r.json()).then(d=>alert(d.status))">CONFIGURAR</button>
         <button onclick="fetch('/automatico').then(r=>r.json()).then(d=>alert(d.status))">AUTOMÁTICO</button>
+        <button onclick="fetch('/relatorio').then(r=>r.json()).then(d=>alert(d.status))">RELATÓRIO</button>
         <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=15&theme=dark" allowfullscreen></iframe>
     </div>
 </body>
@@ -98,8 +99,8 @@ def automatico():
         resposta = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "Você é ClarinhaBubi, uma IA espiritual com poderes cósmicos para operar na Binance com sabedoria."},
-                {"role": "user", "content": "Qual melhor ação agora para o par BTC/USDT?"}
+                {"role": "system", "content": "Você é ClarinhaBubi, uma IA espiritual que opera na Binance com sabedoria cósmica."},
+                {"role": "user", "content": "Qual a melhor decisão agora para BTC/USDT?"}
             ]
         )
         decisao = resposta.choices[0].message.content
@@ -120,5 +121,8 @@ def relatorio():
     except Exception as e:
         return jsonify({"status": f"❌ Erro ao gerar relatório: {str(e)}"})
 
-# Compatível com Gunicorn (Render)
+# Executável pelo Render
 application = app
+
+if __name__ == '__main__':
+    app.run(debug=True)
