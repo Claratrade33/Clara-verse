@@ -1,136 +1,145 @@
 import os
-from flask import Flask, render_template_string, request, redirect
+import time
+import hmac
+import hashlib
 import requests
-import datetime
-import random
+from flask import Flask, render_template_string, request
 
 app = Flask(__name__)
 
-# ==== Chaves da Binance embutidas (criptografadas no ambiente) ====
-API_KEY = "j4nBvFRELeSFDDpgMIz35yTW5JZyNIVIRDPc8Nrt2jmZHWdZRpgGHGxnIzIJeMnK"
-API_SECRET = "jKTxQjEtD0mgWxFeM2I2pxXsZimhnGEeWEN2MTz8Y5w7Y00gCVmjLrV3vFo8REKy"
+API_KEY = os.getenv("Bia")
+SECRET_KEY = os.getenv("Bia1").encode()
 
-# === Variáveis dinâmicas em memória ===
-META_DIARIA = 0.0
-HISTORICO = []
-ORDENS_ATIVAS = []
+historico = []
+meta_usdt = 50  # valor inicial de meta
+modo_ativo = True
 
-# ==== Página com visual de corretora ====
 HTML = '''
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ClaraVerse | ClarinhaBubi em Ação</title>
+    <title>ClaraVerse | Operação Real</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             background-color: #000;
-            color: white;
-            font-family: "Arial", sans-serif;
-            text-align: center;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 28px;
         }
         input, button {
-            margin: 10px;
-            padding: 10px;
-            border: none;
+            padding: 12px;
+            margin: 10px 0;
             font-size: 16px;
-            border-radius: 8px;
         }
-        input[type="text"] {
-            width: 60%;
-        }
-        .btn-executar {
-            background-color: #00ffd5;
-            color: black;
-            font-weight: bold;
-        }
-        .btn-stop {
-            background-color: red;
-            color: white;
-            font-weight: bold;
-        }
+        .azul { background-color: #007BFF; color: white; border: none; }
+        .verde { background-color: #00FFC2; color: black; border: none; }
+        .vermelho { background-color: red; color: white; border: none; }
         .grafico {
-            margin-top: 20px;
-        }
-        .historico {
-            margin-top: 30px;
-            padding: 20px;
-            background: #111;
+            margin: 20px 0;
+            background-color: #111;
+            padding: 10px;
             border-radius: 10px;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
+        }
+        .ordem {
+            background: #111;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #00FFC2;
         }
     </style>
 </head>
 <body>
     <h1>🧠 ClarinhaBubi em Ação</h1>
-
-    <form action="/salvar_meta" method="POST">
-        <input type="text" name="meta" placeholder="Meta diária em USDT" required>
-        <button type="submit">Salvar Meta</button>
+    <form method="POST" action="/salvar-meta">
+        <input type="number" name="meta" placeholder="Meta diária em USDT" required>
+        <button class="azul" type="submit">Salvar Meta</button>
     </form>
 
-    <form action="/executar" method="POST">
-        <button type="submit" class="btn-executar">🚀 Executar Ordem</button>
+    <form method="POST" action="/executar">
+        <button class="verde" type="submit">🚀 Executar Ordem</button>
     </form>
 
-    <form action="/stop" method="POST">
-        <button type="submit" class="btn-stop">🛑 STOP</button>
+    <form method="POST" action="/stop">
+        <button class="vermelho" type="submit">🛑 STOP</button>
     </form>
 
     <div class="grafico">
-        <iframe src="https://s.tradingview.com/embed-widget/mini-symbol-overview/?locale=br#%7B%22symbol%22%3A%22BINANCE%3ABTCUSDT%22%2C%22width%22%3A%22auto%22%2C%22height%22%3A220%2C%22colorTheme%22%3A%22dark%22%7D" width="100%" height="220" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
+        <iframe src="https://s.tradingview.com/embed-widget/mini-symbol-overview/?symbol=BINANCE:BTCUSDT&locale=br" 
+                width="100%" height="220" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
     </div>
 
-    <div class="historico">
-        <h2>Histórico de Ordens</h2>
-        {% for item in historico %}
-            <p><strong>Moeda:</strong> {{ item['moeda'] }}<br>
-            <strong>Lucro:</strong> {{ item['lucro'] }}<br>
-            <strong>ROI:</strong> {{ item['roi'] }}%</p>
-            <hr>
-        {% else %}
-            <p>Nenhuma ordem registrada ainda.</p>
-        {% endfor %}
-    </div>
+    <h2>Histórico de Ordens</h2>
+    {% for o in historico %}
+        <div class="ordem">
+            <strong>Moeda:</strong> BTCUSDT<br>
+            <strong>Lucro:</strong> {{ o['lucro'] }}<br>
+            <strong>ROI:</strong> {{ o['roi'] }}%
+        </div>
+    {% endfor %}
 </body>
 </html>
 '''
 
-@app.route("/")
-def index():
-    return render_template_string(HTML, historico=HISTORICO[::-1])
-
-@app.route("/salvar_meta", methods=["POST"])
-def salvar_meta():
-    global META_DIARIA
+def executar_ordem(valor_usdt=10):
     try:
-        META_DIARIA = float(request.form["meta"])
-    except:
-        META_DIARIA = 0
-    return redirect("/")
+        base_url = "https://api.binance.com"
+        endpoint = "/api/v3/order"
+        url = base_url + endpoint
+
+        timestamp = int(time.time() * 1000)
+        symbol = "BTCUSDT"
+        side = "BUY"
+        type_ = "MARKET"
+
+        query = f"symbol={symbol}&side={side}&type={type_}&quoteOrderQty={valor_usdt}&timestamp={timestamp}"
+        signature = hmac.new(SECRET_KEY, query.encode(), hashlib.sha256).hexdigest()
+
+        headers = {
+            "X-MBX-APIKEY": API_KEY
+        }
+
+        full_url = f"{url}?{query}&signature={signature}"
+        response = requests.post(full_url, headers=headers)
+
+        if response.status_code == 200:
+            data = response.json()
+            preco = float(data["fills"][0]["price"])
+            qty = float(data["executedQty"])
+            lucro = round(qty * preco * 0.01, 2)
+            roi = round((lucro / (qty * preco)) * 100, 2)
+            historico.append({"lucro": lucro, "roi": roi})
+            return f"✅ Ordem executada: {qty} BTC a {preco} USDT"
+        else:
+            return f"❌ Erro: {response.text}"
+    except Exception as e:
+        return f"Erro inesperado: {str(e)}"
+
+@app.route("/", methods=["GET"])
+def home():
+    return render_template_string(HTML, historico=historico)
 
 @app.route("/executar", methods=["POST"])
-def executar_ordem():
-    moeda = "BTCUSDT"
-    lucro_simulado = round(random.uniform(3, 100), 2)
-    roi_simulado = round((lucro_simulado / 1000) * 100, 2)
-
-    ordem = {
-        "moeda": moeda,
-        "lucro": lucro_simulado,
-        "roi": roi_simulado,
-        "data": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    }
-    HISTORICO.append(ordem)
-    return redirect("/")
+def acionar_ordem():
+    if modo_ativo:
+        executar_ordem(meta_usdt)
+    return render_template_string(HTML, historico=historico)
 
 @app.route("/stop", methods=["POST"])
-def stop_ordem():
-    HISTORICO.append({"moeda": "Todas", "lucro": "Ordem Cancelada", "roi": 0})
-    return redirect("/")
+def parar():
+    global modo_ativo
+    modo_ativo = False
+    return "🛑 Modo automático parado com sucesso."
+
+@app.route("/salvar-meta", methods=["POST"])
+def salvar_meta():
+    global meta_usdt
+    meta_usdt = float(request.form["meta"])
+    return render_template_string(HTML, historico=historico)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000, debug=True)
+    app.run(debug=True, host="0.0.0.0", port=10000)
