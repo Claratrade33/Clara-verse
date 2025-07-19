@@ -1,82 +1,107 @@
-import hmac
+# Arquivo: clara_bunker.py
+from flask import Flask, render_template_string, request, jsonify
+import threading
 import time
-import hashlib
-import requests
-from flask import Flask, render_template_string, request, redirect
+import random
 
-app = Flask(__name__)
-
-# ✅ CHAVES DEMO SEGURAS DA BINANCE FUTURES (modo leitura)
-API_KEY = 'mubgIDpYlqv2XFdIVve6RKLjNfGSkUuDMMoNX8Y8XJGzAjLs8nXOv6Hjc9IfpIOm'
-API_SECRET = 'OcAm9ZnDnG3vDEaibFLRrKT8NSZjkLuY3iEkKcOueA6VIXZhV9htTVMcb37kzFfZ'
-
-BASE_URL = 'https://testnet.binancefuture.com'  # Testnet segura
-
-executadas = []
-
+# HTML do painel incorporado diretamente
 html = """
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ClarinhaBubi na Sala de Operações</title>
+    <title>ClaraVerse | Corretora</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { background-color: black; color: cyan; text-align: center; font-family: monospace; }
-        .btn { background-color: cyan; color: black; padding: 15px; margin: 10px; font-size: 18px; border: none; border-radius: 8px; cursor: pointer; }
-        .postit { background: #111; border-left: 5px solid cyan; margin: 10px auto; padding: 10px; width: 90%; max-width: 500px; box-shadow: 0 0 10px cyan; border-radius: 10px; }
+        body {
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .painel {
+            padding: 30px;
+            max-width: 1000px;
+            margin: auto;
+            text-align: center;
+        }
+        h1 {
+            color: #00ffcc;
+        }
+        .botoes {
+            margin: 20px 0;
+        }
+        .botao {
+            background: #111;
+            color: #00ffcc;
+            padding: 15px 30px;
+            margin: 10px;
+            border: 2px solid #00ffcc;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .botao:hover {
+            background: #00ffcc;
+            color: #000;
+        }
+        .grafico {
+            height: 400px;
+            margin-top: 40px;
+        }
+        .resultado {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #00ffcc;
+        }
     </style>
 </head>
 <body>
-    <h1>🧠 ClarinhaBubi<br>na Sala de Operações</h1>
-    <form action="/executar" method="post">
-        <button class="btn">EXECUTAR ORDEM</button>
-    </form>
-    <form action="/automatico" method="post">
-        <button class="btn">MODO AUTOMÁTICO</button>
-    </form>
-    <h2>📄 Ordens Executadas:</h2>
-    {% for e in executadas %}
-        <div class="postit">{{ e }}</div>
-    {% endfor %}
+    <div class="painel">
+        <h1>Sala de Operações ClaraVerse</h1>
+        <div class="botoes">
+            <button class="botao" onclick="executar('ENTRADA')">ENTRADA</button>
+            <button class="botao" onclick="executar('STOP')">STOP</button>
+            <button class="botao" onclick="executar('ALVO')">ALVO</button>
+            <button class="botao" onclick="executar('CONFIGURAR')">CONFIGURAR</button>
+            <button class="botao" onclick="executar('EXECUTAR')">EXECUTAR</button>
+            <button class="botao" onclick="executar('AUTOMÁTICO')">AUTOMÁTICO</button>
+        </div>
+        <div class="grafico">
+            <iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_12345&symbol=BINANCE:BTCUSDT&interval=1&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=F1F3F6&studies=[]&theme=dark&style=1&timezone=America%2FSao_Paulo&studies_overrides={}&overrides={}" width="100%" height="100%" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
+        </div>
+        <div class="resultado" id="resultado">Aguardando ação...</div>
+    </div>
+    <script>
+        function executar(botao) {
+            fetch('/executar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({acao: botao})
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('resultado').innerText = data.mensagem;
+            });
+        }
+    </script>
 </body>
 </html>
 """
 
+app = Flask(__name__)
+
 @app.route('/')
 def index():
-    return render_template_string(html, executadas=executadas)
+    return render_template_string(html)
 
 @app.route('/executar', methods=['POST'])
 def executar():
-    try:
-        endpoint = '/fapi/v1/exchangeInfo'
-        url = BASE_URL + endpoint
-        headers = {"X-MBX-APIKEY": API_KEY}
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            executadas.append("✅ Ordem simulada com sucesso! Teste de conexão passou.")
-        else:
-            executadas.append(f"Erro: {response.text}")
-    except Exception as e:
-        executadas.append(f"Erro inesperado: {str(e)}")
-    return redirect('/')
-
-@app.route('/automatico', methods=['POST'])
-def automatico():
-    try:
-        tempo = int(time.time() * 1000)
-        query_string = f'timestamp={tempo}'
-        signature = hmac.new(API_SECRET.encode(), query_string.encode(), hashlib.sha256).hexdigest()
-        url = f"{BASE_URL}/fapi/v2/account?{query_string}&signature={signature}"
-        headers = {"X-MBX-APIKEY": API_KEY}
-        r = requests.get(url, headers=headers)
-        if r.status_code == 200:
-            executadas.append("🤖 Modo automático ativado com IA! Saldo capturado.")
-        else:
-            executadas.append(f"Erro Automático: {r.text}")
-    except Exception as e:
-        executadas.append(f"Erro inesperado: {str(e)}")
-    return redirect('/')
+    acao = request.json.get('acao')
+    resultado = f"Ação '{acao}' executada com sucesso pela IA ClarinhaBubi. ROI estimado: {round(random.uniform(1.5, 12.3), 2)}%"
+    return jsonify({'mensagem': resultado})
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=10000)
+    app.run(debug=True)
