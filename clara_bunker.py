@@ -1,59 +1,60 @@
-from flask import Flask, render_template_string, request, jsonify
-from openai import OpenAI
-from binance.client import Client
+from flask import Flask, jsonify, render_template_string
 from fpdf import FPDF
 from cryptography.fernet import Fernet
+from binance.client import Client
+from openai import OpenAI
 
 # 🔐 Modo Bunker: chave fixa
 FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
 fernet = Fernet(FERNET_KEY)
 
-# 🔒 Chaves criptografadas (exemplo — substitua pelas suas reais criptografadas)
-API_KEY_CRIPTO = b'gAAAAABoe9iObom4xwGtEl9H2uZGFtFnDl2ar4j94Q-vlyw99enohpfxFmPmRjhBO2q4InocU78uYEFRNCq4CmgJKtEwlV4Rgw=='
-API_SECRET_CRIPTO = b'gAAAAABoe9iObcfu1GXbT93iU2Lcp3ZY07Wy3WoG6MLF0hpNgbYwcOQkt670--qQGokWjK4zMljsdulf6z8nnI2Tsr0wLkTeEw=='
-OPENAI_KEY_CRIPTO = b'gAAAAABoe9iOIK9Lx6CtSQ8aZNegSgktg8-4zD1aJjG0KUG8GsSh4HmJ3-CLu_77-nUA-u4FYQTZ18uU_VrJP3JiN4-fDgqdLg=='
+# 🔐 Chaves criptografadas
+API_KEY_CRIPTO = b'gAAAAABoe94Md1XuKtY3R6RBBWOYw7Hdrc3fD8-QlKxV9cpj0ncVN8g8l1KefBXgcJWu_6ntmoSqSitVgdyfwkZmX2eypwo2Ms0JLzG6Y7ZZ-kicYR0pX9s='
+API_SECRET_CRIPTO = b'gAAAAABoe94M5h0qn3zjqtPBGDSvXkF0eROSP9KKfN-dr8HlNrJCw3ZNHBU-LZaGpD6aXldq0lHprhdn116xCbqX41Vi1FetwfID4PRXkrTCSnw0MXTlOtQ='
+OPENAI_KEY_CRIPTO = b'gAAAAABoe94MHI-8Nq_JwTE8J1aPb9ATt1N5aACCtYpX4ypk950ZzAXsqhH4vagu9zCOuCscVUxYCAwdc_FHl3Mrt4ztuJ50u3GuI78gi0kRkr-O-jDS9xY='
 
-# 🔓 Descriptografar as chaves
+# 🔓 Descriptografar chaves
 try:
     API_KEY = fernet.decrypt(API_KEY_CRIPTO).decode()
     API_SECRET = fernet.decrypt(API_SECRET_CRIPTO).decode()
     OPENAI_KEY = fernet.decrypt(OPENAI_KEY_CRIPTO).decode()
 except Exception as e:
-    print("❌ Erro ao descriptografar:", e)
-    API_KEY = "erro"
-    API_SECRET = "erro"
-    OPENAI_KEY = "erro"
+    raise Exception(f"Erro ao descriptografar as chaves: {e}")
 
-# 🔌 Clientes
-client_binance = Client(API_KEY, API_SECRET, testnet=False)
+# ✅ Clientes
+client_binance = Client(API_KEY, API_SECRET)
 client_openai = OpenAI(api_key=OPENAI_KEY)
 
-# 🚀 App Flask
+# 🌐 Web app
 app = Flask(__name__)
 
+# 🧠 Frontend HTML básico
 html_template = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ClaraVerse | Sala de Operações</title>
+    <title>ClaraVerse</title>
     <style>
-        body { background: #000; color: #00ffcc; font-family: Arial, sans-serif; text-align: center; padding: 30px; }
-        h1 { margin-bottom: 20px; }
+        body { background-color: black; color: white; text-align: center; font-family: Arial; }
+        h1 { color: cyan; }
         button {
-            background: #00ffcc; border: none; padding: 15px 30px; margin: 10px;
-            border-radius: 10px; font-size: 18px; cursor: pointer; box-shadow: 0 0 15px #00ffcc66;
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #00ffcc;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
-        iframe { margin-top: 40px; width: 100%; height: 450px; border: none; }
     </style>
 </head>
 <body>
     <h1>🧠 ClarinhaBubi Operacional</h1>
-    <button onclick="fetch('/executar').then(r=>r.json()).then(d=>alert(d.status))">ENTRADA</button>
-    <button onclick="fetch('/stop').then(r=>r.json()).then(d=>alert(d.status))">STOP</button>
-    <button onclick="fetch('/alvo').then(r=>r.json()).then(d=>alert(d.status))">ALVO</button>
-    <button onclick="fetch('/configurar').then(r=>r.json()).then(d=>alert(d.status))">CONFIGURAR</button>
-    <button onclick="fetch('/automatico').then(r=>r.json()).then(d=>alert(d.status))">AUTOMÁTICO</button>
-    <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=15&theme=dark" allowfullscreen></iframe>
+    <a href="/executar"><button>ENTRADA</button></a>
+    <a href="/stop"><button>STOP</button></a>
+    <a href="/alvo"><button>ALVO</button></a>
+    <a href="/configurar"><button>CONFIGURAR</button></a>
+    <a href="/automatico"><button>AUTOMÁTICO</button></a>
 </body>
 </html>
 """
@@ -66,7 +67,11 @@ def index():
 def executar():
     try:
         ordem = client_binance.futures_create_order(
-            symbol="BTCUSDT", side="BUY", type="MARKET", quantity=0.001)
+            symbol="BTCUSDT",
+            side="BUY",
+            type="MARKET",
+            quantity=0.001
+        )
         return jsonify({"status": "✅ Ordem de ENTRADA executada com sucesso!"})
     except Exception as e:
         return jsonify({"status": f"❌ Erro na execução: {str(e)}"})
@@ -87,7 +92,7 @@ def configurar():
 def automatico():
     try:
         resposta = client_openai.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": "Você é ClarinhaBubi, IA espiritual que decide operações com sabedoria e responsabilidade."},
                 {"role": "user", "content": "Clarinha, o que devo fazer agora com BTC/USDT?"}
@@ -111,5 +116,5 @@ def relatorio():
     except Exception as e:
         return jsonify({"status": f"❌ Erro ao gerar relatório: {str(e)}"})
 
-# ✅ Ponto de entrada para Render
+# 🔁 Compatível com Render
 application = app
