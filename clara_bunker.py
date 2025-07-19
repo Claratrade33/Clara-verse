@@ -1,94 +1,66 @@
-# clara_bunker.py - ARQUIVO ÚNICO E FUNCIONAL
+# clara_bunker.py
 
 from flask import Flask, render_template_string, request, jsonify
-import openai, base64, json, threading, time
-from binance.client import Client
-from cryptography.fernet import Fernet
-from fpdf import FPDF
+import os
 
-# ======================== CONFIGURAÇÕES ========================
 app = Flask(__name__)
-application = app  # Para funcionar no Render
 
-# Chaves criptografadas (exemplo fictício - substitua pelas reais criptografadas)
-FERNET_KEY = "0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA="
-fernet = Fernet(FERNET_KEY.encode())
+# HTML embutido (versão resumida para demonstração)
+html_template = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ClaraVerse | Sala de Operações</title>
+    <style>
+        body { background-color: #0f0f0f; color: #fff; font-family: Arial; text-align: center; }
+        .painel { margin-top: 50px; }
+        button { margin: 10px; padding: 20px; font-size: 18px; background: #00ffcc; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="painel">
+        <h1>ClaraVerse - IA ClarinhaBubi Operando</h1>
+        <button onclick="fetch('/executar').then(r => r.json()).then(d => alert(d.status))">ENTRADA</button>
+        <button onclick="fetch('/stop').then(r => r.json()).then(d => alert(d.status))">STOP</button>
+        <button onclick="fetch('/alvo').then(r => r.json()).then(d => alert(d.status))">ALVO</button>
+        <button onclick="fetch('/configurar').then(r => r.json()).then(d => alert(d.status))">CONFIGURAR</button>
+        <button onclick="fetch('/automatico').then(r => r.json()).then(d => alert(d.status))">AUTOMÁTICO</button>
+    </div>
+</body>
+</html>
+"""
 
-OPENAI_KEY = fernet.decrypt(b"gAAAAABm...").decode()
-API_KEY = fernet.decrypt(b"gAAAAABl...").decode()
-API_SECRET = fernet.decrypt(b"gAAAAABm...").decode()
+@app.route('/')
+def index():
+    return render_template_string(html_template)
 
-openai.api_key = OPENAI_KEY
-binance_client = Client(API_KEY, API_SECRET, testnet=True)
-
-# ======================== IA Clarinha ========================
-def clarinha_responde(pergunta):
-    resposta = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "system", "content": "Você é a IA ClarinhaBubi, espiritual e estratégica."},
-                  {"role": "user", "content": pergunta}]
-    )
-    return resposta.choices[0].message.content
-
-# ======================== ROTAS ========================
-@app.route("/")
-def fachada():
-    return render_template_string("""<html><head><title>ClaraVerse</title></head><body>
-        <h1>Fachada ClaraVerse</h1>
-        <a href='/sala-operacoes'>Entrar na Sala de Operações</a>
-        </body></html>""")
-
-@app.route("/sala-operacoes")
-def sala():
-    return render_template_string("""<html><head><title>Sala</title></head><body>
-        <h2>Sala de Operações</h2>
-        <button onclick="fetch('/executar', {method: 'POST'}).then(r => r.text()).then(alert)">EXECUTAR</button>
-        <button onclick="fetch('/automatico', {method: 'POST'}).then(r => r.text()).then(alert)">AUTOMÁTICO</button>
-        <a href='/configurar'>Configurar</a> | <a href='/relatorio'>Relatório</a>
-        </body></html>""")
-
-@app.route("/configurar", methods=["GET", "POST"])
-def configurar():
-    if request.method == "POST":
-        modo = request.form.get("modo")
-        par = request.form.get("par")
-        meta = request.form.get("meta")
-        return f"Configurações salvas: Modo {modo}, Par {par}, Meta {meta}"
-    return render_template_string("""<form method='post'>
-        Modo: <select name='modo'><option>Manual</option><option>Automático</option></select><br>
-        Par: <input name='par' value='BTCUSDT'><br>
-        Meta diária: <input name='meta' value='10'><br>
-        <button type='submit'>Salvar</button></form>""")
-
-@app.route("/executar", methods=["POST"])
+@app.route('/executar')
 def executar():
-    par = "BTCUSDT"
-    quantidade = 0.01
-    ordem = binance_client.futures_create_order(symbol=par, side='BUY', type='MARKET', quantity=quantidade)
-    return f"Ordem executada: {ordem}"
+    # Simulação da lógica de entrada
+    return jsonify({"status": "Ordem de ENTRADA executada com sucesso!"})
 
-@app.route("/automatico", methods=["POST"])
+@app.route('/stop')
+def stop():
+    # Simulação de STOP
+    return jsonify({"status": "STOP acionado com sucesso!"})
+
+@app.route('/alvo')
+def alvo():
+    # Simulação de alvo
+    return jsonify({"status": "Alvo de lucro definido!"})
+
+@app.route('/configurar')
+def configurar():
+    # Simulação de configuração
+    return jsonify({"status": "Painel de configuração aberto!"})
+
+@app.route('/automatico')
 def automatico():
-    # Estratégia Dupla Respiração
-    par = "BTCUSDT"
-    quantidade = 0.01
-    binance_client.futures_create_order(symbol=par, side='BUY', type='MARKET', quantity=quantidade)
-    binance_client.futures_create_order(symbol=par, side='SELL', type='MARKET', quantity=quantidade)
-    return "Dupla respiração executada."
+    # Simulação de modo automático
+    return jsonify({"status": "Modo automático ativado com ClarinhaBubi!"})
 
-@app.route("/relatorio")
-def relatorio():
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="Relatório de Operações", ln=True, align="C")
-    pdf.cell(200, 10, txt="Ordem executada: Compra e venda BTCUSDT", ln=True)
-    pdf_file = "/tmp/relatorio.pdf"
-    pdf.output(pdf_file)
-    with open(pdf_file, "rb") as f:
-        encoded = base64.b64encode(f.read()).decode()
-    return f"<a href='data:application/pdf;base64,{encoded}' download='relatorio.pdf'>Download Relatório</a>"
+# Executar no Render com Gunicorn
+application = app
 
-# ======================== EXECUÇÃO ========================
-if __name__ == "__main__":
-    app.run(debug=True
+if __name__ == '__main__':
+    app.run(debug=True)
