@@ -1,30 +1,64 @@
 # clara_bunker.py
 
 from flask import Flask, render_template_string, request, jsonify
-import os
+import os, requests
+import openai
+from binance.client import Client
+from fpdf import FPDF
+from cryptography.fernet import Fernet
+
+# Chaves protegidas (exemplo seguro e editável)
+FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
+fernet = Fernet(FERNET_KEY)
+
+API_KEY = os.getenv("Bia") or "CHAVE_BINANCE_CRIPTOGRAFADA"
+SECRET_KEY = os.getenv("Bia1") or "SEGREDO_BINANCE_CRIPTOGRAFADO"
+OPENAI_KEY = os.getenv("OPENAI") or "CHAVE_OPENAI"
+
+# Descriptografar se criptografado
+try:
+    API_KEY = fernet.decrypt(API_KEY.encode()).decode()
+    SECRET_KEY = fernet.decrypt(SECRET_KEY.encode()).decode()
+except:
+    pass
+
+openai.api_key = OPENAI_KEY
+
+client = Client(API_KEY, SECRET_KEY, testnet=True)
 
 app = Flask(__name__)
 
-# HTML embutido (versão resumida para demonstração)
+# HTML embutido
 html_template = """
 <!DOCTYPE html>
 <html>
 <head>
     <title>ClaraVerse | Sala de Operações</title>
     <style>
-        body { background-color: #0f0f0f; color: #fff; font-family: Arial; text-align: center; }
-        .painel { margin-top: 50px; }
-        button { margin: 10px; padding: 20px; font-size: 18px; background: #00ffcc; border: none; border-radius: 5px; cursor: pointer; }
+        body { background-color: #000; color: #fff; font-family: Arial; }
+        .painel { text-align: center; margin-top: 50px; }
+        button {
+            padding: 15px 25px;
+            margin: 10px;
+            background: #00ffcc;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00ffcc66;
+        }
+        iframe { border: none; width: 100%; height: 400px; margin-top: 30px; }
     </style>
 </head>
 <body>
     <div class="painel">
-        <h1>ClaraVerse - IA ClarinhaBubi Operando</h1>
-        <button onclick="fetch('/executar').then(r => r.json()).then(d => alert(d.status))">ENTRADA</button>
-        <button onclick="fetch('/stop').then(r => r.json()).then(d => alert(d.status))">STOP</button>
-        <button onclick="fetch('/alvo').then(r => r.json()).then(d => alert(d.status))">ALVO</button>
-        <button onclick="fetch('/configurar').then(r => r.json()).then(d => alert(d.status))">CONFIGURAR</button>
-        <button onclick="fetch('/automatico').then(r => r.json()).then(d => alert(d.status))">AUTOMÁTICO</button>
+        <h1>ClaraVerse - IA ClarinhaBubi</h1>
+        <button onclick="fetch('/executar').then(r=>r.json()).then(d=>alert(d.status))">ENTRADA</button>
+        <button onclick="fetch('/stop').then(r=>r.json()).then(d=>alert(d.status))">STOP</button>
+        <button onclick="fetch('/alvo').then(r=>r.json()).then(d=>alert(d.status))">ALVO</button>
+        <button onclick="fetch('/configurar').then(r=>r.json()).then(d=>alert(d.status))">CONFIGURAR</button>
+        <button onclick="fetch('/automatico').then(r=>r.json()).then(d=>alert(d.status))">AUTOMÁTICO</button>
+        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=15&theme=dark" allowfullscreen></iframe>
     </div>
 </body>
 </html>
@@ -36,31 +70,60 @@ def index():
 
 @app.route('/executar')
 def executar():
-    # Simulação da lógica de entrada
-    return jsonify({"status": "Ordem de ENTRADA executada com sucesso!"})
+    # Exemplo de entrada com market order
+    try:
+        ordem = client.futures_create_order(
+            symbol="BTCUSDT",
+            side="BUY",
+            type="MARKET",
+            quantity=0.001
+        )
+        return jsonify({"status": "Ordem de ENTRADA executada com sucesso!"})
+    except Exception as e:
+        return jsonify({"status": f"Erro na execução: {str(e)}"})
 
 @app.route('/stop')
 def stop():
-    # Simulação de STOP
-    return jsonify({"status": "STOP acionado com sucesso!"})
+    return jsonify({"status": "STOP acionado!"})
 
 @app.route('/alvo')
 def alvo():
-    # Simulação de alvo
-    return jsonify({"status": "Alvo de lucro definido!"})
+    return jsonify({"status": "Alvo de lucro configurado!"})
 
 @app.route('/configurar')
 def configurar():
-    # Simulação de configuração
-    return jsonify({"status": "Painel de configuração aberto!"})
+    return jsonify({"status": "Painel de configuração em breve!"})
 
 @app.route('/automatico')
 def automatico():
-    # Simulação de modo automático
-    return jsonify({"status": "Modo automático ativado com ClarinhaBubi!"})
+    try:
+        resposta = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "Você é ClarinhaBubi, uma IA que decide se é melhor comprar ou vender agora."},
+                {"role": "user", "content": "Qual melhor ação agora para o par BTC/USDT?"}
+            ]
+        )
+        decisao = resposta.choices[0].message.content
+        return jsonify({"status": f"Modo automático: {decisao}"})
+    except Exception as e:
+        return jsonify({"status": f"Erro com Clarinha: {str(e)}"})
 
-# Executar no Render com Gunicorn
+@app.route('/relatorio')
+def relatorio():
+    try:
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=14)
+        pdf.cell(200, 10, txt="Relatório ClaraVerse", ln=True, align='C')
+        pdf.cell(200, 10, txt="Status: OK", ln=True, align='L')
+        pdf.output("/tmp/relatorio.pdf")
+        return jsonify({"status": "Relatório gerado com sucesso (modo local)."})
+    except Exception as e:
+        return jsonify({"status": f"Erro ao gerar relatório: {str(e)}"})
+
+# Gunicorn e Render compatível
 application = app
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
