@@ -1,15 +1,15 @@
 from cryptography.fernet import Fernet
 
-# Substitua pela mesma chave do seu bunker
-FERNET_KEY = b"0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA="
-f = Fernet(FERNET_KEY)
+FERNET_KEY = "0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA="  # mesma usada no bunker
+fernet = Fernet(FERNET_KEY.encode())
 
-# Suas chaves reais da Binance
-api_key_real = b'SUA_API_KEY_AQUI'
-api_secret_real = b'SUA_SECRET_KEY_AQUI'
+sua_api = "SUA_API_KEY_AQUI"
+seu_secret = "SEU_SECRET_KEY_AQUI"
 
-api_key_cripto = f.encrypt(api_key_real)
-api_secret_cripto = f.encrypt(api_secret_real)
+api_cript = fernet.encrypt(sua_api.encode()).decode()
+secret_cript = fernet.encrypt(seu_secret.encode()).decode()
 
-print("API_KEY_CIFRADA =", api_key_cripto)
-print("API_SECRET_CIFRADA =", api_secret_cripto)
+print("API_KEY_CRYPT =")
+print(api_cript)
+print("\nAPI_SECRET_CRYPT =")
+print(secret_cript)
