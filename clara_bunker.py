@@ -4,26 +4,27 @@ from binance.client import Client
 from fpdf import FPDF
 from cryptography.fernet import Fernet
 
-# 🔐 Chave Fernet (modo bunker)
+# 🔐 Modo Bunker: chave fixa
 FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
 fernet = Fernet(FERNET_KEY)
 
-# 🔒 Chaves criptografadas
+# 🔒 Chaves criptografadas (exemplo — substitua pelas suas reais criptografadas)
 API_KEY_CRIPTO = b'gAAAAABoe9iObom4xwGtEl9H2uZGFtFnDl2ar4j94Q-vlyw99enohpfxFmPmRjhBO2q4InocU78uYEFRNCq4CmgJKtEwlV4Rgw=='
 API_SECRET_CRIPTO = b'gAAAAABoe9iObcfu1GXbT93iU2Lcp3ZY07Wy3WoG6MLF0hpNgbYwcOQkt670--qQGokWjK4zMljsdulf6z8nnI2Tsr0wLkTeEw=='
 OPENAI_KEY_CRIPTO = b'gAAAAABoe9iOIK9Lx6CtSQ8aZNegSgktg8-4zD1aJjG0KUG8GsSh4HmJ3-CLu_77-nUA-u4FYQTZ18uU_VrJP3JiN4-fDgqdLg=='
 
-# 🔓 Descriptografar
+# 🔓 Descriptografar as chaves
 try:
     API_KEY = fernet.decrypt(API_KEY_CRIPTO).decode()
     API_SECRET = fernet.decrypt(API_SECRET_CRIPTO).decode()
     OPENAI_KEY = fernet.decrypt(OPENAI_KEY_CRIPTO).decode()
-except:
+except Exception as e:
+    print("❌ Erro ao descriptografar:", e)
     API_KEY = "erro"
     API_SECRET = "erro"
     OPENAI_KEY = "erro"
 
-# 🔌 Conectar
+# 🔌 Clientes
 client_binance = Client(API_KEY, API_SECRET, testnet=False)
 client_openai = OpenAI(api_key=OPENAI_KEY)
 
@@ -110,4 +111,5 @@ def relatorio():
     except Exception as e:
         return jsonify({"status": f"❌ Erro ao gerar relatório: {str(e)}"})
 
+# ✅ Ponto de entrada para Render
 application = app
