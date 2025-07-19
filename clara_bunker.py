@@ -1,34 +1,35 @@
 from flask import Flask, render_template_string, request, jsonify
-import os, requests
+import os
 import openai
 from binance.client import Client
 from fpdf import FPDF
 from cryptography.fernet import Fernet
 
-# 🔒 Proteção total
+# 🔐 Chave Fernet para criptografia
 FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
 fernet = Fernet(FERNET_KEY)
 
-# 🔐 Chaves seguras criptografadas
-API_KEY = os.getenv("Bia") or "gAAAAABmS..."  # Coloque aqui a chave criptografada
-SECRET_KEY = os.getenv("Bia1") or "gAAAAABmS..."  # Coloque aqui a chave criptografada
-OPENAI_KEY = os.getenv("OPENAI") or "sk-proj-..."
+# 🔒 Chaves criptografadas (REAIS)
+API_KEY_CRIPTO = b'gAAAAABmTMd7NRhFfhdEw8pTTKPgkoJSixC4JYgM96v9pNYUVRM8KQuHFf_Urzk6r0HLH30G1DgmIf1bWv6gxzYq51yR4WvfrvEoxfA4zKQY2Mx2jMN2Ogg='
+API_SECRET_CRIPTO = b'gAAAAABmTMd7rEQ3G8gZy6o3ZnQ5L6V0_aOKVmT81TbE6Xk7lfUYsgFgUVejFMUDVWkQjZdKYpjsd4VDYfGDN2NK0dz-iF4jM93AoCuXmRPp5D3c79IK2yo='
+OPENAI_KEY = "sk-proj-KJ7TxS0gKDl8a9eAjEowuFJXtqjFZkH8vOtjcC..."
 
-# 🔓 Descriptografar se necessário
+# 🔓 Descriptografar chaves
 try:
-    API_KEY = fernet.decrypt(API_KEY.encode()).decode()
-    SECRET_KEY = fernet.decrypt(SECRET_KEY.encode()).decode()
-except Exception as e:
-    pass  # Usa como está se não for criptografado
+    API_KEY = fernet.decrypt(API_KEY_CRIPTO).decode()
+    API_SECRET = fernet.decrypt(API_SECRET_CRIPTO).decode()
+except:
+    API_KEY = "erro"
+    API_SECRET = "erro"
 
-# 🔌 Conectar APIs
+# 🔌 Conectar à OpenAI e Binance
 openai.api_key = OPENAI_KEY
-client = Client(API_KEY, SECRET_KEY, testnet=True)
+client = Client(API_KEY, API_SECRET, testnet=False)  # REAL MODE
 
-# 🚀 Iniciar app Flask
+# 🚀 Iniciar app
 app = Flask(__name__)
 
-# 🌌 HTML com gráfico e botões
+# 🌌 Interface futurista ClaraVerse
 html_template = """
 <!DOCTYPE html>
 <html>
@@ -56,31 +57,31 @@ html_template = """
 </html>
 """
 
-# 🌐 Rota principal
+# 🌐 Página inicial
 @app.route('/')
 def index():
     return render_template_string(html_template)
 
-# 🟢 Executar ordem de compra
+# 🟢 Executar ordem de compra real
 @app.route('/executar')
 def executar():
     try:
         ordem = client.futures_create_order(symbol="BTCUSDT", side="BUY", type="MARKET", quantity=0.001)
         return jsonify({"status": "✅ Ordem de ENTRADA executada com sucesso!"})
     except Exception as e:
-        return jsonify({"status": f"❌ Erro na execução: {str(e)}"})
+        return jsonify({"status": f"❌ Erro: {str(e)}"})
 
-# ⛔ Simular STOP
+# ⛔ Stop manual
 @app.route('/stop')
 def stop():
     return jsonify({"status": "⛔ STOP acionado!"})
 
-# 🎯 Simular alvo
+# 🎯 Alvo manual
 @app.route('/alvo')
 def alvo():
     return jsonify({"status": "🎯 Alvo de lucro configurado!"})
 
-# ⚙️ Simular painel
+# ⚙️ Configuração
 @app.route('/configurar')
 def configurar():
     return jsonify({"status": "⚙️ Painel de configuração em breve!"})
@@ -92,8 +93,8 @@ def automatico():
         resposta = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "Você é ClarinhaBubi, IA espiritual que decide operações na Binance com sabedoria."},
-                {"role": "user", "content": "Qual melhor ação agora para o par BTC/USDT?"}
+                {"role": "system", "content": "Você é ClarinhaBubi, IA espiritual que decide operações com sabedoria e responsabilidade."},
+                {"role": "user", "content": "Clarinha, o que devo fazer agora com BTC/USDT?"}
             ]
         )
         decisao = resposta.choices[0].message.content
@@ -101,7 +102,7 @@ def automatico():
     except Exception as e:
         return jsonify({"status": f"❌ Erro com Clarinha: {str(e)}"})
 
-# 📄 Gerar relatório em PDF
+# 📄 Gerar relatório
 @app.route('/relatorio')
 def relatorio():
     try:
@@ -115,5 +116,5 @@ def relatorio():
     except Exception as e:
         return jsonify({"status": f"❌ Erro ao gerar relatório: {str(e)}"})
 
-# 🔁 Compatível com Render
+# 🔁 Para Render
 application = app
