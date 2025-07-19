@@ -7,7 +7,7 @@ from binance.client import Client
 from fpdf import FPDF
 from cryptography.fernet import Fernet
 
-# Chaves protegidas (exemplo seguro e editável)
+# Chaves protegidas (Render usa variáveis de ambiente)
 FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
 fernet = Fernet(FERNET_KEY)
 
@@ -15,7 +15,6 @@ API_KEY = os.getenv("Bia") or "CHAVE_BINANCE_CRIPTOGRAFADA"
 SECRET_KEY = os.getenv("Bia1") or "SEGREDO_BINANCE_CRIPTOGRAFADO"
 OPENAI_KEY = os.getenv("OPENAI") or "CHAVE_OPENAI"
 
-# Descriptografar se criptografado
 try:
     API_KEY = fernet.decrypt(API_KEY.encode()).decode()
     SECRET_KEY = fernet.decrypt(SECRET_KEY.encode()).decode()
@@ -23,12 +22,10 @@ except:
     pass
 
 openai.api_key = OPENAI_KEY
-
 client = Client(API_KEY, SECRET_KEY, testnet=True)
 
 app = Flask(__name__)
 
-# HTML embutido
 html_template = """
 <!DOCTYPE html>
 <html>
@@ -70,9 +67,8 @@ def index():
 
 @app.route('/executar')
 def executar():
-    # Exemplo de entrada com market order
     try:
-        ordem = client.futures_create_order(
+        client.futures_create_order(
             symbol="BTCUSDT",
             side="BUY",
             type="MARKET",
@@ -122,8 +118,5 @@ def relatorio():
     except Exception as e:
         return jsonify({"status": f"Erro ao gerar relatório: {str(e)}"})
 
-# Gunicorn e Render compatível
+# 🔐 Executável via Gunicorn (Render)
 application = app
-
-if __name__ == "__main__":
-    app.run(debug=True)
