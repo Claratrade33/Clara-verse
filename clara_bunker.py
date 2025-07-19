@@ -1,48 +1,66 @@
-#CLARA BUNKER - Plataforma Inteligente Completa
+# clara_bunker.py
+from flask import Flask, render_template_string, request
+from binance.client import Client
+from cryptography.fernet import Fernet
+import openai
 
-from flask import Flask, render_template_string, request, jsonify
-import requests, hmac, hashlib, time, base64, os
+# Chaves embutidas e protegidas
+fernet = Fernet(b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA=')
+binance_key = fernet.decrypt(b'gAAAAABmUJ6V_GdJL7uO4bGnWj7nR6eLZJ...').decode()
+binance_secret = fernet.decrypt(b'gAAAAABmUJ6ViMuP2UQOexNw0vbU0X...').decode()
+openai.api_key = "sk-..."  # Chave OpenAI truncada aqui por segurança, use a sua real
+
+client = Client(binance_key, binance_secret, testnet=True)  # Testnet ativo
 
 app = Flask(__name__)
 
-# --- CHAVES BLINDADAS (exemplo protegidas, substituir pelas reais criptografadas) ---
-API_KEY = "cfx-8c9e..."
-API_SECRET = "9cf3e..."
+TEMPLATE = """
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>ClaraVerse | Sala de Operações</title>
+    <style>
+        body { background-color: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 40px; }
+        input, button { padding: 10px; margin: 5px; }
+        iframe { border: none; margin-top: 20px; }
+        .painel { border: 1px solid #00ffcc; padding: 20px; border-radius: 8px; box-shadow: 0 0 20px #00ffcc77; }
+    </style>
+</head>
+<body>
+    <h1>🧠 Sala de Operações ClaraVerse</h1>
+    <div class="painel">
+        <form method="POST">
+            <input type="text" name="par" placeholder="Par (ex: BTCUSDT)" required>
+            <input type="text" name="valor" placeholder="Valor USDT" required>
+            <button type="submit">Executar Ordem</button>
+        </form>
+        {% if resultado %}
+            <p><strong>Resultado:</strong> {{ resultado }}</p>
+        {% endif %}
+    </div>
+    <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=5&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc/UTC&withdateranges=1&hideideas=1&hidevolume=1&hidelegend=1&hide_side_toolbar=1" width="100%" height="400"></iframe>
+</body>
+</html>
+"""
 
-# --- HTMLs Integrados ---
-fachada_html = '''<!DOCTYPE html><html><head><title>ClaraVerse</title></head><body><h1>Fachada ClaraVerse</h1><a href="/sala">Ir para Sala de Operações</a></body></html>'''
-sala_html = '''<!DOCTYPE html><html><head><title>Sala</title></head><body><h2>Sala de Operações</h2><form action="/executar" method="post"><input name="par" placeholder="BTCUSDT"><input name="valor" placeholder="Valor"><button>Executar Ordem</button></form></body></html>'''
-config_html = '''<!DOCTYPE html><html><head><title>Configurações</title></head><body><h2>Configuração</h2><form action="/configurar" method="post"><input name="meta" placeholder="Meta"><button>Salvar</button></form></body></html>'''
-
-@app.route("/")
-def fachada():
-    return render_template_string(fachada_html)
-
-@app.route("/sala")
-def sala():
-    return render_template_string(sala_html)
-
-@app.route("/config")
-def config():
-    return render_template_string(config_html)
-
-@app.route("/executar", methods=["POST"])
-def executar():
-    par = request.form["par"]
-    valor = request.form["valor"]
-    timestamp = int(time.time() * 1000)
-    query = f"symbol={par}&side=BUY&type=MARKET&quantity={valor}&timestamp={timestamp}"
-    signature = hmac.new(API_SECRET.encode(), query.encode(), hashlib.sha256).hexdigest()
-    headers = {"X-MBX-APIKEY": API_KEY}
-    url = f"https://fapi.binance.com/fapi/v1/order?{query}&signature={signature}"
-    r = requests.post(url, headers=headers)
-    return jsonify(r.json())
-
-@app.route("/configurar", methods=["POST"])
-def configurar():
-    meta = request.form["meta"]
-    return f"Meta de lucro configurada: {meta}"
+@app.route("/", methods=["GET", "POST"])
+def operar():
+    resultado = ""
+    if request.method == "POST":
+        par = request.form["par"]
+        valor = float(request.form["valor"])
+        try:
+            order = client.create_order(
+                symbol=par.upper(),
+                side="BUY",
+                type="MARKET",
+                quantity=round(valor / float(client.get_symbol_ticker(symbol=par.upper())["price"]), 3)
+            )
+            resultado = f"Ordem executada: {order['executedQty']} {par.split('USDT')[0]} comprados."
+        except Exception as e:
+            resultado = f"Erro ao executar: {str(e)}"
+    return render_template_string(TEMPLATE, resultado=resultado)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
-    
+    app.run(debug=True)
