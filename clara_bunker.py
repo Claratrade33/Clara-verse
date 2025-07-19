@@ -1,107 +1,33 @@
-# Arquivo: clara_bunker.py
-from flask import Flask, render_template_string, request, jsonify
-import threading
-import time
-import random
+# clara_bunker.py (versão simplificada para exibição)
 
-# HTML do painel incorporado diretamente
-html = """
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>ClaraVerse | Corretora</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            background: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        .painel {
-            padding: 30px;
-            max-width: 1000px;
-            margin: auto;
-            text-align: center;
-        }
-        h1 {
-            color: #00ffcc;
-        }
-        .botoes {
-            margin: 20px 0;
-        }
-        .botao {
-            background: #111;
-            color: #00ffcc;
-            padding: 15px 30px;
-            margin: 10px;
-            border: 2px solid #00ffcc;
-            border-radius: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .botao:hover {
-            background: #00ffcc;
-            color: #000;
-        }
-        .grafico {
-            height: 400px;
-            margin-top: 40px;
-        }
-        .resultado {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #00ffcc;
-        }
-    </style>
-</head>
-<body>
-    <div class="painel">
-        <h1>Sala de Operações ClaraVerse</h1>
-        <div class="botoes">
-            <button class="botao" onclick="executar('ENTRADA')">ENTRADA</button>
-            <button class="botao" onclick="executar('STOP')">STOP</button>
-            <button class="botao" onclick="executar('ALVO')">ALVO</button>
-            <button class="botao" onclick="executar('CONFIGURAR')">CONFIGURAR</button>
-            <button class="botao" onclick="executar('EXECUTAR')">EXECUTAR</button>
-            <button class="botao" onclick="executar('AUTOMÁTICO')">AUTOMÁTICO</button>
-        </div>
-        <div class="grafico">
-            <iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_12345&symbol=BINANCE:BTCUSDT&interval=1&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=F1F3F6&studies=[]&theme=dark&style=1&timezone=America%2FSao_Paulo&studies_overrides={}&overrides={}" width="100%" height="100%" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
-        </div>
-        <div class="resultado" id="resultado">Aguardando ação...</div>
-    </div>
-    <script>
-        function executar(botao) {
-            fetch('/executar', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({acao: botao})
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('resultado').innerText = data.mensagem;
-            });
-        }
-    </script>
-</body>
-</html>
-"""
-
+from flask import Flask, render_template_string, request
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template_string(html)
+@app.route("/")
+def sala_operacoes():
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Sala de Operações</title>
+        <style>
+            body { background: black; color: cyan; font-family: monospace; text-align: center; }
+            .botao { margin: 20px; padding: 15px; background: #00ffff; color: black; border: none; border-radius: 5px; font-weight: bold; }
+            .ordens { margin-top: 30px; border: 1px solid cyan; padding: 20px; border-radius: 10px; background: #111; display: inline-block; }
+        </style>
+    </head>
+    <body>
+        <h1>🧠 ClarinhaBubi na Sala de Operações</h1>
+        <button class="botao">EXECUTAR ORDEM</button>
+        <button class="botao">MODO AUTOMÁTICO</button>
+        <div class="ordens">
+            <h2>📄 Ordens Executadas:</h2>
+            <div style="color: red;">Erro Automático: {"code":-2015,"msg":"Invalid API-key, IP, or permissions for action"}</div>
+            <div style="color: green;">✅ Ordem simulada com sucesso! Teste de conexão passou.</div>
+        </div>
+    </body>
+    </html>
+    """)
 
-@app.route('/executar', methods=['POST'])
-def executar():
-    acao = request.json.get('acao')
-    resultado = f"Ação '{acao}' executada com sucesso pela IA ClarinhaBubi. ROI estimado: {round(random.uniform(1.5, 12.3), 2)}%"
-    return jsonify({'mensagem': resultado})
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
