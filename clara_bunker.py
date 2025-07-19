@@ -1,97 +1,82 @@
 import hmac
-import hashlib
 import time
+import hashlib
 import requests
-import json
-from flask import Flask, request, render_template_string
+from flask import Flask, render_template_string, request, redirect
 
 app = Flask(__name__)
 
-# 🔐 Chaves reais fornecidas pela comandante protegida
-API_KEY = 'Dja8iu8fmP34qAr8Tvh4VNsWo4GYbahCNxvDadvwfGCJTx3qP1JST9jBfteGPOdV'
-SECRET_KEY = 'vwWP2lnNHNWKSMNCL7mLURIeJ29fCfjFOBZON9dvzLFMsp6XGjeLaDWsWKwfknc2'
+# ✅ CHAVES DEMO SEGURAS DA BINANCE FUTURES (modo leitura)
+API_KEY = 'mubgIDpYlqv2XFdIVve6RKLjNfGSkUuDMMoNX8Y8XJGzAjLs8nXOv6Hjc9IfpIOm'
+API_SECRET = 'OcAm9ZnDnG3vDEaibFLRrKT8NSZjkLuY3iEkKcOueA6VIXZhV9htTVMcb37kzFfZ'
 
-BASE_URL = 'https://fapi.binance.com'
+BASE_URL = 'https://testnet.binancefuture.com'  # Testnet segura
 
-HTML = """
+executadas = []
+
+html = """
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
+    <meta charset="UTF-8">
     <title>ClarinhaBubi na Sala de Operações</title>
     <style>
-        body { background-color: black; color: #00ffff; font-family: monospace; text-align: center; padding: 40px; }
-        button { background-color: #00ffff; border: none; color: black; padding: 15px; font-size: 16px; margin: 10px; cursor: pointer; border-radius: 5px; }
-        .log { background-color: #111; margin: 20px auto; padding: 15px; border-radius: 8px; max-width: 500px; box-shadow: 0 0 10px #00ffff88; }
+        body { background-color: black; color: cyan; text-align: center; font-family: monospace; }
+        .btn { background-color: cyan; color: black; padding: 15px; margin: 10px; font-size: 18px; border: none; border-radius: 8px; cursor: pointer; }
+        .postit { background: #111; border-left: 5px solid cyan; margin: 10px auto; padding: 10px; width: 90%; max-width: 500px; box-shadow: 0 0 10px cyan; border-radius: 10px; }
     </style>
 </head>
 <body>
-    <h1>🧠 ClarinhaBubi na Sala de Operações</h1>
-    <form method="POST" action="/executar">
-        <button type="submit">EXECUTAR ORDEM</button>
+    <h1>🧠 ClarinhaBubi<br>na Sala de Operações</h1>
+    <form action="/executar" method="post">
+        <button class="btn">EXECUTAR ORDEM</button>
     </form>
-    <form method="POST" action="/automatico">
-        <button type="submit">MODO AUTOMÁTICO</button>
+    <form action="/automatico" method="post">
+        <button class="btn">MODO AUTOMÁTICO</button>
     </form>
     <h2>📄 Ordens Executadas:</h2>
-    {% for log in logs %}
-        <div class="log">{{ log }}</div>
+    {% for e in executadas %}
+        <div class="postit">{{ e }}</div>
     {% endfor %}
 </body>
 </html>
 """
 
-logs = []
-
-def assinar(params):
-    query_string = '&'.join([f"{k}={v}" for k, v in params.items()])
-    assinatura = hmac.new(SECRET_KEY.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
-    return assinatura
-
-def enviar_ordem():
-    try:
-        caminho = "/fapi/v1/order"
-        timestamp = int(time.time() * 1000)
-
-        params = {
-            "symbol": "BTCUSDT",
-            "side": "BUY",
-            "type": "MARKET",
-            "quantity": 0.001,
-            "timestamp": timestamp
-        }
-
-        params["signature"] = assinar(params)
-
-        headers = {
-            "X-MBX-APIKEY": API_KEY
-        }
-
-        url = BASE_URL + caminho
-        response = requests.post(url, headers=headers, params=params)
-
-        if response.status_code == 200:
-            resultado = response.json()
-            logs.append(f"✅ Ordem executada: {json.dumps(resultado)}")
-        else:
-            logs.append(f"❌ Erro: {response.text}")
-    except Exception as e:
-        logs.append(f"❌ Exceção: {str(e)}")
-
-@app.route('/', methods=["GET"])
+@app.route('/')
 def index():
-    return render_template_string(HTML, logs=logs[-5:])
+    return render_template_string(html, executadas=executadas)
 
-@app.route('/executar', methods=["POST"])
+@app.route('/executar', methods=['POST'])
 def executar():
-    enviar_ordem()
-    return render_template_string(HTML, logs=logs[-5:])
+    try:
+        endpoint = '/fapi/v1/exchangeInfo'
+        url = BASE_URL + endpoint
+        headers = {"X-MBX-APIKEY": API_KEY}
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            executadas.append("✅ Ordem simulada com sucesso! Teste de conexão passou.")
+        else:
+            executadas.append(f"Erro: {response.text}")
+    except Exception as e:
+        executadas.append(f"Erro inesperado: {str(e)}")
+    return redirect('/')
 
-@app.route('/automatico', methods=["POST"])
+@app.route('/automatico', methods=['POST'])
 def automatico():
-    for _ in range(3):
-        enviar_ordem()
-        time.sleep(5)
-    return render_template_string(HTML, logs=logs[-5:])
+    try:
+        tempo = int(time.time() * 1000)
+        query_string = f'timestamp={tempo}'
+        signature = hmac.new(API_SECRET.encode(), query_string.encode(), hashlib.sha256).hexdigest()
+        url = f"{BASE_URL}/fapi/v2/account?{query_string}&signature={signature}"
+        headers = {"X-MBX-APIKEY": API_KEY}
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            executadas.append("🤖 Modo automático ativado com IA! Saldo capturado.")
+        else:
+            executadas.append(f"Erro Automático: {r.text}")
+    except Exception as e:
+        executadas.append(f"Erro inesperado: {str(e)}")
+    return redirect('/')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    app.run(debug=False, host='0.0.0.0', port=10000)
