@@ -1,4 +1,4 @@
-#clara_bunker.py
+clara_bunker.py
 # Sistema operacional completo com integração Binance + OpenAI + IA Clarinha
 # Arquivo único, blindado e funcional
 
