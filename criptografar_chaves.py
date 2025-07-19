@@ -1,15 +1,16 @@
 from cryptography.fernet import Fernet
 
-FERNET_KEY = "0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA="  # mesma usada no bunker
+FERNET_KEY = "0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA="
 fernet = Fernet(FERNET_KEY.encode())
 
-API_KEY_CRIPTO = 'gAAAAABoe97uvGGvkSIcRZBeFH8Fd8Cx3FBLB2kUnHx0QOEgbKraR32D4UaPFu58b2MoA5RwlhFR-oZ1iBxnmHJPApa481zVxOR9i7OUpuNoGmwSiagNOZHRJyHuiO9BOHVTMAjbBYl9oYV4v-TSXu5Nc8H0mPZZKCvD0BIsFeH4btIAW7R4skA='
-API_SECRET_CRIPTO = 'gAAAAABoe97uVQLzWeAO9x4i-WAX2L1R1hlylhGUA8M5KJu1lm8AW_zeXckwVCECi0tpmZV5woHPyaOnq2rQZ496WYKVSnqHMgs2fuWHZjwq_iX1hqS4CNRM016t9VxeqxMC2nf830CxeP845v385tSflXNXABiiu4xkowoVxgRQBcxCPPKmjBE='
-OPENAI_KEY_CRIPTO = 'gAAAAABoe97unAu_8lEJ7xw3DbiwK_icTdVRk0mUInnUAkbnoy3cxMvYZheLZ-qfW6S0IJuL5ZHRXBamDf7C_te3qbT3Ni0F8Obge9kR_tbftN2f3eHH6_syA0tG32BYinYa6235XFAtW7UWG0uiZyQVzOKY9iTSFZ-1KqLfxuBlexWNK9B9G5s='
+sua_api = "Yih4************XgKi"
+seu_secret = "1nK************5uwz"
+sua_openai = "sk-LcT3*************Ntbw7fBlbkFqrxQh6KOA64O3O3"
 
-print("API_KEY_CRIPTO =")
-print(API_KEY_CRIPTO)
-print("\nAPI_SECRET_CRIPTO =")
-print(API_SECRET_CRIPTO)
-print("\nOPENAI_KEY_CRIPTO =")
-print(OPENAI_KEY_CRIPTO)
+api_cript = fernet.encrypt(sua_api.encode()).decode()
+secret_cript = fernet.encrypt(seu_secret.encode()).decode()
+openai_cript = fernet.encrypt(sua_openai.encode()).decode()
+
+print("API_KEY_CRYPT =", api_cript)
+print("API_SECRET_CRYPT =", secret_cript)
+print("OPENAI_KEY_CRYPT =", openai_cript)
