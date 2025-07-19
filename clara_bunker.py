@@ -4,71 +4,86 @@ from binance.client import Client
 from openai import OpenAI
 from cryptography.fernet import Fernet
 
-# ==== CHAVE FERNET ====
-FERNET_KEY = "ylh-urjGFb60dGJcGjEWY5SKGbhui-8SUItRz7YMZk="
+# ======= FERNET KEY =======
+FERNET_KEY = "0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA="
 fernet = Fernet(FERNET_KEY.encode())
 
-# ==== CHAVES CRIPTOGRAFADAS ====
-API_KEY = fernet.decrypt(b"gAAAAABoe_tmC3u_LkLDxTnp5p-7wgMiHVckvJIOgEQFfBTWjRx5CC2Ts3Z1PPx-vEA1ChEFZMxi1THdulmp8WK8wCJzBmS8vHAWEU4pooCBt8tVrlf0NkfOur-pEtjpJZt6NSpPUbhFvIqjtwNDnQAtMQL_mPfM8Dype0oShNoTkcMnECOsmF0=").decode()
-API_SECRET = fernet.decrypt(b"gAAAAABoe_tmrN2tKPQsPVYlnxp-wKItqZNirJXN_9eKHhle-_z_eud6i1pGpdG-ZRsDf_g26q2jlRixSXv8h_ZwOv5p4lu3AshCRbHXRpPvcHJ8LaoqGOP2ZQNH4h-8WUdPOS1EXYzZNXJHOLYMigWiyZO8d2w0NY1Qa0N2Vv-CpDMOXuIXcN8=").decode()
-OPENAI_KEY = fernet.decrypt(b"gAAAAABoe_xqx7jAACfbXHKxzF7XpmppgfkAYeX0fEHoOCfXz_lFxtzxnQqzty3LV1xFYvX9JllSyCd-jWnbn9acqFoMf4fGhA==").decode()
+# ======= CHAVES CRIPTOGRAFADAS =======
+API_KEY = fernet.decrypt(b"gAAAAABofAOtwLRJJhSH1aUN9ywCdygAroOP5dcNt4KeGFwI0WTS_oJyqng2VIXEQimQN7SIf1lyfTmzW699MRPcyAZrnODRr-wCD2g7Opgo2zOHxPr1FN4HHhUI_o2il7jwfp4djNGfrvxMlHRky7dR9iZdXwsiaU2mz8eAr6RCvaxHfj34-Xo=").decode()
+API_SECRET = fernet.decrypt(b"gAAAAABofAOt-LdSyc_aH5i0KhlpPxGYI-eJfPz4grMf57YOPyu0ux9Eza9OBy_ZfKaIU6bVMFIzc6MIwRPuiwA3JwSBcWyOIOp2_aq4mNOSS4atSzUsMibliAtyoTeswzg1Q2CaW8uq5YpY_vFtk219dHGz1hJYt9AE_5M_pigUTiKD6YAfvR8=").decode()
+OPENAI_KEY = fernet.decrypt(b"gAAAAABofAOt2kA847ZWvf52ZnqnwmvZ8CUyf8x8THt5mZ_xddw5fipKV0MGmFzOo2NSHgggxin_t2MUm3kUozs13lfvvZKQzA==").decode()
 
-# ==== INICIALIZAÇÃO ====
+# ======= CLIENTES =======
 app = Flask(__name__)
 binance = Client(API_KEY, API_SECRET)
 client_openai = OpenAI(api_key=OPENAI_KEY)
 
-# ==== HTML INTERFACE ====
-html = '''
-<!DOCTYPE html>
+# ======= HTML UI =======
+html = """
+<!doctype html>
 <html>
-<head>
-    <title>Clara Bunker</title>
-</head>
-<body>
-    <h1>Bem-vindo à Sala de Operações Clara</h1>
-    <form action="/operar" method="post">
-        <label>Moeda (ex: BTCUSDT):</label><br>
-        <input type="text" name="par" value="BTCUSDT"><br><br>
-        <button type="submit">ENTRAR</button>
-    </form>
+<head><title>ClaraVerse Bunker</title></head>
+<body style="background-color:#0d1117; color:white; font-family:sans-serif; text-align:center; padding:30px;">
+    <h1>👁️ ClaraVerse</h1>
+    <h3>Sala de operações</h3>
+    <button onclick="enviarAcao('entrada')">ENTRADA</button>
+    <button onclick="enviarAcao('alvo')">ALVO</button>
+    <button onclick="enviarAcao('stop')">STOP</button>
+    <button onclick="enviarAcao('auto')">AUTOMÁTICO</button>
+    <div id="resposta" style="margin-top:20px;"></div>
+
+    <script>
+    function enviarAcao(acao) {
+        fetch('/acao', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ acao: acao })
+        })
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('resposta').innerText = JSON.stringify(d, null, 2);
+        });
+    }
+    </script>
 </body>
 </html>
-'''
+"""
 
-# ==== ROTA PRINCIPAL ====
-@app.route('/')
+# ======= ROTA PRINCIPAL =======
+@app.route("/")
 def index():
     return render_template_string(html)
 
-# ==== LÓGICA DE OPERAÇÃO ====
-@app.route('/operar', methods=['POST'])
-def operar():
-    par = request.form.get('par', 'BTCUSDT')
+@app.route("/acao", methods=["POST"])
+def acao():
+    dados = request.get_json()
+    acao = dados.get("acao")
 
-    try:
-        candles = binance.get_klines(symbol=par, interval=Client.KLINE_INTERVAL_1MINUTE, limit=10)
-        prices = [float(c[4]) for c in candles]
-        media = sum(prices) / len(prices)
+    if acao == "auto":
+        resultado = gerar_ordem()
+    else:
+        resultado = {"mensagem": f"Ação manual: {acao}"}
 
-        # Consulta à OpenAI
-        prompt = f"Últimos preços: {prices}. Média: {media:.2f}. Você recomendaria entrar comprado ou vendido?"
-        response = client_openai.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}]
-        )
+    return jsonify(resultado)
 
-        decisao = response.choices[0].message.content.strip()
-        return jsonify({
-            "par": par,
-            "preco_atual": prices[-1],
-            "media": media,
-            "decisao": decisao
-        })
+# ======= LÓGICA DE ORDEM (AUTO) =======
+def gerar_ordem():
+    prompt = (
+        "Você é um analista de operações. Gere uma análise JSON para os pares BTC/USDT, PEPE/USDT e SUI/USDT. "
+        "Formato:\n"
+        "{\n"
+        "  \"par\": \"BTC/USDT\",\n"
+        "  \"entrada\": valor,\n"
+        "  \"alvo\": valor,\n"
+        "  \"stop\": valor,\n"
+        "  \"confianca\": \"alta|media|baixa\"\n"
+        "}"
+    )
+    resposta = client_openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return {"auto": resposta.choices[0].message.content}
 
-    except Exception as e:
-        return jsonify({"erro": str(e)}), 500
-
-# ==== PARA RODAR LOCALMENTE ====
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+# ======= APP =======
+app = app
