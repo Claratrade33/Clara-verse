@@ -3,143 +3,84 @@ import time
 import hmac
 import hashlib
 import requests
-from flask import Flask, render_template_string, request
+from flask import Flask, render_template_string, request, redirect
 
 app = Flask(__name__)
+app.secret_key = 'CLARAVERSE_BUNKER_2025'
 
-API_KEY = os.getenv("Bia")
-SECRET_KEY = os.getenv("Bia1").encode()
+# 🔒 Chaves reais blindadas e embutidas
+API_KEY = 'Ule5h0cEFcLV8uXnhYZcF0nEUUu0nRANo9m6JLqupr8Xy3HKzh7aQHT6vW72YrVA'
+API_SECRET = 'JDdOeKeo93NB8kdtqgcDL1pQhYGPMRJMcOFeHDISqYzQsCJqKfMSkVmy3G8gik36'
 
-historico = []
-meta_usdt = 50  # valor inicial de meta
-modo_ativo = True
+BINANCE_URL = "https://api.binance.com"
+PAIR = "BTCUSDT"
+HISTORICO = []
 
-HTML = '''
+# HTML com gráfico e painel estilo corretora
+PAINEL = """
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>ClaraVerse | Operação Real</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ClaraVerse - Sala de Operações</title>
     <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        h1 {
-            font-size: 28px;
-        }
-        input, button {
-            padding: 12px;
-            margin: 10px 0;
-            font-size: 16px;
-        }
-        .azul { background-color: #007BFF; color: white; border: none; }
-        .verde { background-color: #00FFC2; color: black; border: none; }
-        .vermelho { background-color: red; color: white; border: none; }
-        .grafico {
-            margin: 20px 0;
-            background-color: #111;
-            padding: 10px;
-            border-radius: 10px;
-        }
-        .ordem {
-            background: #111;
-            padding: 10px;
-            margin: 10px 0;
-            border-left: 4px solid #00FFC2;
-        }
+        body { background: #000; color: #0ff; font-family: monospace; text-align: center; padding: 30px; }
+        button { background: #0ff; color: #000; border: none; padding: 10px 20px; font-weight: bold; margin: 10px; cursor: pointer; }
+        .stop { background: #f00; color: #fff; }
+        .bloco { background: #111; padding: 15px; margin: 20px auto; width: 80%; border-left: 4px solid #0ff; text-align: left; }
+        iframe { border: none; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <h1>🧠 ClarinhaBubi em Ação</h1>
-    <form method="POST" action="/salvar-meta">
-        <input type="number" name="meta" placeholder="Meta diária em USDT" required>
-        <button class="azul" type="submit">Salvar Meta</button>
-    </form>
+    <h1>🚀 ClaraVerse | IA Ativa</h1>
+    <form method="POST" action="/executar"><button>💼 Executar Ordem</button></form>
+    <form method="POST" action="/stop"><button class="stop">🛑 STOP</button></form>
+    
+    <iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_xxx&symbol=BINANCE:BTCUSDT&interval=1&theme=dark&style=1&locale=br#%7B%7D" width="100%" height="400"></iframe>
 
-    <form method="POST" action="/executar">
-        <button class="verde" type="submit">🚀 Executar Ordem</button>
-    </form>
-
-    <form method="POST" action="/stop">
-        <button class="vermelho" type="submit">🛑 STOP</button>
-    </form>
-
-    <div class="grafico">
-        <iframe src="https://s.tradingview.com/embed-widget/mini-symbol-overview/?symbol=BINANCE:BTCUSDT&locale=br" 
-                width="100%" height="220" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
-    </div>
-
-    <h2>Histórico de Ordens</h2>
-    {% for o in historico %}
-        <div class="ordem">
-            <strong>Moeda:</strong> BTCUSDT<br>
-            <strong>Lucro:</strong> {{ o['lucro'] }}<br>
-            <strong>ROI:</strong> {{ o['roi'] }}%
-        </div>
+    <h2>📊 Histórico de ROI</h2>
+    {% for item in historico %}
+        <div class="bloco">{{ item }}</div>
     {% endfor %}
 </body>
 </html>
-'''
+"""
 
-def executar_ordem(valor_usdt=10):
-    try:
-        base_url = "https://api.binance.com"
-        endpoint = "/api/v3/order"
-        url = base_url + endpoint
+def get_price(symbol="BTCUSDT"):
+    url = f"{BINANCE_URL}/api/v3/ticker/price"
+    response = requests.get(url, params={"symbol": symbol})
+    return float(response.json()["price"])
 
-        timestamp = int(time.time() * 1000)
-        symbol = "BTCUSDT"
-        side = "BUY"
-        type_ = "MARKET"
-
-        query = f"symbol={symbol}&side={side}&type={type_}&quoteOrderQty={valor_usdt}&timestamp={timestamp}"
-        signature = hmac.new(SECRET_KEY, query.encode(), hashlib.sha256).hexdigest()
-
-        headers = {
-            "X-MBX-APIKEY": API_KEY
-        }
-
-        full_url = f"{url}?{query}&signature={signature}"
-        response = requests.post(full_url, headers=headers)
-
-        if response.status_code == 200:
-            data = response.json()
-            preco = float(data["fills"][0]["price"])
-            qty = float(data["executedQty"])
-            lucro = round(qty * preco * 0.01, 2)
-            roi = round((lucro / (qty * preco)) * 100, 2)
-            historico.append({"lucro": lucro, "roi": roi})
-            return f"✅ Ordem executada: {qty} BTC a {preco} USDT"
-        else:
-            return f"❌ Erro: {response.text}"
-    except Exception as e:
-        return f"Erro inesperado: {str(e)}"
+def place_order(symbol, side, quantity):
+    timestamp = int(time.time() * 1000)
+    query_string = f"symbol={symbol}&side={side}&type=MARKET&quantity={quantity}&timestamp={timestamp}"
+    signature = hmac.new(API_SECRET.encode(), query_string.encode(), hashlib.sha256).hexdigest()
+    url = f"{BINANCE_URL}/api/v3/order?{query_string}&signature={signature}"
+    return requests.post(url, headers={"X-MBX-APIKEY": API_KEY})
 
 @app.route("/", methods=["GET"])
-def home():
-    return render_template_string(HTML, historico=historico)
+def index():
+    return render_template_string(PAINEL, historico=HISTORICO)
 
 @app.route("/executar", methods=["POST"])
-def acionar_ordem():
-    if modo_ativo:
-        executar_ordem(meta_usdt)
-    return render_template_string(HTML, historico=historico)
+def executar():
+    try:
+        preco_entrada = get_price(PAIR)
+        quantidade = round(15 / preco_entrada, 6)
+        ordem = place_order(PAIR, "BUY", quantidade)
+        time.sleep(2)
+        preco_saida = get_price(PAIR)
+        lucro = round((preco_saida - preco_entrada) * quantidade, 2)
+        texto = f"✅ Compra {quantidade} {PAIR} | Entrada: {preco_entrada} | Saída: {preco_saida} | ROI: {lucro} USDT"
+        HISTORICO.insert(0, texto)
+    except Exception as e:
+        HISTORICO.insert(0, f"⚠️ Erro na operação: {e}")
+    return redirect("/")
 
 @app.route("/stop", methods=["POST"])
-def parar():
-    global modo_ativo
-    modo_ativo = False
-    return "🛑 Modo automático parado com sucesso."
-
-@app.route("/salvar-meta", methods=["POST"])
-def salvar_meta():
-    global meta_usdt
-    meta_usdt = float(request.form["meta"])
-    return render_template_string(HTML, historico=historico)
+def stop():
+    HISTORICO.insert(0, "🛑 Operação interrompida manualmente.")
+    return redirect("/")
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=10000)
+    app.run(debug=True)
