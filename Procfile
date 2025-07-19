@@ -1,1 +1,1 @@
-web: python clara_bunker.py
+web: gunicorn clara_bunker:application
