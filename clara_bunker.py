@@ -1,121 +1,91 @@
 import os
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, render_template_string, request, jsonify
 from cryptography.fernet import Fernet
 from binance.client import Client
 from openai import OpenAI
 
-# 🔐 FERNET DECRIPTAÇÃO
-FERNET_KEY = "INSIRA_SUA_CHAVE_FERNET_BASE64_AQUI"  # Substitua por sua chave de 32 bytes em Base64
+# CHAVE FERNET USADA PARA DESCRIPTOGRAFAR
+FERNET_KEY = "WS2w38PfSNFIwUDWHEZSUVaaBbC36rY0AWd_9Url870="
 fernet = Fernet(FERNET_KEY.encode())
 
-try:
-    API_KEY = fernet.decrypt(os.getenv("Bia").encode()).decode()
-    API_SECRET = fernet.decrypt(os.getenv("Bia1").encode()).decode()
-    OPENAI_KEY = fernet.decrypt(os.getenv("OPEN").encode()).decode()
-except Exception as e:
-    raise Exception(f"Erro ao descriptografar as chaves: {str(e)}")
+# CHAVES CRIPTOGRAFADAS
+API_KEY = fernet.decrypt(b"gAAAAABofByBegKeqcSRN-lmgaanOOcM5O0Dtu7z2iYK_-suiNcRNlSiFdeInAvys66mWh1NBoiQNmqUwqZ_T-6H4e6rN5ZQRUmWuN_uhl5jb7ZfVrqVjAxXuaVSv9AMclZouDtigmvkQSLS58SSIVNhLjpjdmtX6xL9BN71bo1lsOltx5rUq8I=").decode()
+API_SECRET = fernet.decrypt(b"gAAAAABofByB-BP_jDBCmDRIm5yL397B-p0w14TW8ElNTV5KAMXDY3Bd3p-Gw0N5TgwJ4wlF7URd7t1KnexICFpNX5fI9M6mfyrsCm4z1A3uDFO7DBkDdW5cR795ZDNp3tKRiQO_EE2-Xj7r-OONhYXXVHWKsaS_jOjmZR3iOtqFqzn-dEJc2I0=").decode()
+OPENAI_KEY = fernet.decrypt(b"gAAAAABofByBbLcXkUQfo6P0jLJP93NXWM_kSaV-0P1UIhpxZ05I719DGuTUPHM6sFdeAFimCoSBU2RGTN8nyteMd9o3V8gZ7w==").decode()
 
-# 🔧 INICIALIZAÇÕES
+# INICIALIZAÇÃO
 app = Flask(__name__)
 binance = Client(API_KEY, API_SECRET)
 client_openai = OpenAI(api_key=OPENAI_KEY)
 
-# 📊 INTERFACE HTML EMBUTIDA
-html = """
+# INTERFACE HTML ESTILO CORRETORA
+html = '''
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ClaraVerse - Bunker de Operações</title>
+    <title>ClaraVerse</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #111; color: #eee; text-align: center; }
-        .botao { padding: 12px 24px; margin: 10px; font-size: 18px; background-color: #222; color: #00ffcc; border: 2px solid #00ffcc; border-radius: 5px; cursor: pointer; }
-        .botao:hover { background-color: #00ffcc; color: #111; }
-        #resposta { margin-top: 20px; font-size: 18px; white-space: pre-wrap; }
+        body { font-family: Arial; background: #121212; color: #fff; text-align: center; padding: 40px; }
+        button { background: #00ffcc; color: black; padding: 15px; margin: 10px; border: none; border-radius: 5px; font-size: 16px; }
+        #result { margin-top: 20px; font-size: 18px; white-space: pre-line; }
     </style>
 </head>
 <body>
-    <h1>🛡️ ClaraVerse - Sala de Operações 🧠</h1>
-    <p>Escolha uma ação:</p>
-    <button class="botao" onclick="enviarComando('ENTRADA')">📈 ENTRADA</button>
-    <button class="botao" onclick="enviarComando('STOP')">⛔ STOP</button>
-    <button class="botao" onclick="enviarComando('ALVO')">🎯 ALVO</button>
-    <button class="botao" onclick="enviarComando('AUTOMÁTICO')">🤖 AUTOMÁTICO</button>
-    <div id="resposta"></div>
-
+    <h1>🧠 ClaraVerse - Sala de Operações</h1>
+    <p>Escolha o par e clique em <strong>AUTOMÁTICO</strong>:</p>
+    <select id="symbol">
+        <option value="PEPEUSDT">PEPE/USDT</option>
+        <option value="SUIUSDT">SUI/USDT</option>
+    </select><br>
+    <button onclick="enviar()">AUTOMÁTICO</button>
+    <div id="result"></div>
     <script>
-        async function enviarComando(acao) {
-            const respostaDiv = document.getElementById('resposta');
-            respostaDiv.innerHTML = '⏳ Processando...';
-            const res = await fetch('/comando', {
+        function enviar() {
+            const symbol = document.getElementById('symbol').value;
+            fetch('/analise', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ acao })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ symbol: symbol })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('result').innerText =
+                    "🎯 ENTRADA: " + data.entrada + "\n" +
+                    "🛑 STOP: " + data.stop + "\n" +
+                    "🎯 ALVO: " + data.alvo + "\n" +
+                    "📊 CONFIANÇA: " + data.confianca;
             });
-            const data = await res.json();
-            respostaDiv.innerHTML = '<strong>🔍 Resultado:</strong><br>' + JSON.stringify(data, null, 2);
         }
     </script>
 </body>
 </html>
-"""
+'''
 
-@app.route("/")
-def home():
+@app.route('/')
+def index():
     return render_template_string(html)
 
-@app.route("/comando", methods=["POST"])
-def comando():
-    acao = request.json.get("acao", "").upper()
+@app.route('/analise', methods=['POST'])
+def analise():
+    data = request.get_json()
+    symbol = data['symbol']
+    candles = binance.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_15MINUTE, limit=100)
+    closes = [float(c[4]) for c in candles]
+    atual = closes[-1]
+    contexto = f"Últimos fechamentos de {symbol}: {closes}\nRetorne uma análise de trading com entrada, alvo, stop e confiança."
+    resposta = client_openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "system", "content": "Você é uma IA trader especialista."},
+                  {"role": "user", "content": contexto}],
+        temperature=0.3
+    )
+    texto = resposta.choices[0].message.content
+    partes = {k: '' for k in ['entrada', 'stop', 'alvo', 'confianca']}
+    for linha in texto.splitlines():
+        for chave in partes:
+            if chave in linha.lower():
+                partes[chave] = ''.join(c for c in linha if c.isdigit() or c in ',.')
+    return jsonify(partes)
 
-    if acao == "ENTRADA":
-        return jsonify(entrada())
-
-    elif acao == "STOP":
-        return jsonify({"stop": "Em desenvolvimento, Clarinha avisa 😇"})
-
-    elif acao == "ALVO":
-        return jsonify({"alvo": "Logo ali na lua 🌕"})
-
-    elif acao == "AUTOMÁTICO":
-        return jsonify(automacao())
-
-    else:
-        return jsonify({"erro": "Ação desconhecida"})
-
-def entrada():
-    try:
-        candles = binance.get_klines(symbol="BTCUSDT", interval=Client.KLINE_INTERVAL_1MINUTE, limit=5)
-        preco_atual = float(candles[-1][4])
-
-        prompt = f"""
-        Com base no preço atual do BTC/USDT ({preco_atual}), retorne em JSON a estratégia:
-        {{
-            "entrada": <preço ideal>,
-            "alvo": <preço para lucro>,
-            "stop": <preço para stop loss>,
-            "confianca": <nível de confiança de 0 a 100>
-        }}
-        """
-
-        resposta = client_openai.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "Você é uma IA especialista em trading de criptomoedas."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-
-        conteudo = resposta.choices[0].message.content.strip()
-        return eval(conteudo)  # Pode substituir por json.loads se retornar JSON válido
-
-    except Exception as e:
-        return {"erro": str(e)}
-
-def automacao():
-    return {"status": "🔄 Modo automático ativado! (Em testes ainda...)"}
-
-# ✅ Corrige o erro de importação com Gunicorn
-if __name__ == "__main__":
-    app.run(debug=True)
-
-application = app  # ← ESSENCIAL para Render + Gunicorn funcionar!
+# PARA RENDER
+application = app
