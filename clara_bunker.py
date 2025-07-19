@@ -1,6 +1,6 @@
 from flask import Flask, render_template_string, request, jsonify
 import os
-import openai
+from openai import OpenAI
 from binance.client import Client
 from fpdf import FPDF
 from cryptography.fernet import Fernet
@@ -9,7 +9,7 @@ from cryptography.fernet import Fernet
 FERNET_KEY = b'0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA='
 fernet = Fernet(FERNET_KEY)
 
-# 🔒 Chaves criptografadas (REAIS)
+# 🔒 Chaves criptografadas (EXEMPLO — substitua pelas suas reais criptografadas)
 API_KEY_CRIPTO = b'gAAAAABmTMd7NRhFfhdEw8pTTKPgkoJSixC4JYgM96v9pNYUVRM8KQuHFf_Urzk6r0HLH30G1DgmIf1bWv6gxzYq51yR4WvfrvEoxfA4zKQY2Mx2jMN2Ogg='
 API_SECRET_CRIPTO = b'gAAAAABmTMd7rEQ3G8gZy6o3ZnQ5L6V0_aOKVmT81TbE6Xk7lfUYsgFgUVejFMUDVWkQjZdKYpjsd4VDYfGDN2NK0dz-iF4jM93AoCuXmRPp5D3c79IK2yo='
 OPENAI_KEY = "sk-proj-KJ7TxS0gKDl8a9eAjEowuFJXtqjFZkH8vOtjcC..."
@@ -23,13 +23,13 @@ except:
     API_SECRET = "erro"
 
 # 🔌 Conectar à OpenAI e Binance
-openai.api_key = OPENAI_KEY
-client = Client(API_KEY, API_SECRET, testnet=False)  # REAL MODE
+client_openai = OpenAI(api_key=OPENAI_KEY)
+client_binance = Client(API_KEY, API_SECRET, testnet=False)  # REAL MODE
 
-# 🚀 Iniciar app
+# 🚀 Iniciar app Flask
 app = Flask(__name__)
 
-# 🌌 Interface futurista ClaraVerse
+# 🌌 HTML interface ClaraVerse
 html_template = """
 <!DOCTYPE html>
 <html>
@@ -66,10 +66,11 @@ def index():
 @app.route('/executar')
 def executar():
     try:
-        ordem = client.futures_create_order(symbol="BTCUSDT", side="BUY", type="MARKET", quantity=0.001)
+        ordem = client_binance.futures_create_order(
+            symbol="BTCUSDT", side="BUY", type="MARKET", quantity=0.001)
         return jsonify({"status": "✅ Ordem de ENTRADA executada com sucesso!"})
     except Exception as e:
-        return jsonify({"status": f"❌ Erro: {str(e)}"})
+        return jsonify({"status": f"❌ Erro na execução: {str(e)}"})
 
 # ⛔ Stop manual
 @app.route('/stop')
@@ -86,11 +87,11 @@ def alvo():
 def configurar():
     return jsonify({"status": "⚙️ Painel de configuração em breve!"})
 
-# 🤖 Modo automático com ClarinhaBubi
+# 🤖 Modo automático com nova API OpenAI
 @app.route('/automatico')
 def automatico():
     try:
-        resposta = openai.ChatCompletion.create(
+        resposta = client_openai.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "Você é ClarinhaBubi, IA espiritual que decide operações com sabedoria e responsabilidade."},
@@ -102,7 +103,7 @@ def automatico():
     except Exception as e:
         return jsonify({"status": f"❌ Erro com Clarinha: {str(e)}"})
 
-# 📄 Gerar relatório
+# 📄 Relatório
 @app.route('/relatorio')
 def relatorio():
     try:
@@ -116,5 +117,5 @@ def relatorio():
     except Exception as e:
         return jsonify({"status": f"❌ Erro ao gerar relatório: {str(e)}"})
 
-# 🔁 Para Render
+# 🔁 Compatível com Render
 application = app
