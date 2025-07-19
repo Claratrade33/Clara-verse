@@ -1,16 +1,19 @@
 from cryptography.fernet import Fernet
 
+# Mesma chave usada no bunker
 FERNET_KEY = "0dUWR9N3n0N_CAf8jPwjrVzhU3TXw1BkCrnIQ6HvhIA="
 fernet = Fernet(FERNET_KEY.encode())
 
-sua_api = "Yih4************XgKi"
-seu_secret = "1nK************5uwz"
-sua_openai = "sk-LcT3*************Ntbw7fBlbkFqrxQh6KOA64O3O3"
+# Substitua com suas chaves reais aqui para criptografar novamente
+openai_key = input("Digite sua chave OPENAI: ")
+binance_key = input("Digite sua API KEY Binance: ")
+binance_secret = input("Digite sua SECRET Binance: ")
 
-api_cript = fernet.encrypt(sua_api.encode()).decode()
-secret_cript = fernet.encrypt(seu_secret.encode()).decode()
-openai_cript = fernet.encrypt(sua_openai.encode()).decode()
+encrypted_openai = fernet.encrypt(openai_key.encode()).decode()
+encrypted_binance_key = fernet.encrypt(binance_key.encode()).decode()
+encrypted_binance_secret = fernet.encrypt(binance_secret.encode()).decode()
 
-print("API_KEY_CRYPT =", api_cript)
-print("API_SECRET_CRYPT =", secret_cript)
-print("OPENAI_KEY_CRYPT =", openai_cript)
+print("\nCole no Render (.env):\n")
+print(f"OPEN={encrypted_openai}")
+print(f"Bia={encrypted_binance_key}")
+print(f"Bia1={encrypted_binance_secret}")
