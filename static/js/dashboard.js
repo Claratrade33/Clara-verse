@@ -1,44 +1,57 @@
 document.addEventListener("DOMContentLoaded", () => {
-  atualizarMercado();
+    atualizarMercado();
 
-  const intervalo = setInterval(atualizarMercado, 10000);
+    // Atualiza mercado a cada 15s
+    setInterval(atualizarMercado, 15000);
 });
 
 function atualizarMercado() {
-  fetch("/dados_mercado?par=BTCUSDT")
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("preco").innerText = data.preco || "--";
-      document.getElementById("variacao").innerText = data.variacao || "--";
-      document.getElementById("volume").innerText = data.volume || "--";
-    })
-    .catch(() => console.warn("Erro ao buscar dados do mercado"));
+    fetch("/dados_mercado")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("preco").textContent = data.preco || "--";
+            document.getElementById("variacao").textContent = data.variacao || "--";
+            document.getElementById("volume").textContent = data.volume || "--";
+        });
 }
 
 function salvarChaves() {
-  const binance_api_key = document.getElementById("binance_api_key").value;
-  const binance_api_secret = document.getElementById("binance_api_secret").value;
-  const openai_api_key = document.getElementById("openai_api_key").value;
+    const binance_api_key = document.getElementById("binance_api_key").value;
+    const binance_api_secret = document.getElementById("binance_api_secret").value;
+    const openai_api_key = document.getElementById("openai_api_key").value;
 
-  fetch("/salvar_chaves", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ binance_api_key, binance_api_secret, openai_api_key })
-  })
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById("status-chaves").innerText = "Chaves salvas com sucesso!";
-    setTimeout(() => {
-      document.getElementById("status-chaves").innerText = "";
-    }, 3000);
-  });
-}
-
-function executarAcao(acao) {
-  fetch(`/executar_acao?comando=${acao}`)
+    fetch("/salvar_chaves", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            binance_api_key,
+            binance_api_secret,
+            openai_api_key
+        })
+    })
     .then(res => res.json())
     .then(data => {
-      const sugestao = document.getElementById("sugestao");
-      if (sugestao) sugestao.innerText = data.resposta || "Sem resposta da IA.";
+        document.getElementById("status-chaves").textContent = "✅ Chaves salvas com sucesso!";
+        setTimeout(() => {
+            document.getElementById("status-chaves").textContent = "";
+        }, 3000);
     });
+}
+
+function enviarComando(tipo) {
+    fetch(`/executar_ia?tipo=${tipo}`)
+        .then(res => res.json())
+        .then(data => {
+            alert(`📊 IA responde:
+            
+• Entrada: ${data.entrada}
+• Alvo: ${data.alvo}
+• Stop: ${data.stop}
+• Confiança: ${data.confianca}`);
+        })
+        .catch(() => {
+            alert("Erro ao processar comando da IA.");
+        });
 }
