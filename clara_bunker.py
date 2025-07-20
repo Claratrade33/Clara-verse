@@ -16,38 +16,34 @@ chaves_salvas = {
     "openai_api_key": ""
 }
 
-# 🔁 Rota inicial — mostra o painel do gráfico com botão de login
 @app.route("/")
-def home():
-    return render_template("dashboard.html")
-
-# 🔑 Login — formulário e validação
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        usuario = request.form.get("usuario")
-        senha = request.form.get("senha")
-        if usuario == USUARIO_PADRAO and senha == SENHA_PADRAO:
-            session["usuario"] = usuario
-            return redirect("/painel")
-        else:
-            return render_template("login.html", erro="Usuário ou senha incorretos.")
+def login_page():
     return render_template("login.html")
 
-# 🚪 Logout
+@app.route("/login", methods=["POST"])
+def login():
+    usuario = request.form.get("usuario")
+    senha = request.form.get("senha")
+    if usuario == USUARIO_PADRAO and senha == SENHA_PADRAO:
+        session["usuario"] = usuario
+        return redirect("/painel")
+    return render_template("login.html", erro="Usuário ou senha incorretos.")
+
 @app.route("/logout")
 def logout():
     session.pop("usuario", None)
     return redirect("/")
 
-# 📊 Painel de operações (apenas para logado)
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
 @app.route("/painel")
 def painel():
     if "usuario" not in session:
-        return redirect("/login")
+        return redirect("/")
     return render_template("painel.html")
 
-# 💾 Salvar chaves API
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
     data = request.json
@@ -56,7 +52,6 @@ def salvar_chaves():
     chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
     return jsonify({"status": "sucesso"})
 
-# 📈 Dados da Binance (API pública)
 @app.route("/dados_mercado")
 def dados_mercado():
     par = request.args.get("par", "BTCUSDT")
@@ -76,5 +71,5 @@ def dados_mercado():
             "volume": "--"
         })
 
-# 🌐 Para Render
+# 🔁 Para compatibilidade com Render
 application = app
