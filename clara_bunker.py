@@ -5,23 +5,25 @@ import os
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# 🔐 Login padrão
+# Login padrão
 USUARIO_PADRAO = "admin"
 SENHA_PADRAO = "claraverse2025"
 
-# 🔒 Armazenamento simulado das chaves
+# Armazenamento simulado das chaves
 chaves_salvas = {
     "binance_api_key": "",
     "binance_api_secret": "",
     "openai_api_key": ""
 }
 
-# 🔹 Página inicial: Dashboard (página pública com botão de login)
 @app.route("/")
+def home():
+    return redirect("/dashboard")
+
+@app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html")
 
-# 🔹 Página de login
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -34,20 +36,17 @@ def login():
             return render_template("login.html", erro="Usuário ou senha incorretos.")
     return render_template("login.html")
 
-# 🔹 Página do painel (privada)
+@app.route("/logout")
+def logout():
+    session.pop("usuario", None)
+    return redirect("/login")
+
 @app.route("/painel")
 def painel():
     if "usuario" not in session:
         return redirect("/login")
     return render_template("painel.html")
 
-# 🔹 Logout
-@app.route("/logout")
-def logout():
-    session.pop("usuario", None)
-    return redirect("/")
-
-# 🔹 Salvando chaves da API
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
     data = request.json
@@ -56,7 +55,6 @@ def salvar_chaves():
     chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
     return jsonify({"status": "sucesso"})
 
-# 🔹 Dados de mercado (Binance pública)
 @app.route("/dados_mercado")
 def dados_mercado():
     par = request.args.get("par", "BTCUSDT")
@@ -76,5 +74,5 @@ def dados_mercado():
             "volume": "--"
         })
 
-# 🔁 Compatível com Render (Gunicorn)
+# Compatibilidade com Render (Gunicorn)
 application = app
