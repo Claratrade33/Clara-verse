@@ -2,8 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ClaraVerse • Painel de Operações</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClaraVerse Painel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
@@ -11,11 +10,11 @@
     <div class="menu-lateral">
         <div class="logo-menu">🪐 ClaraVerse</div>
         <button class="botao-menu" onclick="window.location.href='/dashboard'">📊 Dashboard</button>
-        <button id="btnEntrada" class="botao-menu">📥 Entrada</button>
-        <button id="btnStop" class="botao-menu">🛑 Stop</button>
-        <button id="btnAlvo" class="botao-menu">🎯 Alvo</button>
+        <button class="botao-menu" onclick="enviarComando('entrada')">📥 Entrada</button>
+        <button class="botao-menu" onclick="enviarComando('stop')">🛑 Stop</button>
+        <button class="botao-menu" onclick="enviarComando('alvo')">🎯 Alvo</button>
         <button class="botao-menu" onclick="window.location.href='/configurar'">⚙️ Configurar</button>
-        <button id="btnAuto" class="botao-menu">🤖 Automático</button>
+        <button class="botao-menu" onclick="enviarComando('auto')">🤖 Automático</button>
         <button class="botao-menu" onclick="window.location.href='/logout'">🚪 Sair</button>
     </div>
 
