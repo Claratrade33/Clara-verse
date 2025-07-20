@@ -1,71 +1,52 @@
-from flask import Flask, render_template, request, redirect, session, jsonify
-import requests
+from flask import Flask, render_template, request, redirect, url_for, session
 import os
-import json
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = 'clarinha-super-bunker'
 
-# Variáveis simuladas para armazenar as chaves temporariamente
-chaves_salvas = {
-    "binance_api_key": "",
-    "binance_api_secret": "",
-    "openai_api_key": ""
-}
+# Usuário padrão
+USUARIO_PADRAO = {'username': 'admin', 'password': 'claraverse2025'}
 
-# Login padrão
-USUARIO_PADRAO = "admin"
-SENHA_PADRAO = "claraverse2025"
-
-@app.route("/")
+# Rota inicial redireciona para login
+@app.route('/')
 def home():
-    return redirect("/login")
+    return redirect(url_for('login'))
 
-@app.route("/login", methods=["GET", "POST"])
+# Página de login
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == "POST":
-        usuario = request.form["usuario"]
-        senha = request.form["senha"]
-        if usuario == USUARIO_PADRAO and senha == SENHA_PADRAO:
-            session["usuario"] = usuario
-            return redirect("/dashboard")
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username == USUARIO_PADRAO['username'] and password == USUARIO_PADRAO['password']:
+            session['usuario'] = username
+            return redirect(url_for('dashboard'))
         else:
-            return render_template("login.html", erro="Usuário ou senha incorretos.")
-    return render_template("login.html")
+            return render_template('login.html', erro='Credenciais inválidas')
+    return render_template('login.html')
 
-@app.route("/logout")
-def logout():
-    session.pop("usuario", None)
-    return redirect("/login")
-
-@app.route("/dashboard")
+# Painel protegido (dashboard)
+@app.route('/dashboard')
 def dashboard():
-    if "usuario" not in session:
-        return redirect("/login")
-    return render_template("dashboard.html")
+    if 'usuario' in session:
+        return render_template('dashboard.html', usuario=session['usuario'])
+    return redirect(url_for('login'))
 
-@app.route("/salvar_chaves", methods=["POST"])
+# Rota de logout
+@app.route('/logout')
+def logout():
+    session.pop('usuario', None)
+    return redirect(url_for('login'))
+
+# Rota para salvar chaves (exemplo)
+@app.route('/salvar_chaves', methods=['POST'])
 def salvar_chaves():
-    data = request.json
-    chaves_salvas["binance_api_key"] = data.get("binance_api_key", "")
-    chaves_salvas["binance_api_secret"] = data.get("binance_api_secret", "")
-    chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
-    return jsonify({"status": "sucesso"})
+    api_key = request.form.get('binance_key')
+    secret_key = request.form.get('binance_secret')
+    openai_key = request.form.get('openai_key')
+    with open('chaves.txt', 'w') as f:
+        f.write(f'BINANCE_KEY={api_key}\nBINANCE_SECRET={secret_key}\nOPENAI_KEY={openai_key}')
+    return 'Chaves salvas com sucesso!'
 
-@app.route("/dados_mercado")
-def dados_mercado():
-    par = request.args.get("par", "BTCUSDT")
-    try:
-        url = f"https://api.binance.com/api/v3/ticker/24hr?symbol={par}"
-        response = requests.get(url)
-        dados = response.json()
-        return jsonify({
-            "preco": dados.get("lastPrice", "--"),
-            "variacao": dados.get("priceChangePercent", "--"),
-            "volume": dados.get("volume", "--")
-        })
-    except:
-        return jsonify({"preco": "--", "variacao": "--", "volume": "--"})
-
-# Para compatibilidade com Render (Gunicorn)
-application = app
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
