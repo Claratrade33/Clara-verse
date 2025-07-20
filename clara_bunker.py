@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
-import requests
-import os
+import requests, os
+from clarinha_oraculo import ClarinhaOraculo
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -14,7 +14,7 @@ chaves_salvas = {
     "binance_api_key": "",
     "binance_api_secret": "",
     "openai_api_key": "",
-    "meta_lucro": ""
+    "meta_lucro": 2.5
 }
 
 @app.route("/")
@@ -52,7 +52,7 @@ def painel():
 def configurar():
     if "usuario" not in session:
         return redirect("/login")
-    return render_template("configuracoes.html", chaves=chaves_salvas)
+    return render_template("configurar.html", chaves=chaves_salvas)
 
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
@@ -60,7 +60,7 @@ def salvar_chaves():
     chaves_salvas["binance_api_key"] = data.get("binance_api_key", "")
     chaves_salvas["binance_api_secret"] = data.get("binance_api_secret", "")
     chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
-    chaves_salvas["meta_lucro"] = data.get("meta_lucro", "")
+    chaves_salvas["meta_lucro"] = float(data.get("meta_lucro", 2.5))
     return jsonify({"status": "sucesso"})
 
 @app.route("/dados_mercado")
@@ -82,5 +82,19 @@ def dados_mercado():
             "volume": "--"
         })
 
-# 🔁 Para compatibilidade com Render (Gunicorn)
+@app.route("/sugestao_automatica")
+def sugestao_automatica():
+    meta = chaves_salvas.get("meta_lucro", 2.5)
+    openai_key = chaves_salvas.get("openai_api_key", "")
+
+    if not openai_key:
+        return jsonify({"erro": "Chave da OpenAI não configurada."})
+
+    clarinha = ClarinhaOraculo(openai_key)
+    dados = clarinha.consultar_mercado()
+    resposta = clarinha.interpretar_como_deusa(dados, meta_lucro=meta)
+
+    return jsonify({"resposta": resposta})
+
+# 🔁 Para compatibilidade com Render
 application = app
