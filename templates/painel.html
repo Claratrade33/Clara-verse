@@ -1,43 +1,71 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>ClaraVerse • Painel de Operações</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClaraVerse Painel</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
-<body class="painel">
+<body>
   <div class="sidebar">
-    <div class="logo">ClaraVerse</div>
+    <img src="{{ url_for('static', filename='logo_claraverse.png') }}" alt="Logo" class="logo" />
     <ul>
-      <li><a href="#"><img src="/static/icons/chart.svg" class="icon">Entrada</a></li>
-      <li><a href="#"><img src="/static/icons/stop.svg" class="icon">Stop</a></li>
-      <li><a href="#"><img src="/static/icons/target.svg" class="icon">Alvo</a></li>
-      <li><a href="#"><img src="/static/icons/settings.svg" class="icon">Configurar</a></li>
-      <li><a href="#"><img src="/static/icons/ai.svg" class="icon">Automático</a></li>
-      <li><a href="/logout"><img src="/static/icons/logout.svg" class="icon">Sair</a></li>
+      <li onclick="mostrarSecao('grafico')"><img src="{{ url_for('static', filename='icons/chart.svg') }}" alt="Gráfico"> Gráfico</li>
+      <li onclick="mostrarSecao('entrada')"><img src="{{ url_for('static', filename='icons/wallet.svg') }}" alt="Entrada"> Entrada</li>
+      <li onclick="mostrarSecao('stop')"><img src="{{ url_for('static', filename='icons/stop.svg') }}" alt="Stop"> Stop</li>
+      <li onclick="mostrarSecao('alvo')"><img src="{{ url_for('static', filename='icons/target.svg') }}" alt="Alvo"> Alvo</li>
+      <li onclick="mostrarSecao('config')"><img src="{{ url_for('static', filename='icons/settings.svg') }}" alt="Config"> Configurar</li>
+      <li onclick="mostrarSecao('auto')"><img src="{{ url_for('static', filename='icons/ai.svg') }}" alt="Auto"> Automático</li>
+      <li onclick="window.location.href='/logout'"><img src="{{ url_for('static', filename='icons/logout.svg') }}" alt="Sair"> Sair</li>
     </ul>
   </div>
 
-  <div class="main">
-    <h2>Painel de Operações</h2>
-
-    <!-- Gráfico da Binance -->
-    <div class="grafico">
-      <iframe
-        src="https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT"
-        width="100%"
-        height="400"
-        frameborder="0"
-        allowfullscreen>
-      </iframe>
+  <div class="main-content">
+    <div id="grafico" class="secao ativa">
+      <h2>Painel BTC/USDT</h2>
+      <iframe src="https://www.binance.com/pt/trade/BTC_USDT" width="100%" height="600"></iframe>
     </div>
 
-    <div class="status">
-      <p>Status: <span id="status">aguardando comando...</span></p>
-      <p>Preço: <span id="preco">--</span> | Variação: <span id="variacao">--%</span> | Volume: <span id="volume">--</span></p>
+    <div id="entrada" class="secao">
+      <h2>Entrada</h2>
+      <form id="formEntrada">
+        <input type="number" name="valor_entrada" placeholder="Valor em USDT" required>
+        <button type="submit">Confirmar Entrada</button>
+      </form>
+    </div>
+
+    <div id="stop" class="secao">
+      <h2>Stop</h2>
+      <form id="formStop">
+        <input type="number" name="valor_stop" placeholder="Valor do Stop" required>
+        <button type="submit">Salvar Stop</button>
+      </form>
+    </div>
+
+    <div id="alvo" class="secao">
+      <h2>Alvo</h2>
+      <form id="formAlvo">
+        <input type="number" name="valor_alvo" placeholder="Valor do Alvo" required>
+        <button type="submit">Salvar Alvo</button>
+      </form>
+    </div>
+
+    <div id="config" class="secao">
+      <h2>Configurar APIs</h2>
+      <form id="formChaves">
+        <input type="text" name="binance_key" placeholder="Binance API Key">
+        <input type="text" name="binance_secret" placeholder="Binance Secret Key">
+        <input type="text" name="openai_key" placeholder="OpenAI API Key">
+        <button type="submit">Salvar Chaves</button>
+      </form>
+    </div>
+
+    <div id="auto" class="secao">
+      <h2>Modo Automático</h2>
+      <button onclick="ativarModoAuto()">Ativar IA para operar</button>
     </div>
   </div>
 
-  <script src="/static/js/dashboard.js"></script>
+  <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>
 </html>
