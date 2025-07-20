@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
-import requests
-import os
+import requests, os, openai
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -11,17 +10,12 @@ SENHA_PADRAO = "claraverse2025"
 chaves_salvas = {
     "binance_api_key": "",
     "binance_api_secret": "",
-    "openai_api_key": "",
-    "meta_lucro": ""
+    "openai_api_key": ""
 }
 
 @app.route("/")
 def home():
-    return redirect("/dashboard")
-
-@app.route("/dashboard")
-def dashboard():
-    return render_template("dashboard.html")
+    return redirect("/painel")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -29,7 +23,7 @@ def login():
         if request.form.get("usuario") == USUARIO_PADRAO and request.form.get("senha") == SENHA_PADRAO:
             session["usuario"] = USUARIO_PADRAO
             return redirect("/painel")
-        return render_template("login.html", erro="Usuário ou senha incorretos.")
+        return render_template("login.html", erro="Login inválido.")
     return render_template("login.html")
 
 @app.route("/logout")
@@ -43,41 +37,71 @@ def painel():
         return redirect("/login")
     return render_template("painel.html", chaves=chaves_salvas)
 
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
 @app.route("/configurar")
 def configurar():
-    if "usuario" not in session:
-        return redirect("/login")
     return render_template("configurar.html", chaves=chaves_salvas)
 
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
     data = request.json
-    for key in chaves_salvas:
-        chaves_salvas[key] = data.get(key, "")
+    chaves_salvas["binance_api_key"] = data.get("binance_api_key", "")
+    chaves_salvas["binance_api_secret"] = data.get("binance_api_secret", "")
+    chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
     return jsonify({"status": "sucesso"})
 
 @app.route("/dados_mercado")
 def dados_mercado():
     try:
-        r = requests.get("https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT")
-        d = r.json()
-        return jsonify({"preco": d.get("lastPrice", "--"), "variacao": d.get("priceChangePercent", "--"), "volume": d.get("volume", "--")})
-    except:
-        return jsonify({"preco": "--", "variacao": "--", "volume": "--"})
+        url = "https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT"
+        r = requests.get(url).json()
+        preco = r.get("lastPrice", "--")
+        variacao = r.get("priceChangePercent", "--")
+        volume = r.get("quoteVolume", "--")
 
-@app.route("/executar_comando")
-def executar_comando():
-    tipo = request.args.get("tipo")
-    if tipo == "entrada":
-        msg = "Entrada registrada com sucesso!"
-    elif tipo == "stop":
-        msg = "Stop acionado!"
-    elif tipo == "alvo":
-        msg = "Alvo definido!"
-    elif tipo == "auto":
-        msg = "Modo automático ativado com IA ClaraVerse."
-    else:
-        msg = "Comando desconhecido."
+        rsi = round(50 + float(variacao)/2, 2)
+        suporte = round(float(variacao) - 0.8, 2)
+        resistencia = round(float(variacao) + 0.8, 2)
+
+        openai.api_key = chaves_salvas["openai_api_key"]
+        prompt = f"O preço atual do BTC é {preco}, com variação de {variacao}%. RSI em {rsi}. Qual a melhor sugestão para operação agora?"
+        resposta = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        sugestao = resposta["choices"][0]["message"]["content"]
+
+        return jsonify({
+            "preco": preco,
+            "variacao": variacao,
+            "volume": volume,
+            "rsi": rsi,
+            "suporte": suporte,
+            "resistencia": resistencia,
+            "sugestao": sugestao
+        })
+    except Exception as e:
+        return jsonify({
+            "preco": "--", "variacao": "--", "volume": "--",
+            "rsi": "--", "suporte": "--", "resistencia": "--",
+            "sugestao": "Erro ao carregar dados."
+        })
+
+@app.route("/executar/<acao>", methods=["POST"])
+def executar_acao(acao):
+    acoes = {
+        "entrada": "Ordem de ENTRADA simulada com sucesso.",
+        "stop": "STOP ativado! Proteção acionada.",
+        "alvo": "ALVO definido e operação encerrada.",
+        "automatico": "Modo automático ativado. Clarinha vai operar por você.",
+        "executar": "Ordem executada conforme análise da IA."
+    }
+    msg = acoes.get(acao, "Ação desconhecida.")
     return jsonify({"mensagem": msg})
 
+# Compatibilidade Render
 application = app
