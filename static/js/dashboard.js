@@ -1,71 +1,50 @@
-// Atualização de preço ao vivo (Binance API pública)
-async function atualizarDados() {
-    try {
-        const res = await fetch("/dados_mercado");
-        const dados = await res.json();
-        document.getElementById("preco").innerText = dados.preco;
-        document.getElementById("variacao").innerText = dados.variacao + "%";
-        document.getElementById("volume").innerText = dados.volume;
-    } catch (e) {
-        console.error("Erro ao obter dados de mercado:", e);
-    }
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("modal-config");
+  const btnAbrir = document.getElementById("btn-configuracoes");
+  const btnFechar = document.getElementById("fechar-modal");
+  const btnSalvar = document.getElementById("salvar-chaves");
+  const statusConexao = document.getElementById("status-conexao");
 
-// Botões de operação
-function enviarComando(acao) {
-    fetch("/operar", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ acao: acao })
-    })
-    .then(res => res.json())
-    .then(data => {
-        alert(data.mensagem || "Comando enviado!");
-    })
-    .catch(() => {
-        alert("Erro ao enviar comando.");
-    });
-}
+  // Abre o modal
+  btnAbrir.addEventListener("click", () => {
+    modal.style.display = "block";
+  });
 
-// Configuração de API
-function salvarChaves() {
-    const binanceKey = document.getElementById("binanceKey").value;
-    const binanceSecret = document.getElementById("binanceSecret").value;
-    const openaiKey = document.getElementById("openaiKey").value;
+  // Fecha o modal
+  btnFechar.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // Salva as chaves
+  btnSalvar.addEventListener("click", () => {
+    const binanceApiKey = document.getElementById("binance-api-key").value;
+    const binanceApiSecret = document.getElementById("binance-api-secret").value;
+    const openaiApiKey = document.getElementById("openai-api-key").value;
 
     fetch("/salvar_chaves", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            binance_api_key: binanceKey,
-            binance_api_secret: binanceSecret,
-            openai_api_key: openaiKey
-        })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        binance_api_key: binanceApiKey,
+        binance_api_secret: binanceApiSecret,
+        openai_api_key: openaiApiKey,
+      }),
     })
-    .then(res => res.json())
-    .then(data => {
-        alert("Chaves salvas com sucesso!");
-        fecharModal();
-    });
-}
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "sucesso") {
+          modal.style.display = "none";
+          statusConexao.innerText = "🔗 Conectado com sucesso!";
+        }
+      })
+      .catch((err) => {
+        console.error("Erro ao salvar as chaves:", err);
+        statusConexao.innerText = "❌ Erro ao conectar.";
+      });
+  });
 
-// Modal
-document.getElementById("btnConfig").addEventListener("click", () => {
-    document.getElementById("modalConfig").style.display = "block";
+  // Botão automático envia comando para IA (em breve)
+  document.getElementById("btn-auto").addEventListener("click", () => {
+    alert("🧠 Modo automático com IA ainda em treinamento!");
+  });
 });
-
-function fecharModal() {
-    document.getElementById("modalConfig").style.display = "none";
-}
-
-// Fechar modal clicando fora
-window.onclick = function(event) {
-    const modal = document.getElementById("modalConfig");
-    if (event.target === modal) {
-        modal.style.display = "none";
-    }
-}
-
-// Inicia
-atualizarDados();
-setInterval(atualizarDados, 10000); // Atualiza a cada 10s
