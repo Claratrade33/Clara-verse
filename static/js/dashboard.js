@@ -1,55 +1,53 @@
-// Atualiza dados do mercado em tempo real
-async function atualizarDadosMercado() {
-    try {
-        const response = await fetch('/dados_mercado');
-        const data = await response.json();
-        document.getElementById("preco").innerText = data.preco;
-        document.getElementById("variacao").innerText = data.variacao;
-        document.getElementById("volume").innerText = data.volume;
-    } catch (e) {
-        console.error("Erro ao buscar dados do mercado:", e);
-    }
-}
+document.addEventListener("DOMContentLoaded", () => {
+    atualizarDadosMercado();
+    setInterval(atualizarDadosMercado, 10000); // atualiza a cada 10s
+});
 
-// Atualiza a cada 10 segundos
-setInterval(atualizarDadosMercado, 10000);
-document.addEventListener("DOMContentLoaded", atualizarDadosMercado);
-
-// Salva as chaves de API com segurança
-async function salvarChaves() {
-    const binance_api_key = document.getElementById("binance_api_key").value;
-    const binance_api_secret = document.getElementById("binance_api_secret").value;
-    const openai_api_key = document.getElementById("openai_api_key").value;
-
-    const resposta = await fetch("/salvar_chaves", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            binance_api_key,
-            binance_api_secret,
-            openai_api_key
+function atualizarDadosMercado() {
+    fetch("/dados_mercado")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("preco").innerText = data.preco;
+            document.getElementById("variacao").innerText = data.variacao;
+            document.getElementById("volume").innerText = data.volume;
         })
-    });
-
-    const resultado = await resposta.json();
-    if (resultado.status === "sucesso") {
-        document.getElementById("status-chaves").innerText = "🔐 Chaves salvas com sucesso!";
-        setTimeout(() => {
-            document.getElementById("status-chaves").innerText = "";
-        }, 3000);
-    }
+        .catch(error => console.error("Erro ao buscar dados do mercado:", error));
 }
 
-// Envia comandos como ENTRADA, STOP, ALVO, AUTOMÁTICO
-async function enviarComando(tipo) {
-    const resposta = await fetch(`/executar_comando?tipo=${tipo}`);
-    const resultado = await resposta.json();
+function salvarChaves() {
+    const binanceKey = document.getElementById("binance_api_key").value;
+    const binanceSecret = document.getElementById("binance_api_secret").value;
+    const openaiKey = document.getElementById("openai_api_key").value;
 
-    if (resultado.status === "ok") {
-        alert(`✅ Comando ${tipo.toUpperCase()} enviado com sucesso!\nIA respondeu: ${resultado.mensagem}`);
-    } else {
-        alert(`❌ Erro ao executar comando ${tipo.toUpperCase()}`);
-    }
+    fetch("/salvar_chaves", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            binance_api_key: binanceKey,
+            binance_api_secret: binanceSecret,
+            openai_api_key: openaiKey
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "sucesso") {
+            document.getElementById("status-chaves").innerText = "✅ Chaves salvas com sucesso!";
+        }
+    })
+    .catch(error => {
+        document.getElementById("status-chaves").innerText = "❌ Erro ao salvar chaves!";
+        console.error("Erro ao salvar chaves:", error);
+    });
+}
+
+function enviarComando(tipo) {
+    fetch(`/comando?acao=${tipo}`)
+        .then(response => response.json())
+        .then(data => {
+            alert(`📡 Comando "${tipo}" enviado!\nIA: ${data.mensagem}`);
+        })
+        .catch(error => {
+            alert(`❌ Erro ao enviar comando "${tipo}"`);
+            console.error(error);
+        });
 }
