@@ -5,11 +5,11 @@ import os
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Login padrão
+# 🔐 Login padrão
 USUARIO_PADRAO = "admin"
 SENHA_PADRAO = "claraverse2025"
 
-# Armazenamento simulado das chaves
+# 🔒 Armazenamento simulado das chaves
 chaves_salvas = {
     "binance_api_key": "",
     "binance_api_secret": "",
@@ -17,10 +17,6 @@ chaves_salvas = {
 }
 
 @app.route("/")
-def home():
-    return redirect("/dashboard")
-
-@app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html")
 
@@ -45,7 +41,7 @@ def logout():
 def painel():
     if "usuario" not in session:
         return redirect("/login")
-    return render_template("painel.html")
+    return render_template("painel.html", chaves=chaves_salvas)
 
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
@@ -74,5 +70,5 @@ def dados_mercado():
             "volume": "--"
         })
 
-# Compatibilidade com Render (Gunicorn)
+# 🔁 Para compatibilidade com Render (Gunicorn)
 application = app
