@@ -2,52 +2,42 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ClaraVerse - Painel de Operações</title>
+    <title>Painel ClaraVerse</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
-<body class="painel-clara">
-    <header class="top-bar">
-        <h1>ClaraVerse</h1>
-        <button id="btnConfig" class="btn-top">Configurações</button>
-        <a href="/logout" class="btn-top sair">Sair</a>
-    </header>
-
-    <div class="painel-container">
-        <nav class="menu-lateral">
-            <button onclick="enviarComando('call')">ENTRADA (CALL)</button>
-            <button onclick="enviarComando('put')">ENTRADA (PUT)</button>
-            <button onclick="enviarComando('stop')">STOP</button>
-            <button onclick="enviarComando('alvo')">ALVO</button>
-            <button onclick="enviarComando('auto')">AUTOMÁTICO</button>
-        </nav>
-
-        <main class="painel-grafico">
-            <canvas id="grafico"></canvas>
-            <div id="dadosMercado">
-                <p><strong>Preço:</strong> <span id="preco">--</span></p>
-                <p><strong>Variação 24h:</strong> <span id="variacao">--</span></p>
-                <p><strong>Volume:</strong> <span id="volume">--</span></p>
-            </div>
-        </main>
+<body class="painel">
+    <div class="sidebar">
+        <h2>ClaraVerse</h2>
+        <ul>
+            <li><button onclick="enviarComando('entrada')">ENTRADA</button></li>
+            <li><button onclick="enviarComando('stop')">STOP</button></li>
+            <li><button onclick="enviarComando('alvo')">ALVO</button></li>
+            <li><button onclick="enviarComando('automatico')">AUTOMÁTICO</button></li>
+            <li><button onclick="abrirConfiguracoes()">CONFIGURAÇÕES</button></li>
+            <li><a href="/logout">SAIR</a></li>
+        </ul>
     </div>
 
-    <!-- Modal de Configuração -->
-    <div id="modalConfig" class="modal">
-        <div class="modal-content">
-            <h2>Configurar APIs</h2>
-            <label>Binance API Key:</label>
-            <input type="text" id="binanceKey" value="{{ chaves['binance_api_key'] }}">
-            <label>Binance API Secret:</label>
-            <input type="text" id="binanceSecret" value="{{ chaves['binance_api_secret'] }}">
-            <label>OpenAI Key:</label>
-            <input type="text" id="openaiKey" value="{{ chaves['openai_api_key'] }}">
-            <div class="modal-buttons">
-                <button onclick="salvarChaves()">Salvar e Fechar</button>
-            </div>
+    <div class="main-content">
+        <div class="grafico-binance">
+            <iframe
+                src="https://www.tradingview.com/embed-widget/ticker-tape/?symbols=BINANCE:BTCUSDT"
+                width="100%" height="100%" frameborder="0" allowtransparency="true" scrolling="no">
+            </iframe>
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+    <!-- Modal de configurações -->
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharConfiguracoes()">&times;</span>
+            <h2>Configurar Chaves de API</h2>
+            <input type="text" id="binance_api_key" placeholder="Binance API Key" value="{{ chaves['binance_api_key'] }}">
+            <input type="text" id="binance_api_secret" placeholder="Binance API Secret" value="{{ chaves['binance_api_secret'] }}">
+            <input type="text" id="openai_api_key" placeholder="OpenAI API Key" value="{{ chaves['openai_api_key'] }}">
+            <button onclick="salvarChaves()">Salvar e Fechar</button>
+        </div>
+    </div>
 </body>
 </html>
