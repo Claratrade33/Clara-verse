@@ -1,26 +1,23 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
-import requests
 import os
-import time
+import requests
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Login padrão
+# 🔐 Login padrão
 USUARIO_PADRAO = "admin"
 SENHA_PADRAO = "claraverse2025"
 
-# Armazenamento das chaves
+# 🔒 Armazenamento temporário das chaves
 chaves_salvas = {
     "binance_api_key": "",
     "binance_api_secret": "",
     "openai_api_key": ""
 }
 
-# Modo automático
-modo_demo = True
-saldo_demo = 10000.0  # R$10.000 de saldo fictício
-operacoes_realizadas = []
+# 💰 Modo Demo
+demo_saldo = {"BRL": 10000.00}
 
 @app.route("/")
 def dashboard():
@@ -47,7 +44,7 @@ def logout():
 def painel():
     if "usuario" not in session:
         return redirect("/login")
-    return render_template("painel.html", chaves=chaves_salvas, demo=modo_demo, saldo=saldo_demo)
+    return render_template("painel.html", saldo=demo_saldo["BRL"])
 
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
@@ -55,9 +52,7 @@ def salvar_chaves():
     chaves_salvas["binance_api_key"] = data.get("binance_api_key", "")
     chaves_salvas["binance_api_secret"] = data.get("binance_api_secret", "")
     chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
-    global modo_demo
-    modo_demo = not (chaves_salvas["binance_api_key"] and chaves_salvas["binance_api_secret"])
-    return jsonify({"status": "sucesso", "modo": "demo" if modo_demo else "real"})
+    return jsonify({"status": "sucesso"})
 
 @app.route("/dados_mercado")
 def dados_mercado():
@@ -78,27 +73,24 @@ def dados_mercado():
             "volume": "--"
         })
 
-@app.route("/operar", methods=["POST"])
-def operar():
-    data = request.json
-    direcao = data.get("direcao")  # "compra" ou "venda"
-    valor = float(data.get("valor", 0))
+@app.route("/executar_ordem", methods=["POST"])
+def executar_ordem():
+    if "usuario" not in session:
+        return jsonify({"status": "erro", "mensagem": "Usuário não autenticado"})
+    
+    dados = request.json
+    direcao = dados.get("direcao")  # "call" ou "put"
+    valor = float(dados.get("valor", 0))
 
-    global saldo_demo
-    if modo_demo:
-        if direcao == "compra" and saldo_demo >= valor:
-            saldo_demo -= valor
-            operacoes_realizadas.append({"tipo": "compra", "valor": valor, "horario": time.time()})
-            return jsonify({"status": "compra registrada (demo)", "saldo_restante": saldo_demo})
-        elif direcao == "venda":
-            saldo_demo += valor
-            operacoes_realizadas.append({"tipo": "venda", "valor": valor, "horario": time.time()})
-            return jsonify({"status": "venda registrada (demo)", "saldo_restante": saldo_demo})
-        else:
-            return jsonify({"status": "saldo insuficiente"})
-    else:
-        # Aqui seria feita a operação real com Binance se implementado
-        return jsonify({"status": "operação real não implementada ainda"})
+    if valor > demo_saldo["BRL"]:
+        return jsonify({"status": "erro", "mensagem": "Saldo insuficiente"})
 
-# Para o Render
+    demo_saldo["BRL"] -= valor
+    return jsonify({
+        "status": "sucesso",
+        "mensagem": f"Ordem {direcao.upper()} de R${valor:.2f} executada no modo demo!",
+        "saldo_restante": f"R${demo_saldo['BRL']:.2f}"
+    })
+
+# 🔁 Para o Render
 application = app
