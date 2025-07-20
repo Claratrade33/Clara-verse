@@ -1,13 +1,13 @@
-body {
+body.painel-body {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #0d0f1a;
-  color: #f0f0f0;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #0f0f1a;
+  color: #ffffff;
 }
 
 .painel-container {
   padding: 20px;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: auto;
 }
 
@@ -15,92 +15,105 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #1c1f2f;
-  padding: 10px 20px;
+  background: #1b1b2e;
+  padding: 15px 20px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  box-shadow: 0 0 10px #2d2d4d;
 }
 
 .painel-header h1 {
   margin: 0;
   font-size: 1.5em;
-  color: #00fff7;
 }
 
 .painel-saldo {
-  font-weight: bold;
-  color: #8eff8b;
+  font-size: 1.1em;
+  color: #00ffae;
 }
 
 .btn-sair {
-  background: #ff3b3b;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
+  background: #ff4444;
   color: white;
+  border: none;
+  padding: 10px 14px;
+  font-weight: bold;
   cursor: pointer;
+  border-radius: 5px;
+}
+.btn-sair:hover {
+  background: #e63636;
+}
+
+.painel-conteudo {
+  margin-top: 20px;
 }
 
 .grafico-frame {
-  border-radius: 8px;
-  overflow: hidden;
   margin-bottom: 20px;
+  border: 2px solid #1e1e33;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.dados-mercado, .ia-resposta {
-  background: #1e2238;
+.dados-mercado p {
+  margin: 6px 0;
+  font-size: 1em;
+  color: #ddddff;
+}
+
+.ia-resposta {
+  margin-top: 20px;
+  background: #1e1e33;
   padding: 15px;
   border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.dados-mercado p, .ia-resposta p {
-  margin: 6px 0;
-  font-size: 1rem;
+  box-shadow: 0 0 8px #29294d;
 }
 
 .ia-resposta h3 {
-  margin-bottom: 10px;
-  color: #00e6f7;
+  margin-top: 0;
+  color: #ffea00;
 }
 
 .painel-botoes {
+  margin-top: 25px;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
 }
 
 .painel-botoes button {
-  flex: 1 1 30%;
-  padding: 12px;
-  background: #293049;
-  color: #fff;
+  flex: 1 1 45%;
+  padding: 14px;
+  font-size: 1em;
+  font-weight: bold;
+  background: #00ffae;
+  color: #0f0f1a;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: 0.3s;
 }
 
 .painel-botoes button:hover {
-  background: #3b4164;
+  background: #00e69e;
 }
 
 .mensagem-status {
-  text-align: center;
+  margin-top: 20px;
   font-weight: bold;
-  color: #00ffb3;
+  text-align: center;
+  color: #72f5ff;
 }
 
 /* Responsivo */
 @media (max-width: 768px) {
   .painel-header {
     flex-direction: column;
+    align-items: flex-start;
     gap: 10px;
   }
 
-  .painel-botoes {
-    flex-direction: column;
+  .painel-botoes button {
+    flex: 1 1 100%;
   }
 }
