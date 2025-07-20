@@ -5,16 +5,16 @@ import os
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Simulação de armazenamento seguro das chaves
+# 🔐 Login padrão
+USUARIO_PADRAO = "admin"
+SENHA_PADRAO = "claraverse2025"
+
+# 🔒 Armazenamento simulado das chaves
 chaves_salvas = {
     "binance_api_key": "",
     "binance_api_secret": "",
     "openai_api_key": ""
 }
-
-# Login padrão
-USUARIO_PADRAO = "admin"
-SENHA_PADRAO = "claraverse2025"
 
 @app.route("/")
 def home():
@@ -70,7 +70,11 @@ def dados_mercado():
             "volume": dados.get("volume", "--")
         })
     except:
-        return jsonify({"preco": "--", "variacao": "--", "volume": "--"})
+        return jsonify({
+            "preco": "--",
+            "variacao": "--",
+            "volume": "--"
+        })
 
-# Para Render
+# 🔁 Para compatibilidade com Render (Gunicorn)
 application = app
