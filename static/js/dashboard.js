@@ -1,50 +1,45 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("modal-config");
-  const btnAbrir = document.getElementById("btn-configuracoes");
-  const btnFechar = document.getElementById("fechar-modal");
-  const btnSalvar = document.getElementById("salvar-chaves");
-  const statusConexao = document.getElementById("status-conexao");
+document.addEventListener("DOMContentLoaded", function () {
+    // Botões principais
+    const btnCall = document.querySelector('.btn-call');
+    const btnPut = document.querySelector('.btn-put');
 
-  // Abre o modal
-  btnAbrir.addEventListener("click", () => {
-    modal.style.display = "block";
-  });
+    // Elementos de status
+    const statusTexto = document.getElementById('painel-status');
+    const saldoTexto = document.getElementById('painel-saldo');
 
-  // Fecha o modal
-  btnFechar.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
+    // Simulação de saldo
+    let saldo = 10000;
+    let lucro = 0;
 
-  // Salva as chaves
-  btnSalvar.addEventListener("click", () => {
-    const binanceApiKey = document.getElementById("binance-api-key").value;
-    const binanceApiSecret = document.getElementById("binance-api-secret").value;
-    const openaiApiKey = document.getElementById("openai-api-key").value;
+    function atualizarStatus(texto, cor = '#ffa726') {
+        statusTexto.textContent = texto;
+        statusTexto.style.color = cor;
+    }
 
-    fetch("/salvar_chaves", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        binance_api_key: binanceApiKey,
-        binance_api_secret: binanceApiSecret,
-        openai_api_key: openaiApiKey,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === "sucesso") {
-          modal.style.display = "none";
-          statusConexao.innerText = "🔗 Conectado com sucesso!";
+    function atualizarSaldo(valor) {
+        saldo += valor;
+        saldoTexto.textContent = `$${saldo.toFixed(2)}`;
+    }
+
+    function simularOrdem(direcao) {
+        const resultado = Math.random();
+        const ganho = resultado > 0.5 ? 87 : -100;
+        const valorOrdem = 100;
+
+        if (ganho > 0) {
+            atualizarStatus(`✅ Ordem CALL bem-sucedida: +$${(valorOrdem * 0.87).toFixed(2)}`, '#00ff94');
+            atualizarSaldo(valorOrdem * 0.87);
+        } else {
+            atualizarStatus(`❌ Ordem PUT falhou: -$${valorOrdem}`, '#ff5e57');
+            atualizarSaldo(-valorOrdem);
         }
-      })
-      .catch((err) => {
-        console.error("Erro ao salvar as chaves:", err);
-        statusConexao.innerText = "❌ Erro ao conectar.";
-      });
-  });
+    }
 
-  // Botão automático envia comando para IA (em breve)
-  document.getElementById("btn-auto").addEventListener("click", () => {
-    alert("🧠 Modo automático com IA ainda em treinamento!");
-  });
+    btnCall.addEventListener('click', function () {
+        simularOrdem('call');
+    });
+
+    btnPut.addEventListener('click', function () {
+        simularOrdem('put');
+    });
 });
