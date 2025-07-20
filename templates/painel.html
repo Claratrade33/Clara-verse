@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel ClaraVerse</title>
+    <title>ClaraVerse • Painel de Operações</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
@@ -10,17 +10,17 @@
 <body class="painel-dark">
     <div class="menu-lateral">
         <div class="logo-menu">🪐 ClaraVerse</div>
-        <button id="btnDashboard" class="botao-menu" onclick="window.location.href='/dashboard'">📊 Dashboard</button>
-        <button id="btnEntrada" class="botao-menu" onclick="enviarComando('entrada')">📥 Entrada</button>
-        <button id="btnStop" class="botao-menu" onclick="enviarComando('stop')">🛑 Stop</button>
-        <button id="btnAlvo" class="botao-menu" onclick="enviarComando('alvo')">🎯 Alvo</button>
-        <button id="btnConfigurar" class="botao-menu" onclick="window.location.href='/configurar'">⚙️ Configurar</button>
-        <button id="btnAuto" class="botao-menu" onclick="enviarComando('auto')">🤖 Automático</button>
+        <button class="botao-menu" onclick="window.location.href='/dashboard'">📊 Dashboard</button>
+        <button id="btnEntrada" class="botao-menu">📥 Entrada</button>
+        <button id="btnStop" class="botao-menu">🛑 Stop</button>
+        <button id="btnAlvo" class="botao-menu">🎯 Alvo</button>
+        <button class="botao-menu" onclick="window.location.href='/configurar'">⚙️ Configurar</button>
+        <button id="btnAuto" class="botao-menu">🤖 Automático</button>
         <button class="botao-menu" onclick="window.location.href='/logout'">🚪 Sair</button>
     </div>
 
     <div class="painel-conteudo">
-        <h1 class="painel-titulo">Painel de Operações ClaraVerse</h1>
+        <h1 class="painel-titulo">Painel de Controle ClaraVerse</h1>
 
         <div class="secao-grafico">
             <iframe
@@ -38,6 +38,13 @@
             <p><strong>Preço:</strong> <span id="preco">--</span></p>
             <p><strong>Variação:</strong> <span id="variacao">--</span>%</p>
             <p><strong>Volume:</strong> <span id="volume">--</span></p>
+        </div>
+
+        <div class="secao-botoes">
+            <button onclick="enviarComando('entrada')">✅ ENTRADA</button>
+            <button onclick="enviarComando('stop')">⛔ STOP</button>
+            <button onclick="enviarComando('alvo')">🎯 ALVO</button>
+            <button onclick="enviarComando('auto')">🤖 AUTOMÁTICO</button>
         </div>
     </div>
 </body>
