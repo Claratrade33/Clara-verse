@@ -1,119 +1,154 @@
-body.painel-body {
+body {
   margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background-color: #0f0f1a;
-  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0a0a0f;
+  color: #e6e6fa;
 }
 
+a {
+  color: #00ffff;
+  text-decoration: none;
+}
+
+h1, h2, h3 {
+  margin-bottom: 15px;
+}
+
+button {
+  background-color: #1f1f2e;
+  color: #00ffff;
+  border: 1px solid #00ffff;
+  padding: 10px 20px;
+  margin: 10px 5px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: 0.3s ease;
+}
+
+button:hover {
+  background-color: #00ffff;
+  color: #0a0a0f;
+}
+
+/* Painel */
 .painel-container {
-  padding: 20px;
+  padding: 30px;
   max-width: 1000px;
-  margin: auto;
+  margin: 0 auto;
 }
 
 .painel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #1b1b2e;
-  padding: 15px 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px #2d2d4d;
-}
-
-.painel-header h1 {
-  margin: 0;
-  font-size: 1.5em;
+  background: #12121a;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
 }
 
 .painel-saldo {
-  font-size: 1.1em;
-  color: #00ffae;
-}
-
-.btn-sair {
-  background: #ff4444;
-  color: white;
-  border: none;
-  padding: 10px 14px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 5px;
-}
-.btn-sair:hover {
-  background: #e63636;
+  font-size: 18px;
+  color: #00ffcc;
 }
 
 .painel-conteudo {
-  margin-top: 20px;
-}
-
-.grafico-frame {
-  margin-bottom: 20px;
-  border: 2px solid #1e1e33;
+  background: #1a1a2a;
+  padding: 20px;
   border-radius: 10px;
-  overflow: hidden;
 }
 
-.dados-mercado p {
-  margin: 6px 0;
-  font-size: 1em;
-  color: #ddddff;
+.dados-mercado p,
+.ia-resposta p {
+  margin: 8px 0;
+  font-size: 16px;
 }
 
 .ia-resposta {
   margin-top: 20px;
-  background: #1e1e33;
+  background-color: #111;
   padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 0 8px #29294d;
-}
-
-.ia-resposta h3 {
-  margin-top: 0;
-  color: #ffea00;
+  border-radius: 10px;
+  border-left: 4px solid #00ffff;
 }
 
 .painel-botoes {
-  margin-top: 25px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  justify-content: center;
+  margin-top: 30px;
 }
 
 .painel-botoes button {
-  flex: 1 1 45%;
-  padding: 14px;
-  font-size: 1em;
-  font-weight: bold;
-  background: #00ffae;
-  color: #0f0f1a;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
+  flex: 1 1 30%;
+  margin: 8px;
+  min-width: 120px;
 }
 
-.painel-botoes button:hover {
-  background: #00e69e;
+.grafico-frame iframe {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+}
+
+/* Página de configuração */
+.configurar-body {
+  background-color: #0a0a0f;
+  padding: 40px;
+}
+
+.config-container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #1f1f2e;
+  padding: 30px;
+  border-radius: 12px;
+  color: #e6e6fa;
+}
+
+.form-config {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-config label {
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.form-config input {
+  padding: 10px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 6px;
+  background: #2b2b3d;
+  color: #fff;
+}
+
+.btn-voltar {
+  margin-top: 30px;
+  background-color: #333;
 }
 
 .mensagem-status {
   margin-top: 20px;
+  color: #00ffcc;
   font-weight: bold;
-  text-align: center;
-  color: #72f5ff;
 }
 
 /* Responsivo */
 @media (max-width: 768px) {
-  .painel-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+  .painel-header, .painel-conteudo {
+    padding: 15px;
   }
 
   .painel-botoes button {
-    flex: 1 1 100%;
+    flex: 1 1 45%;
+    margin: 6px;
+  }
+
+  .config-container {
+    padding: 20px;
   }
 }
