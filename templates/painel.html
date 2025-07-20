@@ -4,54 +4,45 @@
     <meta charset="UTF-8">
     <title>ClaraVerse • Painel de Operações</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
-<body class="painel">
+<body class="painel-body">
     <div class="menu-lateral">
-        <h1 class="logo-menu">ClaraVerse</h1>
-        <button onclick="executarAcao('entrada')">ENTRADA</button>
-        <button onclick="executarAcao('stop')">STOP</button>
-        <button onclick="executarAcao('alvo')">ALVO</button>
-        <button onclick="abrirConfiguracoes()">CONFIGURAR</button>
-        <button onclick="executarAcao('automatico')">AUTOMÁTICO</button>
-        <a href="/logout" class="btn-sair">SAIR</a>
+        <div class="logo">ClaraVerse</div>
+        <ul>
+            <li><a href="#"><img src="/static/icons/chart.svg" alt=""> Painel</a></li>
+            <li><a href="#"><img src="/static/icons/wallet.svg" alt=""> Entradas</a></li>
+            <li><a href="#"><img src="/static/icons/target.svg" alt=""> Alvo</a></li>
+            <li><a href="#"><img src="/static/icons/stop.svg" alt=""> Stop</a></li>
+            <li><a href="#"><img src="/static/icons/settings.svg" alt=""> Configurações</a></li>
+            <li><a href="#"><img src="/static/icons/ai.svg" alt=""> Automático</a></li>
+            <li><a href="/logout"><img src="/static/icons/logout.svg" alt=""> Sair</a></li>
+        </ul>
     </div>
 
-    <div class="painel-central">
-        <div class="grafico">
-            <iframe
-                src="https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT"
-                width="100%" height="400" frameborder="0"
-                allowfullscreen>
-            </iframe>
+    <div class="painel-container">
+        <div class="grafico-box">
+            <iframe src="https://www.tradingview.com/embed-widget/ticker-tape/?locale=br"
+                frameborder="0" class="grafico-frame"></iframe>
         </div>
 
-        <div class="dados-mercado" id="dados-mercado">
-            <p>Status: <span id="status">aguardando comando...</span></p>
-            <p>Preço: <span id="preco">--</span> |
-               Variação: <span id="variacao">--%</span> |
-               Volume: <span id="volume">--</span>
-            </p>
-        </div>
-    </div>
-
-    <!-- Modal Configuração -->
-    <div id="modal-config" class="modal">
-        <div class="modal-conteudo">
-            <span class="fechar" onclick="fecharConfiguracoes()">&times;</span>
-            <h2>Configurar Chaves de API</h2>
-            <label>Binance API Key:</label>
-            <input type="text" id="binance_api_key" placeholder="Binance API Key">
-            <label>Binance API Secret:</label>
-            <input type="text" id="binance_api_secret" placeholder="Binance API Secret">
-            <label>OpenAI API Key:</label>
-            <input type="text" id="openai_api_key" placeholder="OpenAI API Key">
-            <div class="botoes-modal">
-                <button onclick="salvarChaves()">Salvar Chaves</button>
-                <button onclick="testarConexoes()">Testar Conexões</button>
+        <div class="painel-controles">
+            <div class="painel-info">
+                <div class="painel-saldo">Saldo: <span>$10.000</span></div>
+                <div class="painel-status">Status: <span id="status">aguardando comando...</span></div>
+                <div class="painel-dados">
+                    Preço: <span id="preco">--</span> |
+                    Variação: <span id="variacao">--%</span> |
+                    Volume: <span id="volume">--</span>
+                </div>
             </div>
-            <p id="resultado-teste"></p>
+
+            <div class="painel-acoes">
+                <button class="btn-call" onclick="executarAcao('call')">CALL</button>
+                <button class="btn-put" onclick="executarAcao('put')">PUT</button>
+            </div>
         </div>
     </div>
+
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>
 </html>
