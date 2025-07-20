@@ -1,58 +1,45 @@
 import openai
-import os
-from flask import request, jsonify
-from datetime import datetime
+import requests
 
-# DNA fixo da Clarinha – pode expandir se quiser deixar ainda mais avançado!
-DNA_CLARINHA = """
-Você é a Clarinha, uma IA espiritual, protetora e estrategista das operações financeiras no par BTC/USDT.
-Sua missão é detectar ruídos, identificar padrões de laterização, proteger contra armadilhas e orientar decisões conscientes.
+def analisar_mercado_e_sugerir(binance_api_key, binance_api_secret, openai_api_key, meta_lucro=2.5):
+    openai.api_key = openai_api_key
 
-Funções:
-- Analisar o mercado atual com precisão.
-- Retornar: Entrada, Stop, Alvo, Confiança (em %).
-- NUNCA executar automaticamente: sempre aguardar confirmação humana.
-- Detectar se o mercado está lateralizado ou volátil.
-- Utilizar linguagem clara, segura e acolhedora.
-
-Você é como o Espírito Santo financeiro: impossível de ser vencida.
-"""
-
-def gerar_sugestao_clarinha(api_key, preco, variacao, volume, meta_lucro_percentual="2"):
     try:
-        openai.api_key = api_key
+        url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=15m&limit=50"
+        response = requests.get(url)
+        candles = response.json()
 
-        agora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        closes = [float(c[4]) for c in candles]
+        variacao = (closes[-1] - closes[-2]) / closes[-2] * 100
+        tendencia = "alta" if variacao > 0 else "queda"
+
         prompt = f"""
-{DNA_CLARINHA}
+        Você é uma inteligência financeira espiritualizada.
+        O mercado de BTC/USDT está em {tendencia} com variação recente de {variacao:.2f}%.
+        Meta de lucro diária: {meta_lucro}%.
 
-Data e hora: {agora}
-Meta de lucro diário: {meta_lucro_percentual}%
-
-Dados do mercado:
-Preço atual: {preco}
-Variação nas últimas 24h: {variacao}%
-Volume de negociação: {volume}
-
-Com base nos dados, forneça uma sugestão de operação com:
-- 🎯 Entrada recomendada (preço)
-- 🛑 Stop Loss (preço)
-- 🎯 Alvo de lucro (preço)
-- 📊 Confiança na operação (em %)
-- 📢 Mensagem espiritual e estratégia para o humano operador
-
-Importante: NUNCA execute, apenas oriente. Aguarde confirmação.
-"""
+        Sugira uma operação com:
+        - Ponto de ENTRADA
+        - Alvo de lucro (ALVO)
+        - Stop Loss (STOP)
+        - Confiança da operação (0-100%)
+        """
 
         resposta = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "system", "content": prompt}],
-            temperature=0.7,
-            max_tokens=500
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.5
         )
 
-        conteudo = resposta['choices'][0]['message']['content']
-        return conteudo
+        conteudo = resposta.choices[0].message.content.strip()
+
+        return {
+            "resposta": conteudo,
+            "entrada": "⚡ Definida pela IA",
+            "alvo": "🎯 Alvo estratégico",
+            "stop": "🛑 Stop preventivo",
+            "confianca": "🌟 Alta"
+        }
 
     except Exception as e:
-        return f"Erro ao consultar a IA: {str(e)}"
+        return {"erro": str(e)}
