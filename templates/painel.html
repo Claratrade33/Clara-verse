@@ -1,49 +1,50 @@
-<!-- templates/painel.html -->
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Painel de Operações - ClaraVerse</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Painel ClaraVerse</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
-<body class="painel-body">
-
-  <div class="sidebar">
-    <div class="logo">ClaraVerse</div>
-    <button onclick="acao('entrada')">ENTRADA</button>
-    <button onclick="acao('stop')">STOP</button>
-    <button onclick="acao('alvo')">ALVO</button>
-    <button onclick="abrirConfiguracoes()">CONFIGURAR</button>
-    <button onclick="acao('auto')">AUTOMÁTICO</button>
-    <a href="/logout" class="logout">Sair</a>
-  </div>
-
-  <div class="painel-container">
-    <div class="grafico">
-      <canvas id="graficoBTC"></canvas>
+<body class="painel">
+    <div class="sidebar">
+        <h2>ClaraVerse</h2>
+        <ul>
+            <li><button onclick="enviarComando('entrada')">ENTRADA</button></li>
+            <li><button onclick="enviarComando('stop')">STOP</button></li>
+            <li><button onclick="enviarComando('alvo')">ALVO</button></li>
+            <li><button onclick="abrirConfiguracoes()">CONFIGURAR</button></li>
+            <li><button onclick="toggleAuto()">AUTOMÁTICO</button></li>
+            <li><a href="/logout">SAIR</a></li>
+        </ul>
     </div>
-    <div class="dados-mercado">
-      <h3>BTC/USDT</h3>
-      <p>Preço: <span id="preco">--</span></p>
-      <p>Variação: <span id="variacao">--</span>%</p>
-      <p>Volume: <span id="volume">--</span></p>
-    </div>
-  </div>
 
-  <!-- Modal de configurações -->
-  <div id="modal-config" class="modal">
-    <div class="modal-content">
-      <h2>Configurar APIs</h2>
-      <input type="text" id="binance_api_key" placeholder="Binance API Key">
-      <input type="text" id="binance_api_secret" placeholder="Binance API Secret">
-      <input type="text" id="openai_api_key" placeholder="OpenAI API Key">
-      <button onclick="salvarChaves()">Salvar</button>
-      <button onclick="fecharConfiguracoes()">Fechar</button>
+    <div class="main-content">
+        <div class="grafico-box">
+            <h3>BTC/USDT</h3>
+            <div id="grafico">
+                <!-- Pode embutir o gráfico do TradingView aqui futuramente -->
+                <iframe src="https://www.tradingview.com/embed-widget/ticker-tape/?symbols=BINANCE:BTCUSDT"
+                        width="100%" height="200" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
+            </div>
+            <div class="dados-mercado">
+                <p><strong>Preço:</strong> <span id="preco">--</span></p>
+                <p><strong>Variação 24h:</strong> <span id="variacao">--</span></p>
+                <p><strong>Volume 24h:</strong> <span id="volume">--</span></p>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <!-- Modal de configuração -->
+    <div id="modal-config" class="modal">
+        <div class="modal-conteudo">
+            <span class="fechar" onclick="fecharConfiguracoes()">&times;</span>
+            <h3>Configurar APIs</h3>
+            <input type="text" id="binance_api_key" placeholder="Binance API Key">
+            <input type="text" id="binance_api_secret" placeholder="Binance API Secret">
+            <input type="text" id="openai_api_key" placeholder="OpenAI API Key">
+            <button onclick="salvarChaves()">Salvar</button>
+        </div>
+    </div>
 </body>
 </html>
