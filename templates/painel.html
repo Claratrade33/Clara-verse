@@ -1,50 +1,57 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Painel ClaraVerse</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Painel ClaraVerse</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="painel">
-    <div class="sidebar">
-        <h2>ClaraVerse</h2>
-        <ul>
-            <li><button onclick="enviarComando('entrada')">ENTRADA</button></li>
-            <li><button onclick="enviarComando('stop')">STOP</button></li>
-            <li><button onclick="enviarComando('alvo')">ALVO</button></li>
-            <li><button onclick="abrirConfiguracoes()">CONFIGURAR</button></li>
-            <li><button onclick="toggleAuto()">AUTOMÁTICO</button></li>
-            <li><a href="/logout">SAIR</a></li>
-        </ul>
-    </div>
+<body class="painel-body">
 
-    <div class="main-content">
-        <div class="grafico-box">
-            <h3>BTC/USDT</h3>
-            <div id="grafico">
-                <!-- Pode embutir o gráfico do TradingView aqui futuramente -->
-                <iframe src="https://www.tradingview.com/embed-widget/ticker-tape/?symbols=BINANCE:BTCUSDT"
-                        width="100%" height="200" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
-            </div>
-            <div class="dados-mercado">
-                <p><strong>Preço:</strong> <span id="preco">--</span></p>
-                <p><strong>Variação 24h:</strong> <span id="variacao">--</span></p>
-                <p><strong>Volume 24h:</strong> <span id="volume">--</span></p>
-            </div>
-        </div>
-    </div>
+  <div class="sidebar">
+    <div class="logo">ClaraVerse</div>
+    <button class="menu-btn">ENTRADA</button>
+    <button class="menu-btn">STOP</button>
+    <button class="menu-btn">ALVO</button>
+    <button class="menu-btn">AUTOMÁTICO</button>
+    <button class="menu-btn" onclick="abrirModal()">CONFIGURAÇÕES</button>
+    <form action="/logout" method="get">
+      <button class="menu-btn sair-btn">SAIR</button>
+    </form>
+  </div>
 
-    <!-- Modal de configuração -->
-    <div id="modal-config" class="modal">
-        <div class="modal-conteudo">
-            <span class="fechar" onclick="fecharConfiguracoes()">&times;</span>
-            <h3>Configurar APIs</h3>
-            <input type="text" id="binance_api_key" placeholder="Binance API Key">
-            <input type="text" id="binance_api_secret" placeholder="Binance API Secret">
-            <input type="text" id="openai_api_key" placeholder="OpenAI API Key">
-            <button onclick="salvarChaves()">Salvar</button>
-        </div>
+  <div class="main">
+    <div class="grafico-tradingview">
+      <!-- Gráfico TradingView -->
+      <iframe src="https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT" width="100%" height="600" frameborder="0"></iframe>
     </div>
+  </div>
+
+  <!-- Modal de Configurações -->
+  <div id="modalConfig" class="modal">
+    <div class="modal-content">
+      <span class="fechar" onclick="fecharModal()">&times;</span>
+      <h2>Configurar Chaves de API</h2>
+      <label>Binance API Key</label>
+      <input type="text" id="binance_api_key" placeholder="Sua Binance API Key">
+      <label>Binance API Secret</label>
+      <input type="text" id="binance_api_secret" placeholder="Sua Binance API Secret">
+      <label>OpenAI API Key</label>
+      <input type="text" id="openai_api_key" placeholder="Sua OpenAI API Key">
+      <button id="salvarChaves">💾 Salvar Chaves</button>
+      <button id="testarConexao">🔌 Testar Conexões</button>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script>
+    function abrirModal() {
+      document.getElementById("modalConfig").style.display = "block";
+    }
+
+    function fecharModal() {
+      document.getElementById("modalConfig").style.display = "none";
+    }
+  </script>
 </body>
 </html>
