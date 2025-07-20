@@ -1,97 +1,60 @@
-from flask import Flask, render_template, request, redirect, session, jsonify
-import requests
-import os
-from inteligencia import analisar_mercado_e_sugerir
+from flask import Flask, render_template, request, redirect, session
+import os, json
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = 'claraverse-secure-key'
 
-# 🔐 Login padrão
-USUARIO_PADRAO = "admin"
-SENHA_PADRAO = "claraverse2025"
+CHAVE_PATH = 'modelos/chaves.json'
 
-# 🔒 Armazenamento simulado
-chaves_salvas = {
-    "binance_api_key": "",
-    "binance_api_secret": "",
-    "openai_api_key": "",
-    "meta_lucro": 2.5
-}
-
-@app.route("/")
+@app.route('/')
 def home():
-    return redirect("/dashboard")
+    return redirect('/login')
 
-@app.route("/dashboard")
-def dashboard():
-    return render_template("dashboard.html")
-
-@app.route("/login", methods=["GET", "POST"])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == "POST":
-        usuario = request.form.get("usuario")
-        senha = request.form.get("senha")
-        if usuario == USUARIO_PADRAO and senha == SENHA_PADRAO:
-            session["usuario"] = usuario
-            return redirect("/painel")
+    if request.method == 'POST':
+        if request.form['usuario'] == 'admin' and request.form['senha'] == 'claraverse2025':
+            session['logado'] = True
+            return redirect('/painel')
         else:
-            return render_template("login.html", erro="Usuário ou senha incorretos.")
-    return render_template("login.html")
+            return render_template('login.html', erro='Credenciais inválidas.')
+    return render_template('login.html')
 
-@app.route("/logout")
+@app.route('/logout')
 def logout():
-    session.pop("usuario", None)
-    return redirect("/login")
+    session.clear()
+    return redirect('/login')
 
-@app.route("/painel")
+@app.route('/dashboard')
+def dashboard():
+    if not session.get('logado'):
+        return redirect('/login')
+    return render_template('dashboard.html')
+
+@app.route('/painel')
 def painel():
-    if "usuario" not in session:
-        return redirect("/login")
-    return render_template("painel.html", chaves=chaves_salvas)
+    if not session.get('logado'):
+        return redirect('/login')
+    return render_template('painel.html')
 
-@app.route("/configurar")
+@app.route('/configurar', methods=['GET'])
 def configurar():
-    if "usuario" not in session:
-        return redirect("/login")
-    return render_template("configurar.html", chaves=chaves_salvas)
+    if not session.get('logado'):
+        return redirect('/login')
+    return render_template('configurar.html')
 
-@app.route("/salvar_chaves", methods=["POST"])
+@app.route('/salvar_chaves', methods=['POST'])
 def salvar_chaves():
-    data = request.json
-    chaves_salvas["binance_api_key"] = data.get("binance_api_key", "")
-    chaves_salvas["binance_api_secret"] = data.get("binance_api_secret", "")
-    chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
-    chaves_salvas["meta_lucro"] = float(data.get("meta_lucro", 2.5))
-    return jsonify({"status": "sucesso"})
+    if not session.get('logado'):
+        return redirect('/login')
+    chaves = {
+        "binance_api_key": request.form.get("binance_api_key"),
+        "binance_api_secret": request.form.get("binance_api_secret"),
+        "openai_api_key": request.form.get("openai_api_key")
+    }
+    with open(CHAVE_PATH, "w") as f:
+        json.dump(chaves, f)
+    return redirect('/painel')
 
-@app.route("/dados_mercado")
-def dados_mercado():
-    par = request.args.get("par", "BTCUSDT")
-    try:
-        url = f"https://api.binance.com/api/v3/ticker/24hr?symbol={par}"
-        response = requests.get(url)
-        dados = response.json()
-        return jsonify({
-            "preco": dados.get("lastPrice", "--"),
-            "variacao": dados.get("priceChangePercent", "--"),
-            "volume": dados.get("volume", "--")
-        })
-    except:
-        return jsonify({
-            "preco": "--",
-            "variacao": "--",
-            "volume": "--"
-        })
-
-@app.route("/api/sugestao", methods=["GET"])
-def sugestao_ia():
-    resultado = analisar_mercado_e_sugerir(
-        binance_api_key=chaves_salvas["binance_api_key"],
-        binance_api_secret=chaves_salvas["binance_api_secret"],
-        openai_api_key=chaves_salvas["openai_api_key"],
-        meta_lucro=chaves_salvas["meta_lucro"]
-    )
-    return jsonify(resultado)
-
-# ✅ Compatível com Render
-application = app
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
