@@ -2,153 +2,154 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', sans-serif;
-    background-color: #0f1115;
-    color: #fff;
+    background-color: #0d0f1a;
+    color: #ffffff;
 }
 
 a {
+    color: #00ffe7;
     text-decoration: none;
-    color: inherit;
+}
+
+button {
+    font-size: 1em;
+    padding: 10px 16px;
+    margin: 6px;
+    border: none;
+    border-radius: 6px;
+    background-color: #1f1f2e;
+    color: #ffffff;
+    cursor: pointer;
+    transition: 0.3s;
+}
+button:hover {
+    background-color: #00ffe7;
+    color: #000000;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #1f1f2e;
+    color: #ffffff;
+}
+
+.container-dashboard {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.logo {
+    width: 100px;
+    margin-bottom: 20px;
 }
 
 .menu-lateral {
-    width: 220px;
-    background-color: #15171c;
     position: fixed;
     top: 0;
     left: 0;
-    bottom: 0;
-    padding-top: 20px;
+    width: 180px;
+    height: 100vh;
+    background-color: #111322;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    border-right: 2px solid #2c2f36;
+    padding: 20px 10px;
+    z-index: 1000;
 }
-
 .logo-menu {
     font-size: 20px;
     font-weight: bold;
-    color: #00ffe1;
     margin-bottom: 30px;
+    color: #00ffe7;
 }
-
 .botao-menu {
-    background: none;
+    margin: 6px 0;
+    padding: 12px;
+    background-color: transparent;
     border: none;
-    color: #ccc;
-    font-size: 16px;
-    margin: 10px 0;
-    cursor: pointer;
-    width: 100%;
-    padding: 10px;
-    transition: 0.2s;
+    color: #ffffff;
     text-align: left;
-    padding-left: 25px;
+    font-size: 1em;
+    cursor: pointer;
 }
-
-.botao-menu:hover, .botao-menu:focus {
-    background-color: #00ffe1;
-    color: #000;
-    outline: none;
+.botao-menu:hover {
+    background-color: #00ffe7;
+    color: #000000;
+    border-radius: 6px;
 }
 
 .painel-conteudo {
-    margin-left: 240px;
+    margin-left: 200px;
     padding: 30px;
 }
 
 .painel-titulo {
     font-size: 28px;
-    color: #00ffe1;
     margin-bottom: 20px;
+    color: #00ffe7;
 }
 
 .secao-grafico iframe {
-    border: 1px solid #2c2f36;
-    border-radius: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 12px #00ffe7;
 }
 
-.secao-mercado, .secao-config, .secao-botoes {
+.secao-mercado,
+.secao-config,
+.secao-botoes {
     margin-top: 30px;
+    background-color: #161827;
     padding: 20px;
-    background-color: #1a1d23;
     border-radius: 12px;
-    border: 1px solid #2c2f36;
-}
-
-.secao-mercado h2,
-.secao-config h2 {
-    margin-top: 0;
-    color: #00ffe1;
-}
-
-input[type="text"] {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    background-color: #252830;
-    border: 1px solid #444;
-    color: #fff;
-    border-radius: 8px;
-}
-
-button {
-    padding: 12px 20px;
-    background-color: #00ffe1;
-    border: none;
-    color: #000;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 10px;
-    border-radius: 8px;
-    transition: 0.3s;
-}
-
-button:hover {
-    background-color: #00c2b0;
+    box-shadow: 0 0 12px rgba(0, 255, 231, 0.2);
 }
 
 .status-sucesso {
+    color: #00ff88;
     margin-top: 10px;
-    color: #0f0;
-}
-
-.container-dashboard {
-    text-align: center;
-    padding: 60px 20px;
-    max-width: 600px;
-    margin: auto;
-}
-
-.container-dashboard .logo {
-    width: 140px;
-    margin-bottom: 30px;
-}
-
-.container-dashboard h1 {
-    color: #00ffe1;
-    margin-bottom: 20px;
-}
-
-.btn-principal {
-    display: inline-block;
-    padding: 15px 30px;
-    background-color: #00ffe1;
-    color: #000;
     font-weight: bold;
-    border-radius: 10px;
+}
+
+.container-configuracao {
+    max-width: 500px;
+    margin: 100px auto;
+    padding: 30px;
+    background-color: #161827;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 255, 231, 0.1);
+}
+
+.formulario-config label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+    color: #00ffe7;
+}
+
+.voltar-painel {
+    text-align: center;
     margin-top: 20px;
 }
 
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
     .menu-lateral {
         width: 100%;
         height: auto;
+        position: relative;
         flex-direction: row;
-        justify-content: space-around;
-        position: static;
-        border-right: none;
-        border-bottom: 2px solid #2c2f36;
+        overflow-x: auto;
+    }
+
+    .botao-menu {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
     }
 
     .painel-conteudo {
@@ -156,10 +157,7 @@ button:hover {
         padding: 15px;
     }
 
-    .botao-menu {
-        padding: 10px 12px;
-        font-size: 14px;
-        text-align: center;
-        padding-left: 0;
+    .container-configuracao {
+        margin: 50px 10px;
     }
 }
