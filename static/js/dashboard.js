@@ -1,46 +1,71 @@
-function abrirConfiguracoes() {
-    document.getElementById("modal-config").style.display = "block";
+// Atualização de preço ao vivo (Binance API pública)
+async function atualizarDados() {
+    try {
+        const res = await fetch("/dados_mercado");
+        const dados = await res.json();
+        document.getElementById("preco").innerText = dados.preco;
+        document.getElementById("variacao").innerText = dados.variacao + "%";
+        document.getElementById("volume").innerText = dados.volume;
+    } catch (e) {
+        console.error("Erro ao obter dados de mercado:", e);
+    }
 }
 
-function fecharConfiguracoes() {
-    document.getElementById("modal-config").style.display = "none";
+// Botões de operação
+function enviarComando(acao) {
+    fetch("/operar", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ acao: acao })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.mensagem || "Comando enviado!");
+    })
+    .catch(() => {
+        alert("Erro ao enviar comando.");
+    });
 }
 
+// Configuração de API
 function salvarChaves() {
-    const binanceKey = document.getElementById("binance_api_key").value;
-    const binanceSecret = document.getElementById("binance_api_secret").value;
-    const openaiKey = document.getElementById("openai_api_key").value;
+    const binanceKey = document.getElementById("binanceKey").value;
+    const binanceSecret = document.getElementById("binanceSecret").value;
+    const openaiKey = document.getElementById("openaiKey").value;
 
     fetch("/salvar_chaves", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             binance_api_key: binanceKey,
             binance_api_secret: binanceSecret,
             openai_api_key: openaiKey
         })
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
         alert("Chaves salvas com sucesso!");
-        fecharConfiguracoes();
-
-        // Atualiza o gráfico (reload do iframe)
-        const graficoContainer = document.getElementById("grafico-container");
-        graficoContainer.innerHTML = `
-            <iframe src="https://www.binance.com/pt/trade/BTC_USDT?layout=basic"
-                    width="100%" height="600px" frameborder="0"></iframe>
-        `;
-    })
-    .catch(error => {
-        alert("Erro ao salvar chaves.");
-        console.error(error);
+        fecharModal();
     });
 }
 
-function mostrarGrafico() {
-    const graficoContainer = document.getElementById("grafico-container");
-    graficoContainer.scrollIntoView({ behavior: "smooth" });
+// Modal
+document.getElementById("btnConfig").addEventListener("click", () => {
+    document.getElementById("modalConfig").style.display = "block";
+});
+
+function fecharModal() {
+    document.getElementById("modalConfig").style.display = "none";
 }
+
+// Fechar modal clicando fora
+window.onclick = function(event) {
+    const modal = document.getElementById("modalConfig");
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+
+// Inicia
+atualizarDados();
+setInterval(atualizarDados, 10000); // Atualiza a cada 10s
