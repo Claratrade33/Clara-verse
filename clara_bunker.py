@@ -4,95 +4,86 @@ from cryptography.fernet import Fernet
 from binance.client import Client
 from openai import OpenAI
 
-# CHAVE FERNET USADA PARA DESCRIPTOGRAFAR
+# CHAVE FERNET
 FERNET_KEY = "WS2w38PfSNFIwUDWHEZSUVaaBbC36rY0AWd_9Url870="
 fernet = Fernet(FERNET_KEY.encode())
 
-# CHAVES CRIPTOGRAFADAS
+# CHAVES CRIPTOGRAFADAS (Binance e OpenAI)
 API_KEY = fernet.decrypt(b"gAAAAABofByBegKeqcSRN-lmgaanOOcM5O0Dtu7z2iYK_-suiNcRNlSiFdeInAvys66mWh1NBoiQNmqUwqZ_T-6H4e6rN5ZQRUmWuN_uhl5jb7ZfVrqVjAxXuaVSv9AMclZouDtigmvkQSLS58SSIVNhLjpjdmtX6xL9BN71bo1lsOltx5rUq8I=").decode()
 API_SECRET = fernet.decrypt(b"gAAAAABofByB-BP_jDBCmDRIm5yL397B-p0w14TW8ElNTV5KAMXDY3Bd3p-Gw0N5TgwJ4wlF7URd7t1KnexICFpNX5fI9M6mfyrsCm4z1A3uDFO7DBkDdW5cR795ZDNp3tKRiQO_EE2-Xj7r-OONhYXXVHWKsaS_jOjmZR3iOtqFqzn-dEJc2I0=").decode()
-OPENAI_KEY = fernet.decrypt(b"gAAAAABofByBbLcXkUQfo6P0jLJP93NXWM_kSaV-0P1UIhpxZ05I719DGuTUPHM6sFdeAFimCoSBU2RGTN8nyteMd9o3V8gZ7w==").decode()
+OPENAI_KEY = fernet.decrypt(b"gAAAAABofcqTHnBgOXfjUuN5WYFAqWfUZLMVoqLqPGhWWvMKPzIDHe8raM1n2Jz9moY8uwvq4mvNHsv-jmGWqAoJAC_8W1OHWAVk9T1Et64EbbYCG6xAI_XURJAKslk2X6cwR3pNiEr0WZq7Ax3AZqxFOf3Z5M2HhOw==").decode()
 
 # INICIALIZAÇÃO
 app = Flask(__name__)
 binance = Client(API_KEY, API_SECRET)
 client_openai = OpenAI(api_key=OPENAI_KEY)
 
-# INTERFACE VISUAL ATUALIZADA
+# HTML EMBUTIDO COM VISUAL DE CORRETORA
 html = '''
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>ClaraVerse | Painel de Operações</title>
+    <title>ClaraVerse - Sala de Operações</title>
     <style>
         body {
-            margin: 0; padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #0f0f0f;
-            color: #fff;
-        }
-        header {
-            background: #00ffcc;
-            color: #000;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
             padding: 20px;
             text-align: center;
-            font-size: 24px;
-            font-weight: bold;
         }
-        .painel {
-            padding: 40px 20px;
-            max-width: 600px;
-            margin: auto;
-            background: #1e1e1e;
-            border-radius: 10px;
-            box-shadow: 0 0 15px #00ffcc33;
+        h1 {
+            color: #58a6ff;
+            margin-bottom: 10px;
         }
         select, button {
-            padding: 15px;
             font-size: 16px;
-            margin-top: 15px;
+            padding: 12px;
+            margin: 10px;
             border: none;
             border-radius: 5px;
         }
         select {
-            width: 100%;
-            background-color: #fff;
-            color: #000;
+            background-color: #161b22;
+            color: #c9d1d9;
         }
         button {
-            background-color: #00ffcc;
-            color: #000;
-            width: 100%;
-            font-weight: bold;
+            background-color: #238636;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2ea043;
         }
         #result {
-            margin-top: 25px;
+            margin-top: 30px;
             font-size: 18px;
-            background: #121212;
+            white-space: pre-line;
+            background: #161b22;
             padding: 20px;
             border-radius: 10px;
-            white-space: pre-line;
+            display: inline-block;
+            text-align: left;
         }
     </style>
 </head>
 <body>
-    <header>🧠 ClaraVerse - Painel de Operações</header>
-    <div class="painel">
-        <label for="symbol">Escolha o par:</label>
-        <select id="symbol">
-            <option value="PEPEUSDT">PEPE/USDT</option>
-            <option value="SUIUSDT">SUI/USDT</option>
-            <option value="BTCUSDT">BTC/USDT</option>
-            <option value="ETHUSDT">ETH/USDT</option>
-        </select>
-        <button onclick="enviar()">📈 Analisar AUTOMATICAMENTE</button>
-        <div id="result">⏳ Aguardando análise...</div>
-    </div>
+    <h1>📊 ClaraVerse - Sala de Operações</h1>
+    <p>Escolha o par desejado e clique em <b>AUTOMÁTICO</b>:</p>
+    <select id="symbol">
+        <option value="BTCUSDT">BTC/USDT</option>
+        <option value="ETHUSDT">ETH/USDT</option>
+        <option value="SUIUSDT">SUI/USDT</option>
+        <option value="PEPEUSDT">PEPE/USDT</option>
+    </select><br>
+    <button onclick="enviar()">🚀 AUTOMÁTICO</button>
+    <div id="result"></div>
+
     <script>
         function enviar() {
-            document.getElementById('result').innerText = "🔍 Gerando análise...";
             const symbol = document.getElementById('symbol').value;
+            document.getElementById('result').innerText = '⏳ Analisando...';
             fetch('/analise', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -107,7 +98,7 @@ html = '''
                     "📊 CONFIANÇA: " + data.confianca;
             })
             .catch(err => {
-                document.getElementById('result').innerText = "❌ Erro ao buscar análise.";
+                document.getElementById('result').innerText = "Erro ao obter análise.";
             });
         }
     </script>
@@ -115,6 +106,7 @@ html = '''
 </html>
 '''
 
+# ROTAS FLASK
 @app.route('/')
 def index():
     return render_template_string(html)
@@ -125,21 +117,25 @@ def analise():
     symbol = data['symbol']
     candles = binance.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_15MINUTE, limit=100)
     closes = [float(c[4]) for c in candles]
+    atual = closes[-1]
     contexto = f"Últimos fechamentos de {symbol}: {closes}\nRetorne uma análise de trading com entrada, alvo, stop e confiança."
+
     resposta = client_openai.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "Você é uma IA trader especialista."},
+            {"role": "system", "content": "Você é uma IA trader especialista em criptomoedas."},
             {"role": "user", "content": contexto}
         ],
         temperature=0.3
     )
     texto = resposta.choices[0].message.content
+
     partes = {k: '' for k in ['entrada', 'stop', 'alvo', 'confianca']}
-    for linha in texto.splitlines():
+    for linha in texto.lower().splitlines():
         for chave in partes:
-            if chave in linha.lower():
+            if chave in linha:
                 partes[chave] = ''.join(c for c in linha if c.isdigit() or c in ',.')
+
     return jsonify(partes)
 
 # PARA RENDER
