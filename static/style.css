@@ -1,132 +1,130 @@
-/* RESET GERAL */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
-}
-
-/* TEMA DARK BASE */
 body {
-  background-color: #0e0e17;
-  color: #e0e0e0;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0f1115;
+  color: #f0f0f0;
 }
 
-/* SIDEBAR */
-.sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 90px;
-  height: 100%;
-  background-color: #151521;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 30px;
-  box-shadow: 2px 0 10px rgba(130, 0, 255, 0.2);
-}
-
-.sidebar ul {
-  list-style: none;
-  width: 100%;
-  padding: 0;
-}
-
-.sidebar ul li {
-  width: 100%;
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.sidebar ul li a {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #dcdcdc;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.sidebar ul li a:hover {
-  color: #a95df0;
-  transform: scale(1.05);
-}
-
-.sidebar ul li img {
-  width: 30px;
-  margin-bottom: 5px;
-}
-
-/* CONTEÚDO PRINCIPAL */
-.main-content {
-  margin-left: 90px;
-  padding: 30px;
-}
-
-/* HEADER */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.header h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #f0e6ff;
-}
-
-.status {
-  padding: 12px 20px;
-  background-color: #1f1f2f;
-  color: #c7afff;
-  border-radius: 6px;
-  box-shadow: 0 0 15px rgba(157, 0, 255, 0.3);
-  font-size: 16px;
-}
-
-/* GRÁFICO CENTRAL */
-.chart-container {
-  background-color: #161625;
-  border-radius: 8px;
+header {
+  background-color: #1a1d24;
   padding: 20px;
-  height: 400px;
-  box-shadow: 0 0 12px rgba(179, 95, 255, 0.15);
-  margin-bottom: 40px;
+  text-align: center;
+  border-bottom: 1px solid #333;
 }
 
-/* INFOS EM TEMPO REAL */
-.info-panel {
+header h1 {
+  color: #7ee7f9;
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+
+.container {
   display: flex;
-  justify-content: space-between;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 80px;
+  background-color: #1a1d24;
+  padding-top: 30px;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 30px;
 }
 
-.info-box {
-  background-color: #1a1a2f;
-  padding: 20px;
-  border-radius: 6px;
+.sidebar img {
+  width: 30px;
+  height: 30px;
+  filter: invert(90%);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.sidebar img:hover {
+  transform: scale(1.2);
+}
+
+.main {
   flex: 1;
-  box-shadow: 0 0 10px rgba(132, 64, 255, 0.2);
-  transition: all 0.3s ease;
+  padding: 30px;
+  overflow-y: auto;
 }
 
-.info-box:hover {
-  box-shadow: 0 0 18px rgba(132, 64, 255, 0.4);
-  transform: scale(1.02);
+.secao {
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-.info-box h3 {
-  color: #b98bff;
-  font-size: 18px;
-  margin-bottom: 8px;
+.secao.ativa {
+  display: block;
 }
 
-.info-box p {
-  font-size: 22px;
-  color: #ffffff;
+form {
+  margin-top: 20px;
+  background-color: #191c23;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #00000050;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+  color: #c9d1d9;
   font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background-color: #0f1115;
+  color: #fff;
+  margin-bottom: 20px;
+  box-shadow: inset 0 0 5px #00000030;
+}
+
+button {
+  background-color: #24c0eb;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #1aa7d4;
+}
+
+h2 {
+  margin-top: 0;
+  color: #7ee7f9;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f1115;
+}
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
