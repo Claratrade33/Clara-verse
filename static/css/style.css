@@ -1,123 +1,193 @@
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #0e0e13;
-  color: #e5e5e5;
+/* Reset básico */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #0e0e11;
+    color: #ffffff;
 }
 
-.sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 220px;
-  height: 100vh;
-  background-color: #11131a;
-  display: flex;
-  flex-direction: column;
-  padding-top: 20px;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.3);
-  z-index: 10;
+/* Estilo da tela inicial - dashboard.html */
+.dashboard-inicial {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container-dashboard {
+    text-align: center;
+    max-width: 400px;
+    padding: 30px;
+    background-color: #1b1b1f;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 
 .logo {
-  font-size: 1.5em;
-  font-weight: bold;
-  text-align: center;
-  color: #63e0d7;
-  margin-bottom: 30px;
+    width: 120px;
+    margin-bottom: 20px;
 }
 
-.menu-btn {
-  background: none;
-  border: none;
-  color: #ffffff;
-  padding: 15px;
-  text-align: left;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background 0.2s;
-  width: 100%;
+h1 {
+    color: #7dd3fc;
+    font-size: 26px;
+    margin-bottom: 10px;
 }
 
-.menu-btn:hover {
-  background-color: #20232a;
+p {
+    font-size: 16px;
+    margin-bottom: 30px;
+    color: #d1d5db;
 }
 
-.sair-btn {
-  margin-top: auto;
-  background-color: #551f1f;
+.btn-principal {
+    display: inline-block;
+    padding: 12px 24px;
+    font-size: 16px;
+    color: #ffffff;
+    background-color: #2563eb;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.3s ease;
 }
 
-.main {
-  margin-left: 220px;
-  padding: 30px;
+.btn-principal:hover {
+    background-color: #1d4ed8;
 }
 
-.grafico-tradingview iframe {
-  border-radius: 8px;
-  border: 2px solid #2d2f36;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+/* Estilo para painel.html */
+.painel-container {
+    display: flex;
+    height: 100vh;
 }
 
-/* Modal de Configurações */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 20;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.7);
+.menu-lateral {
+    width: 200px;
+    background-color: #1f2937;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
 }
 
-.modal-content {
-  background-color: #1a1d26;
-  margin: 10% auto;
-  padding: 20px;
-  border: 1px solid #444;
-  border-radius: 10px;
-  width: 400px;
-  color: #fff;
+.menu-lateral h2 {
+    color: #3b82f6;
+    font-size: 22px;
+    margin-bottom: 30px;
+    text-align: center;
 }
 
-.modal-content h2 {
-  color: #63e0d7;
+.menu-lateral button {
+    margin: 10px 0;
+    padding: 12px;
+    background-color: #374151;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
 
-.modal-content input {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0 16px 0;
-  background-color: #2a2d36;
-  color: #fff;
-  border: 1px solid #555;
-  border-radius: 4px;
+.menu-lateral button:hover {
+    background-color: #4b5563;
 }
 
-.modal-content button {
-  padding: 10px 15px;
-  background-color: #63e0d7;
-  color: #000;
-  border: none;
-  border-radius: 5px;
-  margin-right: 10px;
-  cursor: pointer;
+.conteudo-principal {
+    flex: 1;
+    padding: 30px;
+    background-color: #111827;
 }
 
-.modal-content button:hover {
-  background-color: #52c2bc;
+.configuracoes-btn {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
-.fechar {
-  color: #aaa;
-  float: right;
-  font-size: 26px;
-  font-weight: bold;
-  cursor: pointer;
+.configuracoes-btn:hover {
+    background-color: #1e40af;
 }
 
-.fechar:hover {
-  color: #fff;
+.modal-configuracoes {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #1f2937;
+    padding: 30px;
+    border-radius: 8px;
+    width: 400px;
+    z-index: 1000;
+    color: #ffffff;
+    display: none;
+}
+
+.modal-configuracoes label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.modal-configuracoes input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 4px;
+    border: none;
+    background-color: #374151;
+    color: #ffffff;
+}
+
+.modal-configuracoes button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.salvar-btn {
+    background-color: #10b981;
+    color: white;
+}
+
+.salvar-btn:hover {
+    background-color: #059669;
+}
+
+.testar-btn {
+    background-color: #3b82f6;
+    color: white;
+    margin-left: 10px;
+}
+
+.testar-btn:hover {
+    background-color: #2563eb;
+}
+
+.fechar-btn {
+    background-color: #ef4444;
+    color: white;
+    margin-left: 10px;
+}
+
+.fechar-btn:hover {
+    background-color: #dc2626;
+}
+
+/* Estilo do gráfico TradingView */
+.tv-widget-container {
+    background-color: #111827;
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 10px;
 }
