@@ -1,109 +1,16 @@
-<!-- templates/dashboard.html -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>ClaraVerse - Inteligência Financeira</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <style>
-    body {
-      margin: 0;
-      background-color: #f4f4f4;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      display: flex;
-      flex-direction: row;
-      background-color: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-      max-width: 960px;
-      width: 100%;
-    }
-
-    .info {
-      padding: 40px;
-      flex: 1;
-    }
-
-    .info h1 {
-      font-size: 32px;
-      color: #111;
-    }
-
-    .info p {
-      font-size: 18px;
-      color: #444;
-      margin-top: 16px;
-      margin-bottom: 40px;
-    }
-
-    .info .btns {
-      display: flex;
-      gap: 16px;
-    }
-
-    .btns a {
-      padding: 12px 24px;
-      font-size: 16px;
-      text-decoration: none;
-      border-radius: 8px;
-      transition: 0.2s;
-    }
-
-    .btn-primary {
-      background-color: #1a7f64;
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background-color: #145c49;
-    }
-
-    .btn-secondary {
-      border: 2px solid #1a7f64;
-      color: #1a7f64;
-      background-color: transparent;
-    }
-
-    .btn-secondary:hover {
-      background-color: #e6f4f1;
-    }
-
-    .image {
-      flex: 1;
-      background: url("{{ url_for('static', filename='images/personagem_claraverse.png') }}") no-repeat center;
-      background-size: cover;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-
-      .image {
-        height: 300px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>ClaraVerse • Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-  <div class="container">
-    <div class="info">
-      <h1>Um novo mundo de inteligência financeira</h1>
-      <p>Descubra oportunidades, automatize estratégias e maximize sua performance.</p>
-      <div class="btns">
-        <a href="/login" class="btn-primary">Entrar</a>
-        <a href="#" class="btn-secondary">Aprender</a>
-      </div>
+<body class="dashboard-inicial">
+    <div class="container-dashboard">
+        <img src="{{ url_for('static', filename='logo_claraverse.png') }}" alt="Logo ClaraVerse" class="logo">
+        <h1>Bem-vindo ao ClaraVerse</h1>
+        <p>Sua central de inteligência de operações automatizadas e decisões financeiras.</p>
+        <a href="{{ url_for('login') }}" class="btn-principal">Entrar</a>
     </div>
-    <div class="image"></div>
-  </div>
 </body>
 </html>
