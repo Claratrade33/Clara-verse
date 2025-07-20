@@ -2,20 +2,22 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Login - ClaraVerse</title>
+    <title>Login • ClaraVerse</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="login-body">
+<body class="login-page">
     <div class="login-container">
-        <h1 class="clara-logo">ClaraVerse</h1>
-        <form method="POST" class="login-form">
-            <input type="text" name="usuario" placeholder="Usuário" required>
-            <input type="password" name="senha" placeholder="Senha" required>
-            <button type="submit">Entrar</button>
-        </form>
+        <img src="{{ url_for('static', filename='logo_claraverse.png') }}" alt="ClaraVerse Logo" class="logo-login">
+        <h2>Entrar no ClaraVerse</h2>
         {% if erro %}
             <p class="erro">{{ erro }}</p>
         {% endif %}
+        <form method="POST" class="login-form">
+            <input type="text" name="usuario" placeholder="Usuário" required>
+            <input type="password" name="senha" placeholder="Senha" required>
+            <button type="submit" class="btn-login">Acessar</button>
+        </form>
+        <a href="{{ url_for('dashboard') }}" class="voltar-dashboard">← Voltar ao início</a>
     </div>
 </body>
 </html>
