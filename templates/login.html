@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>ClaraVerse • Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0d0d0d;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-box {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px #00ffd5;
+            width: 300px;
+        }
+        .login-box h2 {
+            margin-bottom: 30px;
+            text-align: center;
+            color: #00ffd5;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 6px;
+            background: #333;
+            color: #fff;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: #00ffd5;
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .login-box button:hover {
+            background: #00c9aa;
+        }
+        .login-box .switch {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .login-box .switch a {
+            color: #00ffd5;
+            text-decoration: none;
+        }
+        .login-box .switch a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2 id="form-title">Login</h2>
+        <form id="login-form" method="POST" action="/login">
+            <input type="text" name="username" placeholder="Usuário" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <div class="switch">
+            <span id="switch-msg">Não tem conta? <a href="#" onclick="toggleForm()">Cadastre-se</a></span>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('login-form');
+            const title = document.getElementById('form-title');
+            const msg = document.getElementById('switch-msg');
+
+            if (form.action.includes('/login')) {
+                form.action = '/register';
+                title.innerText = 'Cadastro';
+                msg.innerHTML = 'Já tem conta? <a href="#" onclick="toggleForm()">Entrar</a>';
+            } else {
+                form.action = '/login';
+                title.innerText = 'Login';
+                msg.innerHTML = 'Não tem conta? <a href="#" onclick="toggleForm()">Cadastre-se</a>';
+            }
+        }
+    </script>
+</body>
+</html>
