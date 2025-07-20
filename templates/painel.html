@@ -2,7 +2,8 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ClaraVerse • Painel de Operações</title>
+    <title>Painel ClaraVerse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
@@ -10,62 +11,33 @@
     <div class="menu-lateral">
         <div class="logo-menu">🪐 ClaraVerse</div>
         <button id="btnDashboard" class="botao-menu" onclick="window.location.href='/dashboard'">📊 Dashboard</button>
-        <button id="btnEntrada" class="botao-menu">📥 CALL</button>
-        <button id="btnStop" class="botao-menu">🛑 PUT</button>
-        <button id="btnAlvo" class="botao-menu">🎯 ALVO</button>
-        <button id="btnConfigurar" class="botao-menu" onclick="window.location.href='/config'">⚙️ Configurar</button>
-        <button id="btnAuto" class="botao-menu">🤖 Automático</button>
+        <button id="btnEntrada" class="botao-menu" onclick="enviarComando('entrada')">📥 Entrada</button>
+        <button id="btnStop" class="botao-menu" onclick="enviarComando('stop')">🛑 Stop</button>
+        <button id="btnAlvo" class="botao-menu" onclick="enviarComando('alvo')">🎯 Alvo</button>
+        <button id="btnConfigurar" class="botao-menu" onclick="window.location.href='/configurar'">⚙️ Configurar</button>
+        <button id="btnAuto" class="botao-menu" onclick="enviarComando('auto')">🤖 Automático</button>
         <button class="botao-menu" onclick="window.location.href='/logout'">🚪 Sair</button>
     </div>
 
     <div class="painel-conteudo">
-        <h1 class="painel-titulo">Painel de Controle • BTC/USDT</h1>
+        <h1 class="painel-titulo">Painel de Operações ClaraVerse</h1>
 
         <div class="secao-grafico">
             <iframe
                 src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
+                frameborder="0"
+                width="100%"
+                height="400"
                 allowtransparency="true"
                 scrolling="no">
             </iframe>
         </div>
 
-        <div class="secao-status">
-            <div class="status-bloco">
-                <strong id="preco">--</strong>
-                <p>Preço Atual</p>
-            </div>
-            <div class="status-bloco">
-                <strong id="variacao">--%</strong>
-                <p>Variação 24h</p>
-            </div>
-            <div class="status-bloco">
-                <strong id="volume">--</strong>
-                <p>Volume</p>
-            </div>
-            <div class="status-bloco">
-                <strong>R$ 5.000</strong>
-                <p>Saldo Simulado</p>
-            </div>
-            <div class="status-bloco">
-                <strong>R$ 235</strong>
-                <p>Lucro Atual</p>
-            </div>
-            <div class="status-bloco">
-                <strong id="modo">Manual</strong>
-                <p>Modo de Operação</p>
-            </div>
-        </div>
-
-        <div class="secao-botoes">
-            <button onclick="enviarComando('entrada')">✅ CALL</button>
-            <button onclick="enviarComando('stop')">⛔ PUT</button>
-            <button onclick="enviarComando('alvo')">🎯 ALVO</button>
-            <button onclick="enviarComando('auto')">🤖 AUTOMÁTICO</button>
-        </div>
-
-        <div class="secao-ai">
-            <h3>🧠 Estratégia da IA</h3>
-            <pre id="ia-output">Aguardando entrada...</pre>
+        <div class="secao-mercado">
+            <h2>📈 Mercado BTC/USDT</h2>
+            <p><strong>Preço:</strong> <span id="preco">--</span></p>
+            <p><strong>Variação:</strong> <span id="variacao">--</span>%</p>
+            <p><strong>Volume:</strong> <span id="volume">--</span></p>
         </div>
     </div>
 </body>
