@@ -4,48 +4,46 @@
     <meta charset="UTF-8">
     <title>ClaraVerse • Painel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
 </head>
 <body class="painel-dark">
     <div class="menu-lateral">
-        <div class="logo-menu">🪐 ClaraVerse</div>
-        <button class="botao-menu" onclick="window.location.href='/dashboard'">📊 Dashboard</button>
-        <button class="botao-menu" onclick="enviarComando('entrada')">📥 Entrada</button>
-        <button class="botao-menu" onclick="enviarComando('stop')">🛑 Stop</button>
-        <button class="botao-menu" onclick="enviarComando('alvo')">🎯 Alvo</button>
+        <div class="logo-menu">✨ ClaraVerse</div>
+        <button class="botao-menu" onclick="window.location.href='/dashboard'">🏠 Início</button>
+        <button class="botao-menu" onclick="window.location.href='/painel'">📊 Painel</button>
         <button class="botao-menu" onclick="window.location.href='/configurar'">⚙️ Configurar</button>
-        <button class="botao-menu" onclick="enviarSugestao()">🤖 Automático</button>
         <button class="botao-menu" onclick="window.location.href='/logout'">🚪 Sair</button>
     </div>
 
     <div class="painel-conteudo">
         <h1 class="painel-titulo">Painel de Controle ClaraVerse</h1>
 
-        <div class="secao-grafico">
-            <iframe
-                src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
-                frameborder="0"
-                width="100%"
-                height="400"
-                allowtransparency="true"
-                scrolling="no">
-            </iframe>
+        <div id="grafico-container">
+            <!-- Gráfico será inserido aqui -->
+            <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark&style=1&timezone=America%2FSao_Paulo" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
         </div>
 
-        <div class="secao-mercado">
-            <h2>📈 Mercado BTC/USDT</h2>
-            <p><strong>Preço:</strong> <span id="preco">--</span></p>
-            <p><strong>Variação:</strong> <span id="variacao">--</span>%</p>
-            <p><strong>Volume:</strong> <span id="volume">--</span></p>
+        <div class="info-mercado">
+            <p><strong>Mercado BTC/USDT</strong></p>
+            <p>Preço: <span id="preco">--</span></p>
+            <p>Variação: <span id="variacao">--</span></p>
+            <p>Volume: <span id="volume">--</span></p>
         </div>
 
-        <div class="secao-sugestao" id="sugestao-container" style="display:none;">
-            <h2>✨ Sugestão da Clarinha</h2>
-            <p><strong>Entrada:</strong> <span id="sugestao-entrada">--</span></p>
-            <p><strong>Alvo:</strong> <span id="sugestao-alvo">--</span></p>
-            <p><strong>Stop:</strong> <span id="sugestao-stop">--</span></p>
-            <p><strong>Confiança:</strong> <span id="sugestao-confianca">--</span>%</p>
-            <button onclick="confirmarExecucao()">✅ Confirmar e Executar</button>
+        <div class="painel-botoes">
+            <button onclick="executarEntrada()" class="botao-acao">✅ ENTRADA</button>
+            <button onclick="executarStop()" class="botao-acao">🛑 STOP</button>
+            <button onclick="executarAlvo()" class="botao-acao">🎯 ALVO</button>
+            <button onclick="enviarSugestao()" class="botao-acao">🤖 AUTOMÁTICO</button>
+        </div>
+
+        <div id="sugestao-container" class="painel-sugestao" style="display: none;">
+            <h2>🔮 Sugestão da Clarinha:</h2>
+            <p><strong>Entrada:</strong> <span id="sugestao-entrada"></span></p>
+            <p><strong>Stop:</strong> <span id="sugestao-stop"></span></p>
+            <p><strong>Alvo:</strong> <span id="sugestao-alvo"></span></p>
+            <p><strong>Confiança:</strong> <span id="sugestao-confianca"></span></p>
+            <button onclick="confirmarExecucao()" class="botao-confirmar">🚀 Confirmar e Executar</button>
         </div>
     </div>
 </body>
