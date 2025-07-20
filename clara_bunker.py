@@ -1,26 +1,25 @@
-from flask import Flask, render_template, request, jsonify
-import requests
+from flask import Flask, render_template, request, redirect, url_for
+from binance.client import Client
+from openai import OpenAI
+import os
 
 app = Flask(__name__)
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+@app.route('/')
+def login():
+    return render_template('index.html')
 
-@app.route("/preco")
-def preco():
-    try:
-        par = request.args.get("par", "BTCUSDT")
-        url = f"https://api.binance.com/api/v3/ticker/24hr?symbol={par}"
-        response = requests.get(url)
-        data = response.json()
-        return jsonify({
-            "preco": float(data["lastPrice"]),
-            "variacao": float(data["priceChangePercent"]),
-            "volume": float(data["volume"]),
-        })
-    except Exception as e:
-        return jsonify({"erro": str(e)}), 500
+@app.route('/painel')
+def painel():
+    return render_template('painel.html')
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.route('/salvar_chaves', methods=['POST'])
+def salvar_chaves():
+    binance_key = request.form.get("binance_key")
+    binance_secret = request.form.get("binance_secret")
+    openai_key = request.form.get("openai_key")
+    with open("chaves.txt", "w") as f:
+        f.write(f"{binance_key}\n{binance_secret}\n{openai_key}")
+    return redirect(url_for('painel'))
+
+application = app
