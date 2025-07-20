@@ -1,157 +1,70 @@
 body {
     margin: 0;
     font-family: "Segoe UI", sans-serif;
-    background-color: #0e0e0e;
-    color: #f5f5f5;
+    background-color: #0d1117;
+    color: #c9d1d9;
 }
 
 .menu-lateral {
-    width: 230px;
-    background-color: #121212;
-    height: 100vh;
     position: fixed;
     top: 0;
     left: 0;
-    padding-top: 30px;
+    width: 200px;
+    height: 100%;
+    background-color: #161b22;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-}
-
-.logo-menu {
-    font-size: 20px;
-    font-weight: bold;
-    color: #ff5e9b;
-    text-align: center;
-    margin-bottom: 30px;
+    padding: 20px 10px;
 }
 
 .botao-menu {
     background: none;
     border: none;
-    color: #fff;
-    padding: 12px 20px;
+    color: #58a6ff;
+    padding: 10px;
     text-align: left;
+    font-size: 16px;
     cursor: pointer;
-    font-size: 15px;
-    transition: 0.3s;
-    width: 100%;
-}
-
-.botao-menu:hover {
-    background-color: #1f1f1f;
 }
 
 .painel-conteudo {
-    margin-left: 230px;
-    padding: 30px;
-}
-
-.painel-titulo {
-    font-size: 26px;
-    margin-bottom: 20px;
-    color: #ff5e9b;
-}
-
-.secao-grafico iframe {
-    border: 2px solid #333;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.secao-mercado, .secao-botoes, .secao-config {
-    background-color: #1b1b1b;
+    margin-left: 220px;
     padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
 }
 
-.secao-botoes button,
-.secao-config button {
-    margin-top: 15px;
-    padding: 10px 20px;
-    background-color: #ff5e9b;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.secao-botoes button:hover,
-.secao-config button:hover {
-    background-color: #ff3380;
-}
-
-input[type="text"] {
+.secao-config input {
     display: block;
-    width: 100%;
+    margin-bottom: 10px;
     padding: 10px;
-    margin-top: 10px;
-    background: #2e2e2e;
-    color: #fff;
-    border: 1px solid #444;
-    border-radius: 6px;
+    width: 100%;
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+}
+
+.secao-config button {
+    background-color: #238636;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    cursor: pointer;
 }
 
 .status-sucesso {
-    color: #00ffb7;
+    color: #3fb950;
     margin-top: 10px;
-    font-weight: bold;
 }
 
-/* Tela inicial */
-.dashboard-inicial {
-    background-color: #0d0d0d;
-    text-align: center;
-    padding: 80px 20px;
-}
-
-.container-dashboard {
-    max-width: 500px;
-    margin: auto;
-}
-
-.logo {
-    width: 150px;
-    margin-bottom: 30px;
-}
-
-.btn-principal {
-    background-color: #ff5e9b;
-    color: white;
-    padding: 14px 24px;
-    font-size: 16px;
-    font-weight: bold;
-    text-decoration: none;
-    border-radius: 8px;
-    display: inline-block;
-    margin-top: 20px;
-    transition: 0.3s;
-}
-
-.btn-principal:hover {
-    background-color: #e84585;
-}
-
-@media screen and (max-width: 768px) {
+/* Responsivo */
+@media (max-width: 768px) {
     .menu-lateral {
         width: 100%;
         height: auto;
-        position: relative;
         flex-direction: row;
-        overflow-x: auto;
+        overflow-x: scroll;
     }
-
     .painel-conteudo {
         margin-left: 0;
-        padding: 15px;
-    }
-
-    .botao-menu {
-        flex: 1;
-        padding: 10px;
-        font-size: 14px;
+        padding-top: 120px;
     }
 }
