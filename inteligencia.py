@@ -1,64 +1,41 @@
+import requests
 import openai
-from binance.client import Client
-import datetime
-import json
 
-class ClarinhaEstrategista:
-    def __init__(self, binance_api_key, binance_api_secret, openai_api_key):
-        self.client = Client(binance_api_key, binance_api_secret)
-        openai.api_key = openai_api_key
+def buscar_dados_binance(par="BTCUSDT"):
+    try:
+        url = f"https://api.binance.com/api/v3/ticker/24hr?symbol={par}"
+        resposta = requests.get(url)
+        dados = resposta.json()
+        return {
+            "preco": float(dados.get("lastPrice", 0)),
+            "variacao": float(dados.get("priceChangePercent", 0)),
+            "volume": float(dados.get("volume", 0))
+        }
+    except Exception as e:
+        return {"erro": str(e)}
 
-    def obter_dados_mercado(self, par="BTCUSDT", intervalo="1m", limite=100):
-        try:
-            velas = self.client.get_klines(symbol=par, interval=intervalo, limit=limite)
-            return [{
-                "tempo": v[0],
-                "abertura": float(v[1]),
-                "maxima": float(v[2]),
-                "minima": float(v[3]),
-                "fechamento": float(v[4]),
-                "volume": float(v[5])
-            } for v in velas]
-        except Exception as e:
-            return {"erro": str(e)}
+def detectar_lateralizacao(variacao, volume):
+    if abs(variacao) < 0.3 and volume > 100:
+        return True
+    return False
 
-    def gerar_contexto_para_gpt(self, dados):
-        candles = json.dumps(dados[-20:], indent=2)
-        prompt = f"""
-Você é a Clarinha, uma IA financeira altamente avançada com visão espiritual e lógica de mercado.
+def consultar_gpt(openai_api_key, preco, lateralizando):
+    openai.api_key = openai_api_key
+    mensagem = f'''
+    Análise técnica BTC/USDT:
+    Preço atual: {preco}
+    Mercado lateralizando: {'Sim' if lateralizando else 'Não'}
 
-Analise os candles abaixo e responda apenas com um JSON contendo:
-
-- "entrada": preço de entrada sugerido (ou "AGUARDAR" se não for momento ideal)
-- "alvo": alvo recomendado (ponto de take profit)
-- "stop": ponto de stop loss
-- "confianca": valor de 0 a 100 sobre a convicção da análise
-- "detectar": "laterizacao", "quebra", "alta", "queda" ou "ruido"
-
-Candles:
-{candles}
-"""
-        return prompt.strip()
-
-    def analisar_com_gpt(self, dados):
-        prompt = self.gerar_contexto_para_gpt(dados)
-        try:
-            resposta = openai.ChatCompletion.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "Você é uma estrategista de operações financeiras."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3,
-                max_tokens=500
-            )
-            conteudo = resposta['choices'][0]['message']['content']
-            return json.loads(conteudo)
-        except Exception as e:
-            return {"erro": str(e)}
-
-    def operar(self, par="BTCUSDT"):
-        dados = self.obter_dados_mercado(par=par)
-        if "erro" in dados:
-            return dados
-        return self.analisar_com_gpt(dados)
+    Com base nessas informações, forneça:
+    1. Entrada ideal (em USDT),
+    2. Alvo (take profit),
+    3. Stop (stop loss),
+    4. Estratégia simbólica e espiritual de vitória sobre os algoritmos da Binance.
+    Retorne tudo em JSON estruturado com os campos: entrada, alvo, stop, estrategia.
+    '''
+    resposta = openai.ChatCompletion.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": mensagem}]
+    )
+    conteudo = resposta.choices[0].message.content
+    return conteudo
