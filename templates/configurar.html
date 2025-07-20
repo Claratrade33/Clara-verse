@@ -2,36 +2,59 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Configurar API - ClaraVerse</title>
+  <title>🔐 Configuração | ClaraVerse</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="configurar-body">
+  <div class="config-container">
+    <h1>🔐 Configuração de APIs e Estratégia</h1>
+    <form id="formConfig">
+      <label for="binance_api_key">Binance API Key</label>
+      <input type="text" id="binance_api_key" name="binance_api_key" placeholder="Sua chave da Binance" value="{{ chaves.get('binance_api_key', '') }}">
+
+      <label for="binance_api_secret">Binance API Secret</label>
+      <input type="text" id="binance_api_secret" name="binance_api_secret" placeholder="Seu segredo da Binance" value="{{ chaves.get('binance_api_secret', '') }}">
+
+      <label for="openai_api_key">OpenAI API Key</label>
+      <input type="text" id="openai_api_key" name="openai_api_key" placeholder="Chave da OpenAI" value="{{ chaves.get('openai_api_key', '') }}">
+
+      <label for="meta_lucro">Meta de Lucro Diário (%)</label>
+      <input type="number" id="meta_lucro" name="meta_lucro" min="0" max="100" placeholder="Ex: 5%">
+
+      <button type="submit">💾 Salvar Configurações</button>
+    </form>
+
+    <button onclick="window.location.href='/painel'" class="btn-voltar">⬅️ Voltar ao Painel</button>
+
+    <p class="mensagem-status" id="mensagemStatus"></p>
+  </div>
+
   <script>
-    function salvarChaves() {
+    const form = document.getElementById("formConfig");
+    const msg = document.getElementById("mensagemStatus");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
       const dados = {
         binance_api_key: document.getElementById("binance_api_key").value,
         binance_api_secret: document.getElementById("binance_api_secret").value,
         openai_api_key: document.getElementById("openai_api_key").value
       };
 
-      fetch("/salvar_chaves", {
+      const resposta = await fetch("/salvar_chaves", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados)
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("status").innerText = "✅ Chaves salvas com sucesso!";
       });
-    }
+
+      const resultado = await resposta.json();
+      if (resultado.status === "sucesso") {
+        msg.innerText = "✅ Configurações salvas com sucesso!";
+        setTimeout(() => window.location.href = "/painel", 1500);
+      } else {
+        msg.innerText = "❌ Erro ao salvar. Verifique os dados.";
+      }
+    });
   </script>
-</head>
-<body>
-  <div class="painel-container">
-    <h1>⚙️ Configurar APIs</h1>
-    <input type="text" id="binance_api_key" placeholder="Binance API Key">
-    <input type="text" id="binance_api_secret" placeholder="Binance API Secret">
-    <input type="text" id="openai_api_key" placeholder="OpenAI API Key">
-    <button onclick="salvarChaves()">Salvar Chaves</button>
-    <p id="status"></p>
-  </div>
 </body>
 </html>
