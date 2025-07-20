@@ -1,87 +1,112 @@
-<!-- templates/painel.html -->
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>ClaraVerse | Painel de Operações</title>
+    <title>ClaraVerse - Painel de Operações</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            background-color: #0f0f0f;
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            text-align: center;
-            padding: 40px;
+            background: #0f172a;
+            color: #f1f5f9;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
         }
-
-        h1 {
-            font-size: 32px;
-            color: #00ffc3;
-            margin-bottom: 10px;
-        }
-
-        select, button {
-            padding: 14px;
-            font-size: 18px;
-            margin: 10px;
-            border: none;
-            border-radius: 5px;
-        }
-
-        select {
-            background-color: #1c1c1c;
-            color: #00ffc3;
-        }
-
-        button {
-            background-color: #00ffc3;
-            color: #0f0f0f;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #00e6b3;
-        }
-
-        #result {
-            margin-top: 30px;
-            font-size: 20px;
-            white-space: pre-line;
-            text-align: left;
-            display: inline-block;
-            background-color: #1c1c1c;
+        header {
+            background: #1e293b;
             padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #38bdf8;
+            border-bottom: 2px solid #334155;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 0 12px #0ea5e9;
+        }
+        label, select, input, button {
+            display: block;
+            width: 100%;
+            margin: 15px 0;
+            font-size: 16px;
+        }
+        input, select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        button {
+            background: #0ea5e9;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
             border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0284c7;
+        }
+        .resultado {
+            margin-top: 30px;
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+        .resultado span {
+            display: block;
+            margin: 10px 0;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
-    <h1>🧠 ClaraVerse - Painel de Operações</h1>
-    <p>Selecione o par para análise automática:</p>
-    <select id="symbol">
-        <option value="BTCUSDT">BTC/USDT</option>
-        <option value="ETHUSDT">ETH/USDT</option>
-        <option value="PEPEUSDT">PEPE/USDT</option>
-        <option value="SUIUSDT">SUI/USDT</option>
-    </select><br>
-    <button onclick="enviar()">AUTOMÁTICO</button>
-    <div id="result"></div>
+    <header>💎 ClaraVerse - Painel de Operações</header>
+    <div class="container">
+        <label for="symbol">Símbolo da Criptomoeda</label>
+        <select id="symbol">
+            <option value="BTCUSDT">Bitcoin (BTC/USDT)</option>
+            <option value="ETHUSDT">Ethereum (ETH/USDT)</option>
+            <option value="SOLUSDT">Solana (SOL/USDT)</option>
+        </select>
+
+        <button onclick="analisar()">🔍 Analisar Mercado</button>
+
+        <div class="resultado" id="resultado" style="display:none;">
+            <span><strong>🎯 Entrada:</strong> <span id="entrada"></span></span>
+            <span><strong>🛑 Stop:</strong> <span id="stop"></span></span>
+            <span><strong>🎯 Alvo:</strong> <span id="alvo"></span></span>
+            <span><strong>📈 Confiança:</strong> <span id="confianca"></span>%</span>
+        </div>
+    </div>
 
     <script>
-        function enviar() {
-            const symbol = document.getElementById('symbol').value;
-            fetch('/analise', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+        async function analisar() {
+            const symbol = document.getElementById("symbol").value;
+
+            const response = await fetch("/analise", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ symbol: symbol })
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('result').innerText =
-                    "🎯 ENTRADA: " + data.entrada + "\n" +
-                    "🛑 STOP: " + data.stop + "\n" +
-                    "🎯 ALVO: " + data.alvo + "\n" +
-                    "📊 CONFIANÇA: " + data.confianca;
             });
+
+            const data = await response.json();
+
+            document.getElementById("entrada").innerText = data.entrada;
+            document.getElementById("stop").innerText = data.stop;
+            document.getElementById("alvo").innerText = data.alvo;
+            document.getElementById("confianca").innerText = data.confianca;
+
+            document.getElementById("resultado").style.display = "block";
         }
     </script>
 </body>
