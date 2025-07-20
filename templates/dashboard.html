@@ -1,59 +1,64 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>ClaraVerse - Painel de Operações</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <title>ClaraVerse Painel</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="painel">
-    <div class="sidebar">
-        <h2>ClaraVerse</h2>
-        <button onclick="mostrarSecao('grafico')">Gráfico</button>
-        <button onclick="mostrarSecao('entrada')">Entrada</button>
-        <button onclick="mostrarSecao('stop')">Stop</button>
-        <button onclick="mostrarSecao('alvo')">Alvo</button>
-        <button onclick="mostrarSecao('config')">Configurações</button>
-        <button onclick="mostrarSecao('auto')">Automático</button>
+<body>
+  <div class="sidebar">
+    <h2>ClaraVerse</h2>
+    <ul>
+      <li><button onclick="mostrar('grafico')">Gráfico</button></li>
+      <li><button onclick="mostrar('entrada')">Entrada</button></li>
+      <li><button onclick="mostrar('stop')">Stop</button></li>
+      <li><button onclick="mostrar('alvo')">Alvo</button></li>
+      <li><button onclick="mostrar('config')">Configurações</button></li>
+      <li><button onclick="analiseAuto()">Automático</button></li>
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <div id="grafico" class="painel-section">
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
+              width="100%" height="500" frameborder="0"></iframe>
     </div>
 
-    <div class="main">
-        <div id="grafico" class="secao">
-            <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_fa3f3&symbol=BINANCE:BTCUSDT&interval=5&symboledit=1&saveimage=1&toolbarbg=F1F3F6&studies=[]&theme=dark" width="100%" height="500" frameborder="0" allowtransparency="true"></iframe>
-        </div>
-
-        <div id="entrada" class="secao" style="display: none;">
-            <h3>ENTRADA</h3>
-            <textarea id="entradaCampo" placeholder="Ex: Comprar 0.01 BTC..."></textarea>
-            <button onclick="enviarComando('entrada')">Enviar</button>
-        </div>
-
-        <div id="stop" class="secao" style="display: none;">
-            <h3>STOP</h3>
-            <textarea id="stopCampo" placeholder="Ex: Stop em 62800 USDT..."></textarea>
-            <button onclick="enviarComando('stop')">Enviar</button>
-        </div>
-
-        <div id="alvo" class="secao" style="display: none;">
-            <h3>ALVO</h3>
-            <textarea id="alvoCampo" placeholder="Ex: Alvo em 64000 USDT..."></textarea>
-            <button onclick="enviarComando('alvo')">Enviar</button>
-        </div>
-
-        <div id="config" class="secao" style="display: none;">
-            <h3>Configurar Chaves</h3>
-            <input type="text" id="binanceKey" placeholder="Binance API Key"><br>
-            <input type="text" id="binanceSecret" placeholder="Binance Secret Key"><br>
-            <input type="text" id="openaiKey" placeholder="OpenAI API Key"><br>
-            <button onclick="salvarChaves()">Salvar</button>
-        </div>
-
-        <div id="auto" class="secao" style="display: none;">
-            <h3>Modo Automático</h3>
-            <p>Habilite para deixar a IA operar por você.</p>
-            <button onclick="ativarModoAutomatico()">Ativar</button>
-        </div>
+    <div id="entrada" class="painel-section" style="display:none;">
+      <h2>Entrada</h2>
+      <form id="entradaForm">
+        <input type="text" name="entrada" placeholder="Digite a entrada">
+        <button type="submit">Salvar</button>
+      </form>
     </div>
 
-    <script src="/static/dashboard.js"></script>
+    <div id="stop" class="painel-section" style="display:none;">
+      <h2>Stop</h2>
+      <form id="stopForm">
+        <input type="text" name="stop" placeholder="Digite o stop">
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+
+    <div id="alvo" class="painel-section" style="display:none;">
+      <h2>Alvo</h2>
+      <form id="alvoForm">
+        <input type="text" name="alvo" placeholder="Digite o alvo">
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+
+    <div id="config" class="painel-section" style="display:none;">
+      <h2>Configurações de API</h2>
+      <form id="configForm">
+        <input type="text" name="binance_api" placeholder="Binance API Key">
+        <input type="text" name="binance_secret" placeholder="Binance Secret Key">
+        <input type="text" name="openai_key" placeholder="OpenAI Key">
+        <button type="submit">Salvar Chaves</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/dashboard.js"></script>
 </body>
 </html>
