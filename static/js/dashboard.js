@@ -1,64 +1,82 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const configForm = document.getElementById("config-form");
+// Atualiza dados de mercado BTC/USDT a cada 5 segundos
+function atualizarDadosMercado() {
+  fetch("/dados_mercado?par=BTCUSDT")
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("preco").textContent = data.preco;
+      document.getElementById("variacao").textContent = data.variacao;
+      document.getElementById("volume").textContent = data.volume;
+    })
+    .catch(() => {
+      document.getElementById("preco").textContent = "--";
+      document.getElementById("variacao").textContent = "--";
+      document.getElementById("volume").textContent = "--";
+    });
+}
 
-    if (configForm) {
-        configForm.addEventListener("submit", function (e) {
-            e.preventDefault();
+setInterval(atualizarDadosMercado, 5000);
+atualizarDadosMercado();
 
-            const openaiKey = document.getElementById("openai-key").value;
-            const binanceKey = document.getElementById("binance-key").value;
-            const binanceSecret = document.getElementById("binance-secret").value;
-
-            fetch("/salvar_chaves", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    openai_key: openaiKey,
-                    binance_key: binanceKey,
-                    binance_secret: binanceSecret,
-                }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message || "Chaves salvas com sucesso!");
-            })
-            .catch(error => {
-                console.error("Erro ao salvar as chaves:", error);
-                alert("Erro ao salvar as chaves.");
-            });
-        });
+// Inicializa gráfico com dados fictícios (pode integrar WebSocket depois)
+let ctx = document.getElementById("graficoBTC").getContext("2d");
+let graficoBTC = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: Array.from({ length: 30 }, (_, i) => i + 1),
+    datasets: [{
+      label: "BTC/USDT",
+      data: Array.from({ length: 30 }, () => Math.random() * 10000 + 20000),
+      borderWidth: 2,
+      fill: false,
+      tension: 0.4
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: false
+      }
     }
-
-    const analiseForm = document.getElementById("analise-form");
-    if (analiseForm) {
-        analiseForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            const mensagem = document.getElementById("mensagem").value;
-            const resultado = document.getElementById("resultado");
-
-            fetch("/analise", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ mensagem }),
-            })
-            .then((res) => res.json())
-            .then((data) => {
-                resultado.innerHTML = `
-                    <p><strong>Entrada:</strong> ${data.entrada}</p>
-                    <p><strong>Alvo:</strong> ${data.alvo}</p>
-                    <p><strong>Stop:</strong> ${data.stop}</p>
-                    <p><strong>Confiança:</strong> ${data.confianca}</p>
-                `;
-            })
-            .catch((err) => {
-                resultado.innerHTML = "<p>Erro na análise. Verifique as chaves de API e tente novamente.</p>";
-                console.error(err);
-            });
-        });
-    }
+  }
 });
+
+// Modal de Configurações
+function abrirConfiguracoes() {
+  document.getElementById("modal-config").style.display = "block";
+}
+
+function fecharConfiguracoes() {
+  document.getElementById("modal-config").style.display = "none";
+}
+
+function salvarChaves() {
+  const apiKey = document.getElementById("binance_api_key").value;
+  const apiSecret = document.getElementById("binance_api_secret").value;
+  const openaiKey = document.getElementById("openai_api_key").value;
+
+  fetch("/salvar_chaves", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      binance_api_key: apiKey,
+      binance_api_secret: apiSecret,
+      openai_api_key: openaiKey
+    })
+  })
+    .then(res => res.json())
+    .then(res => {
+      alert("Chaves salvas com sucesso!");
+      fecharConfiguracoes();
+    })
+    .catch(() => {
+      alert("Erro ao salvar chaves.");
+    });
+}
+
+// Comandos simulados
+function acao(tipo) {
+  alert(`Comando enviado: ${tipo.toUpperCase()}`);
+}
