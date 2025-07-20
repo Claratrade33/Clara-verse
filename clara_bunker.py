@@ -5,34 +5,36 @@ from cryptography.fernet import Fernet
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-USUARIO_PADRAO = "admin"
-SENHA_PADRAO = "claraverse2025"
+# Geração de chave secreta para criptografia
+KEY_FILE = "chave_secreta.key"
+DATA_FILE = "dados_criptografados.json"
 
-# Caminho do arquivo criptografado
-CAMINHO_CHAVES = "chaves_segredas.bin"
-
-# Geração e uso da chave de criptografia
-if not os.path.exists("segredo.key"):
-    with open("segredo.key", "wb") as f:
+if not os.path.exists(KEY_FILE):
+    with open(KEY_FILE, "wb") as f:
         f.write(Fernet.generate_key())
 
-with open("segredo.key", "rb") as f:
-    chave_fernet = Fernet(f.read())
+with open(KEY_FILE, "rb") as f:
+    cipher = Fernet(f.read())
 
-def salvar_chaves_criptografadas(dados):
-    criptografado = chave_fernet.encrypt(json.dumps(dados).encode())
-    with open(CAMINHO_CHAVES, "wb") as f:
+# Saldo simulado
+saldo_simulado = 5000.0
+
+# Carregar dados salvos criptografados
+def carregar_chaves():
+    if not os.path.exists(DATA_FILE):
+        return {"binance_api_key": "", "binance_api_secret": "", "openai_api_key": ""}
+    with open(DATA_FILE, "rb") as f:
+        try:
+            decrypted_data = cipher.decrypt(f.read()).decode()
+            return json.loads(decrypted_data)
+        except:
+            return {"binance_api_key": "", "binance_api_secret": "", "openai_api_key": ""}
+
+# Salvar dados criptografados
+def salvar_chaves_seguras(dados):
+    with open(DATA_FILE, "wb") as f:
+        criptografado = cipher.encrypt(json.dumps(dados).encode())
         f.write(criptografado)
-
-def carregar_chaves_criptografadas():
-    if not os.path.exists(CAMINHO_CHAVES):
-        return {"binance_api_key": "", "binance_api_secret": "", "openai_api_key": ""}
-    try:
-        with open(CAMINHO_CHAVES, "rb") as f:
-            dados = chave_fernet.decrypt(f.read()).decode()
-            return json.loads(dados)
-    except:
-        return {"binance_api_key": "", "binance_api_secret": "", "openai_api_key": ""}
 
 @app.route("/")
 def home():
@@ -41,8 +43,8 @@ def home():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        if request.form.get("usuario") == USUARIO_PADRAO and request.form.get("senha") == SENHA_PADRAO:
-            session["usuario"] = USUARIO_PADRAO
+        if request.form.get("usuario") == "admin" and request.form.get("senha") == "claraverse2025":
+            session["usuario"] = "admin"
             return redirect("/painel")
         return render_template("login.html", erro="Login inválido.")
     return render_template("login.html")
@@ -56,8 +58,8 @@ def logout():
 def painel():
     if "usuario" not in session:
         return redirect("/login")
-    chaves = carregar_chaves_criptografadas()
-    return render_template("painel.html", chaves=chaves, saldo="5000.00")
+    chaves = carregar_chaves()
+    return render_template("painel.html", saldo=saldo_simulado, chaves=chaves)
 
 @app.route("/dashboard")
 def dashboard():
@@ -67,13 +69,13 @@ def dashboard():
 def configurar():
     if "usuario" not in session:
         return redirect("/login")
-    chaves = carregar_chaves_criptografadas()
+    chaves = carregar_chaves()
     return render_template("configurar.html", chaves=chaves)
 
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
-    data = request.json
-    salvar_chaves_criptografadas({
+    data = request.get_json()
+    salvar_chaves_seguras({
         "binance_api_key": data.get("binance_api_key", ""),
         "binance_api_secret": data.get("binance_api_secret", ""),
         "openai_api_key": data.get("openai_api_key", "")
@@ -82,6 +84,7 @@ def salvar_chaves():
 
 @app.route("/dados_mercado")
 def dados_mercado():
+    chaves = carregar_chaves()
     try:
         url = "https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT"
         r = requests.get(url).json()
@@ -93,38 +96,48 @@ def dados_mercado():
         suporte = round(float(variacao) - 0.8, 2)
         resistencia = round(float(variacao) + 0.8, 2)
 
-        chaves = carregar_chaves_criptografadas()
-        openai.api_key = chaves["openai_api_key"]
-        prompt = f"O preço do BTC é {preco} com variação {variacao}%. RSI em {rsi}. Suporte {suporte}, resistência {resistencia}. Qual a melhor decisão agora?"
+        openai.api_key = chaves.get("openai_api_key")
+        prompt = f"O preço atual do BTC é {preco}, com variação de {variacao}%. RSI em {rsi}. Qual a melhor sugestão para operação agora?"
         resposta = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
+
         sugestao = resposta["choices"][0]["message"]["content"]
 
         return jsonify({
-            "preco": preco, "variacao": variacao, "volume": volume,
-            "rsi": rsi, "suporte": suporte, "resistencia": resistencia,
+            "preco": preco,
+            "variacao": variacao,
+            "volume": volume,
+            "rsi": rsi,
+            "suporte": suporte,
+            "resistencia": resistencia,
             "sugestao": sugestao
         })
-
     except Exception as e:
         return jsonify({
             "preco": "--", "variacao": "--", "volume": "--",
             "rsi": "--", "suporte": "--", "resistencia": "--",
-            "sugestao": "Erro ao carregar dados."
+            "sugestao": "Erro ao carregar dados da IA."
         })
 
 @app.route("/executar/<acao>", methods=["POST"])
 def executar_acao(acao):
+    global saldo_simulado
     acoes = {
-        "entrada": "✅ ENTRADA feita com sucesso!",
-        "stop": "🛑 STOP ativado!",
-        "alvo": "🎯 ALVO alcançado!",
+        "entrada": "✅ Ordem de ENTRADA simulada!",
+        "stop": "🛑 Stop acionado. Proteção ativada.",
+        "alvo": "🎯 Alvo atingido! Operação encerrada.",
         "automatico": "🤖 Modo automático ativado.",
-        "executar": "🚀 Execução em andamento conforme IA."
+        "executar": "🚀 Ordem executada com base na IA."
     }
+    if acao == "entrada":
+        saldo_simulado -= 100
+    elif acao == "alvo":
+        saldo_simulado += 150
+    elif acao == "stop":
+        saldo_simulado -= 50
     return jsonify({"mensagem": acoes.get(acao, "Ação desconhecida.")})
 
-# Render compatibilidade
+# Compatível com Render
 application = app
