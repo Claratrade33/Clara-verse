@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
-import requests, os
-from clarinha_oraculo import ClarinhaOraculo
+import requests
+import os
+from inteligencia import analisar_mercado_e_sugerir
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -9,7 +10,7 @@ app.secret_key = os.urandom(24)
 USUARIO_PADRAO = "admin"
 SENHA_PADRAO = "claraverse2025"
 
-# 🔒 Armazenamento simulado das chaves
+# 🔒 Armazenamento simulado
 chaves_salvas = {
     "binance_api_key": "",
     "binance_api_secret": "",
@@ -82,19 +83,15 @@ def dados_mercado():
             "volume": "--"
         })
 
-@app.route("/sugestao_automatica")
-def sugestao_automatica():
-    meta = chaves_salvas.get("meta_lucro", 2.5)
-    openai_key = chaves_salvas.get("openai_api_key", "")
+@app.route("/api/sugestao", methods=["GET"])
+def sugestao_ia():
+    resultado = analisar_mercado_e_sugerir(
+        binance_api_key=chaves_salvas["binance_api_key"],
+        binance_api_secret=chaves_salvas["binance_api_secret"],
+        openai_api_key=chaves_salvas["openai_api_key"],
+        meta_lucro=chaves_salvas["meta_lucro"]
+    )
+    return jsonify(resultado)
 
-    if not openai_key:
-        return jsonify({"erro": "Chave da OpenAI não configurada."})
-
-    clarinha = ClarinhaOraculo(openai_key)
-    dados = clarinha.consultar_mercado()
-    resposta = clarinha.interpretar_como_deusa(dados, meta_lucro=meta)
-
-    return jsonify({"resposta": resposta})
-
-# 🔁 Para compatibilidade com Render
+# ✅ Compatível com Render
 application = app
