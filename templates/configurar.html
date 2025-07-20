@@ -1,37 +1,37 @@
+<!-- modelos/configurar.html -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <title>Configurar • ClaraVerse</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
 </head>
 <body class="painel-dark">
     <div class="menu-lateral">
         <div class="logo-menu">🪐 ClaraVerse</div>
         <button class="botao-menu" onclick="window.location.href='/painel'">⬅️ Voltar ao Painel</button>
-        <button class="botao-menu" onclick="window.location.href='/logout'">🚪 Sair</button>
+        <button class="botao-menu" onclick="window.location.href='/logout'">📕 Sair</button>
     </div>
 
     <div class="painel-conteudo">
-        <h1 class="painel-titulo">🔐 Configurações de API</h1>
+        <h1 class="painel-titulo">🔐 Configurações da API</h1>
 
-        <div class="secao-config">
-            <label>🔑 Binance API Key</label>
-            <input type="text" id="binance_api_key" placeholder="Binance API Key" value="{{ chaves['binance_api_key'] }}">
-
-            <label>🧪 Binance API Secret</label>
-            <input type="text" id="binance_api_secret" placeholder="Binance API Secret" value="{{ chaves['binance_api_secret'] }}">
-
-            <label>🧠 OpenAI API Key</label>
-            <input type="text" id="openai_api_key" placeholder="OpenAI API Key" value="{{ chaves['openai_api_key'] }}">
-
-            <label>🎯 Meta de Lucro Diário (%)</label>
-            <input type="number" step="0.1" id="meta_lucro" value="{{ chaves['meta_lucro'] }}">
-
-            <button onclick="salvarChaves()">💾 Salvar Chaves</button>
-            <p id="status-chaves" class="status-sucesso"></p>
-        </div>
+        <form method="POST" action="/salvar_chaves" class="form-config">
+            <div class="secao-config">
+                <label>🔑 Binance API Key:</label>
+                <input type="password" name="binance_api_key" required>
+            </div>
+            <div class="secao-config">
+                <label>🔐 Binance API Secret:</label>
+                <input type="password" name="binance_api_secret" required>
+            </div>
+            <div class="secao-config">
+                <label>🧠 OpenAI API Key:</label>
+                <input type="password" name="openai_api_key" required>
+            </div>
+            <button class="btn salvar" type="submit">💾 Salvar e Proteger</button>
+        </form>
     </div>
 </body>
 </html>
