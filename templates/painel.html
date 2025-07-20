@@ -1,47 +1,56 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>ClaraVerse • Operações</title>
+  <meta charset="UTF-8" />
+  <title>ClaraVerse • Painel</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
 <body class="painel-dark">
   <div class="menu-lateral">
-    <div class="logo-menu">🚀 ClaraVerse</div>
+    <div class="logo-menu">🪐 ClaraVerse</div>
     <button class="botao-menu" onclick="window.location.href='/dashboard'">📊 Dashboard</button>
-    <button class="botao-menu" onclick="executarAcao('entrada')">📥 Entrada</button>
-    <button class="botao-menu" onclick="executarAcao('stop')">🛑 Stop</button>
-    <button class="botao-menu" onclick="executarAcao('alvo')">🎯 Alvo</button>
+    <button class="botao-menu" onclick="enviarComando('entrada')">📥 Entrada</button>
+    <button class="botao-menu" onclick="enviarComando('stop')">🛑 Stop</button>
+    <button class="botao-menu" onclick="enviarComando('alvo')">🎯 Alvo</button>
     <button class="botao-menu" onclick="window.location.href='/configurar'">⚙️ Configurar</button>
-    <button class="botao-menu" onclick="executarAcao('automatico')">🤖 Automático</button>
+    <button class="botao-menu" onclick="enviarComando('automatico')">🤖 Automático</button>
     <button class="botao-menu" onclick="window.location.href='/logout'">🚪 Sair</button>
   </div>
 
   <div class="painel-conteudo">
-    <h1 class="painel-titulo">👁️ Painel de Operações ClaraVerse</h1>
+    <h1 class="painel-titulo">🔮 Painel ClaraVerse</h1>
 
-    <div class="painel-grid">
-      <div class="bloco-grafico">
-        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
-                width="100%" height="350" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
-      </div>
+    <div class="secao-grafico">
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
+              frameborder="0"
+              width="100%"
+              height="400"
+              allowtransparency="true"
+              scrolling="no"></iframe>
+    </div>
 
-      <div class="bloco-indicadores">
-        <h2>📈 BTCUSDT</h2>
-        <p><strong>Preço:</strong> <span id="preco">--</span></p>
-        <p><strong>Variação:</strong> <span id="variacao">--</span>%</p>
-        <p><strong>Volume:</strong> <span id="volume">--</span></p>
-        <p><strong>RSI:</strong> <span id="rsi">--</span></p>
-        <p><strong>Suporte:</strong> <span id="suporte">--</span></p>
-        <p><strong>Resistência:</strong> <span id="resistencia">--</span></p>
-      </div>
+    <div class="secao-indicadores">
+      <h2>📊 Indicadores</h2>
+      <p><strong>Preço:</strong> <span id="preco">--</span></p>
+      <p><strong>Variação:</strong> <span id="variacao">--</span>%</p>
+      <p><strong>Volume:</strong> <span id="volume">--</span></p>
+      <p><strong>RSI:</strong> <span id="rsi">--</span></p>
+      <p><strong>Suporte:</strong> <span id="suporte">--</span></p>
+      <p><strong>Resistência:</strong> <span id="resistencia">--</span></p>
+    </div>
 
-      <div class="bloco-sugestao">
-        <h2>🤖 Sugestão da Clarinha</h2>
-        <div id="sugestao">Aguardando IA...</div>
-        <button onclick="executarAcao('executar')">⚡ Executar Ação</button>
-      </div>
+    <div class="secao-sugestao">
+      <h2>🤖 Clarinha Sugere</h2>
+      <p id="sugestao">Aguardando análise da IA...</p>
+    </div>
+
+    <div class="secao-botoes-operacao">
+      <button onclick="enviarComando('entrada')">✅ ENTRADA</button>
+      <button onclick="enviarComando('stop')">⛔ STOP</button>
+      <button onclick="enviarComando('alvo')">🎯 ALVO</button>
+      <button onclick="enviarComando('executar')">🚀 EXECUTAR</button>
+      <button onclick="enviarComando('automatico')">🤖 AUTOMÁTICO</button>
     </div>
   </div>
 </body>
