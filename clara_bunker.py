@@ -1,31 +1,30 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
-import os, requests, openai
+import requests
+import os
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Login padrão
+# 🧠 Credenciais padrão
 USUARIO_PADRAO = "admin"
 SENHA_PADRAO = "claraverse2025"
 
-# Armazenamento de chaves (temporário)
+# 🔐 Chaves seguras armazenadas na memória (poderá ser migrado para DB depois)
 chaves_salvas = {
     "binance_api_key": "",
     "binance_api_secret": "",
     "openai_api_key": ""
 }
 
-# Redirecionamento raiz
+# 🌐 Rotas principais
 @app.route("/")
 def home():
     return redirect("/dashboard")
 
-# Dashboard inicial
 @app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html")
 
-# Tela de login
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -38,27 +37,23 @@ def login():
             return render_template("login.html", erro="Usuário ou senha incorretos.")
     return render_template("login.html")
 
-# Logout
 @app.route("/logout")
 def logout():
     session.pop("usuario", None)
     return redirect("/login")
 
-# Painel principal
 @app.route("/painel")
 def painel():
     if "usuario" not in session:
         return redirect("/login")
     return render_template("painel.html", chaves=chaves_salvas)
 
-# Página de configurações
 @app.route("/configurar")
 def configurar():
     if "usuario" not in session:
         return redirect("/login")
     return render_template("configurar.html", chaves=chaves_salvas)
 
-# Salvar chaves da API
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
     data = request.json
@@ -67,7 +62,6 @@ def salvar_chaves():
     chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
     return jsonify({"status": "sucesso"})
 
-# Dados do mercado (BTCUSDT)
 @app.route("/dados_mercado")
 def dados_mercado():
     par = request.args.get("par", "BTCUSDT")
@@ -82,27 +76,10 @@ def dados_mercado():
         })
     except:
         return jsonify({
-            "preco": "--", "variacao": "--", "volume": "--"
+            "preco": "--",
+            "variacao": "--",
+            "volume": "--"
         })
 
-# Comando para IA tomar decisão (modo Iansã)
-@app.route("/comando/<acao>")
-def comando_ia(acao):
-    openai.api_key = chaves_salvas["openai_api_key"]
-    prompt = f"""
-    Você é uma IA avançada de operações financeiras chamada ClaraVerse.
-    Estratégia: {acao.upper()} para o par BTC/USDT.
-    Responda com JSON contendo entrada, alvo, stop e nível de confiança.
-    """
-    try:
-        resposta = openai.ChatCompletion.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        conteudo = resposta.choices[0].message.content
-        return jsonify({"resposta": conteudo})
-    except Exception as e:
-        return jsonify({"erro": str(e)})
-
-# Render compatível
+# 🔁 Render Compatibility
 application = app
