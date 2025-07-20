@@ -2,21 +2,20 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Login • ClaraVerse</title>
+    <title>Login - ClaraVerse</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="login-page">
+<body class="login-body">
     <div class="login-container">
-        <h2>Login ClaraVerse</h2>
-        {% if erro %}
-            <p class="erro">{{ erro }}</p>
-        {% endif %}
-        <form method="POST">
+        <h1 class="clara-logo">ClaraVerse</h1>
+        <form method="POST" class="login-form">
             <input type="text" name="usuario" placeholder="Usuário" required>
             <input type="password" name="senha" placeholder="Senha" required>
             <button type="submit">Entrar</button>
         </form>
-        <p class="info-login">Usuário padrão: <b>admin</b> <br> Senha: <b>claraverse2025</b></p>
+        {% if erro %}
+            <p class="erro">{{ erro }}</p>
+        {% endif %}
     </div>
 </body>
 </html>
