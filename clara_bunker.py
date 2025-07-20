@@ -16,10 +16,12 @@ chaves_salvas = {
     "openai_api_key": ""
 }
 
+# 🔁 Rota inicial — mostra o painel do gráfico com botão de login
 @app.route("/")
 def home():
-    return redirect("/login")
+    return render_template("dashboard.html")
 
+# 🔑 Login — formulário e validação
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -27,28 +29,25 @@ def login():
         senha = request.form.get("senha")
         if usuario == USUARIO_PADRAO and senha == SENHA_PADRAO:
             session["usuario"] = usuario
-            return redirect("/dashboard")
+            return redirect("/painel")
         else:
             return render_template("login.html", erro="Usuário ou senha incorretos.")
     return render_template("login.html")
 
+# 🚪 Logout
 @app.route("/logout")
 def logout():
     session.pop("usuario", None)
-    return redirect("/login")
+    return redirect("/")
 
-@app.route("/dashboard")
-def dashboard():
-    if "usuario" not in session:
-        return redirect("/login")
-    return render_template("dashboard.html")
-
+# 📊 Painel de operações (apenas para logado)
 @app.route("/painel")
 def painel():
     if "usuario" not in session:
         return redirect("/login")
     return render_template("painel.html")
 
+# 💾 Salvar chaves API
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
     data = request.json
@@ -57,6 +56,7 @@ def salvar_chaves():
     chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
     return jsonify({"status": "sucesso"})
 
+# 📈 Dados da Binance (API pública)
 @app.route("/dados_mercado")
 def dados_mercado():
     par = request.args.get("par", "BTCUSDT")
@@ -76,5 +76,5 @@ def dados_mercado():
             "volume": "--"
         })
 
-# 🔁 Para compatibilidade com Render (Gunicorn)
+# 🌐 Para Render
 application = app
