@@ -1,41 +1,48 @@
-document.addEventListener("DOMContentLoaded", function () {
-    buscarDadosMercado();
-    setInterval(buscarDadosMercado, 10000);
+document.addEventListener("DOMContentLoaded", async function () {
+    const precoEl = document.getElementById("preco");
+    const variacaoEl = document.getElementById("variacao");
+    const volumeEl = document.getElementById("volume");
+    const rsiEl = document.getElementById("rsi");
+    const suporteEl = document.getElementById("suporte");
+    const resistenciaEl = document.getElementById("resistencia");
+    const sugestaoEl = document.getElementById("sugestao-texto");
+
+    async function atualizarInfo() {
+        try {
+            const resposta = await fetch("/dados_mercado");
+            const dados = await resposta.json();
+
+            precoEl.innerText = `Preço: $${dados.preco}`;
+            variacaoEl.innerText = `Variação: ${dados.variacao}%`;
+            volumeEl.innerText = `Volume: ${dados.volume}`;
+            rsiEl.innerText = `RSI: ${dados.rsi}`;
+            suporteEl.innerText = `SUP: ${dados.suporte}%`;
+            resistenciaEl.innerText = `RÉS: ${dados.resistencia}%`;
+
+            sugestaoEl.innerText = dados.sugestao || "Carregando sugestão da Clarinha...";
+
+        } catch (erro) {
+            console.error("Erro ao buscar dados do mercado:", erro);
+        }
+    }
+
+    async function executarAcao(acao) {
+        try {
+            const resposta = await fetch(`/executar/${acao}`, { method: "POST" });
+            const resultado = await resposta.json();
+            alert(`✅ ${resultado.mensagem}`);
+        } catch (erro) {
+            alert("❌ Erro ao executar ação.");
+            console.error(erro);
+        }
+    }
+
+    document.getElementById("btn-entrada").addEventListener("click", () => executarAcao("entrada"));
+    document.getElementById("btn-stop").addEventListener("click", () => executarAcao("stop"));
+    document.getElementById("btn-alvo").addEventListener("click", () => executarAcao("alvo"));
+    document.getElementById("btn-automatico").addEventListener("click", () => executarAcao("automatico"));
+    document.getElementById("btn-executar").addEventListener("click", () => executarAcao("executar"));
+
+    setInterval(atualizarInfo, 8000);
+    atualizarInfo();
 });
-
-function buscarDadosMercado() {
-    fetch("/dados_mercado")
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById("preco").textContent = data.preco;
-            document.getElementById("variacao").textContent = data.variacao;
-            document.getElementById("volume").textContent = data.volume;
-        });
-}
-
-function salvarChaves() {
-    const payload = {
-        binance_api_key: document.getElementById("binance_api_key").value,
-        binance_api_secret: document.getElementById("binance_api_secret").value,
-        openai_api_key: document.getElementById("openai_api_key").value,
-        meta_lucro: document.getElementById("meta_lucro") ? document.getElementById("meta_lucro").value : null
-    };
-
-    fetch("/salvar_chaves", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("status-chaves").textContent = "Configurações salvas com sucesso!";
-    });
-}
-
-function enviarComando(tipo) {
-    fetch(`/executar_comando?tipo=${tipo}`)
-        .then(res => res.json())
-        .then(data => {
-            alert(`🧠 ClaraVerse:\n${data.mensagem}`);
-        });
-}
