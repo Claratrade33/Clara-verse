@@ -1,57 +1,46 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const salvarBtn = document.getElementById("salvarChaves");
-  const testarBtn = document.getElementById("testarConexao");
+function abrirConfiguracoes() {
+    document.getElementById("modal-config").style.display = "block";
+}
 
-  if (salvarBtn) {
-    salvarBtn.addEventListener("click", async function () {
-      const binanceApiKey = document.getElementById("binance_api_key").value.trim();
-      const binanceApiSecret = document.getElementById("binance_api_secret").value.trim();
-      const openaiApiKey = document.getElementById("openai_api_key").value.trim();
+function fecharConfiguracoes() {
+    document.getElementById("modal-config").style.display = "none";
+}
 
-      if (!binanceApiKey || !binanceApiSecret || !openaiApiKey) {
-        alert("Por favor, preencha todos os campos de chave API.");
-        return;
-      }
+function salvarChaves() {
+    const binanceKey = document.getElementById("binance_api_key").value;
+    const binanceSecret = document.getElementById("binance_api_secret").value;
+    const openaiKey = document.getElementById("openai_api_key").value;
 
-      const resposta = await fetch("/salvar_chaves", {
+    fetch("/salvar_chaves", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ binance_api_key: binanceApiKey, binance_api_secret: binanceApiSecret, openai_api_key: openaiApiKey })
-      });
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            binance_api_key: binanceKey,
+            binance_api_secret: binanceSecret,
+            openai_api_key: openaiKey
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Chaves salvas com sucesso!");
+        fecharConfiguracoes();
 
-      const resultado = await resposta.json();
-      if (resultado.status === "sucesso") {
-        alert("✅ Chaves salvas com sucesso!");
-      } else {
-        alert("⚠️ Erro ao salvar as chaves.");
-      }
+        // Atualiza o gráfico (reload do iframe)
+        const graficoContainer = document.getElementById("grafico-container");
+        graficoContainer.innerHTML = `
+            <iframe src="https://www.binance.com/pt/trade/BTC_USDT?layout=basic"
+                    width="100%" height="600px" frameborder="0"></iframe>
+        `;
+    })
+    .catch(error => {
+        alert("Erro ao salvar chaves.");
+        console.error(error);
     });
-  }
+}
 
-  if (testarBtn) {
-    testarBtn.addEventListener("click", async function () {
-      const binanceApiKey = document.getElementById("binance_api_key").value.trim();
-      const binanceApiSecret = document.getElementById("binance_api_secret").value.trim();
-      const openaiApiKey = document.getElementById("openai_api_key").value.trim();
-
-      if (!binanceApiKey || !binanceApiSecret || !openaiApiKey) {
-        alert("Preencha as chaves para testar a conexão.");
-        return;
-      }
-
-      const resposta = await fetch("/testar_conexoes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ binance_api_key: binanceApiKey, binance_api_secret: binanceApiSecret, openai_api_key: openaiApiKey })
-      });
-
-      const resultado = await resposta.json();
-
-      let mensagem = "";
-      mensagem += resultado.binance === "ok" ? "✅ Binance: OK\n" : "❌ Binance: Falha\n";
-      mensagem += resultado.openai === "ok" ? "✅ OpenAI: OK" : "❌ OpenAI: Falha";
-
-      alert(mensagem);
-    });
-  }
-});
+function mostrarGrafico() {
+    const graficoContainer = document.getElementById("grafico-container");
+    graficoContainer.scrollIntoView({ behavior: "smooth" });
+}
