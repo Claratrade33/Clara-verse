@@ -1,34 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>ClaraVerse • Configurar</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+    <meta charset="UTF-8">
+    <title>Configurar APIs • ClaraVerse</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
-<body class="configuracao-dark">
-  <div class="menu-lateral">
-    <div class="logo-menu">🪐 ClaraVerse</div>
-    <button onclick="window.location.href='/dashboard'" class="botao-menu">📊 Dashboard</button>
-    <button onclick="window.location.href='/painel'" class="botao-menu">🎮 Painel</button>
-    <button onclick="window.location.href='/logout'" class="botao-menu">🚪 Sair</button>
-  </div>
+<body class="configuracao-pagina">
+    <div class="container-configuracao">
+        <h1>🔐 Configurações de API</h1>
 
-  <div class="painel-conteudo">
-    <h1 class="painel-titulo">⚙️ Configurações de API</h1>
+        <div class="formulario-config">
+            <label for="binance_api_key">Binance API Key:</label>
+            <input type="password" id="binance_api_key" placeholder="Sua Binance API Key" value="{{ chaves['binance_api_key'] }}">
 
-    <div class="secao-configuracao">
-      <input type="password" id="binance_api_key" placeholder="Binance API Key" value="{{ chaves['binance_api_key'] }}">
-      <input type="password" id="binance_api_secret" placeholder="Binance API Secret" value="{{ chaves['binance_api_secret'] }}">
-      <input type="password" id="openai_api_key" placeholder="OpenAI API Key" value="{{ chaves['openai_api_key'] }}">
-      <button class="botao-salvar" onclick="salvarChaves()">💾 Salvar Chaves</button>
-      <p id="status-chaves" class="status-sucesso"></p>
+            <label for="binance_api_secret">Binance API Secret:</label>
+            <input type="password" id="binance_api_secret" placeholder="Sua Binance API Secret" value="{{ chaves['binance_api_secret'] }}">
+
+            <label for="openai_api_key">OpenAI API Key:</label>
+            <input type="password" id="openai_api_key" placeholder="Sua OpenAI API Key" value="{{ chaves['openai_api_key'] }}">
+
+            <button id="btnSalvar">💾 Salvar Chaves</button>
+            <p id="status-chaves" class="status-sucesso"></p>
+        </div>
+
+        <div class="voltar-painel">
+            <a href="/painel">⬅️ Voltar para o Painel</a>
+        </div>
     </div>
-
-    <div class="obs">
-      <p>🔒 Suas chaves são criptografadas e nunca serão expostas.</p>
-      <p>🧠 Clarinha usará essas chaves para acessar a IA e executar operações inteligentes em tempo real.</p>
-    </div>
-  </div>
 </body>
 </html>
