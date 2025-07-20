@@ -1,33 +1,54 @@
-async function salvarChaves() {
-    const binanceKey = document.getElementById("binance_key").value;
-    const binanceSecret = document.getElementById("binance_secret").value;
-    const openaiKey = document.getElementById("openai_key").value;
+document.addEventListener("DOMContentLoaded", function () {
+  const status = document.getElementById("status");
+  const preco = document.getElementById("preco");
+  const variacao = document.getElementById("variacao");
+  const volume = document.getElementById("volume");
 
-    const resposta = await fetch("/salvar_chaves", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            binance_api_key: binanceKey,
-            binance_api_secret: binanceSecret,
-            openai_api_key: openaiKey
-        })
+  // Atualiza o status de execução
+  function atualizarStatus(texto) {
+    status.textContent = texto;
+  }
+
+  // Simula execução de ordem (exemplo para demonstração)
+  function simularOrdem(tipo) {
+    atualizarStatus(`Enviando ordem de ${tipo}...`);
+    setTimeout(() => {
+      atualizarStatus(`✅ Ordem de ${tipo} executada com sucesso!`);
+      preco.textContent = "117.979,20";
+      variacao.textContent = "+0.12%";
+      volume.textContent = "20 BTC";
+    }, 2000);
+  }
+
+  // Detecta clique nos botões e executa ações
+  const botoes = document.querySelectorAll(".sidebar ul li a");
+  botoes.forEach(botao => {
+    botao.addEventListener("click", function (e) {
+      e.preventDefault();
+      const texto = this.textContent.trim();
+
+      switch (texto) {
+        case "Entrada":
+          simularOrdem("ENTRADA");
+          break;
+        case "Stop":
+          simularOrdem("STOP");
+          break;
+        case "Alvo":
+          simularOrdem("ALVO");
+          break;
+        case "Automático":
+          simularOrdem("MODO AUTOMÁTICO");
+          break;
+        case "Configurar":
+          atualizarStatus("Abrindo painel de configuração...");
+          break;
+        case "Sair":
+          window.location.href = "/logout";
+          break;
+        default:
+          atualizarStatus("⚠️ Comando não reconhecido.");
+      }
     });
-
-    const resultado = await resposta.json();
-    if (resultado.status === "sucesso") {
-        alert("🔐 Chaves salvas com sucesso!");
-    } else {
-        alert("⚠️ Erro ao salvar chaves.");
-    }
-}
-
-async function carregarDadosMercado() {
-    const resposta = await fetch("/dados_mercado");
-    const dados = await resposta.json();
-    document.getElementById("preco").innerText = `R$ ${dados.preco}`;
-    document.getElementById("variacao").innerText = `${dados.variacao}%`;
-    document.getElementById("volume").innerText = `${dados.volume}`;
-}
-
-setInterval(carregarDadosMercado, 5000);
-window.onload = carregarDadosMercado;
+  });
+});
