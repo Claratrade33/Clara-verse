@@ -1,45 +1,33 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // Botões principais
-    const btnCall = document.querySelector('.btn-call');
-    const btnPut = document.querySelector('.btn-put');
+async function salvarChaves() {
+    const binanceKey = document.getElementById("binance_key").value;
+    const binanceSecret = document.getElementById("binance_secret").value;
+    const openaiKey = document.getElementById("openai_key").value;
 
-    // Elementos de status
-    const statusTexto = document.getElementById('painel-status');
-    const saldoTexto = document.getElementById('painel-saldo');
-
-    // Simulação de saldo
-    let saldo = 10000;
-    let lucro = 0;
-
-    function atualizarStatus(texto, cor = '#ffa726') {
-        statusTexto.textContent = texto;
-        statusTexto.style.color = cor;
-    }
-
-    function atualizarSaldo(valor) {
-        saldo += valor;
-        saldoTexto.textContent = `$${saldo.toFixed(2)}`;
-    }
-
-    function simularOrdem(direcao) {
-        const resultado = Math.random();
-        const ganho = resultado > 0.5 ? 87 : -100;
-        const valorOrdem = 100;
-
-        if (ganho > 0) {
-            atualizarStatus(`✅ Ordem CALL bem-sucedida: +$${(valorOrdem * 0.87).toFixed(2)}`, '#00ff94');
-            atualizarSaldo(valorOrdem * 0.87);
-        } else {
-            atualizarStatus(`❌ Ordem PUT falhou: -$${valorOrdem}`, '#ff5e57');
-            atualizarSaldo(-valorOrdem);
-        }
-    }
-
-    btnCall.addEventListener('click', function () {
-        simularOrdem('call');
+    const resposta = await fetch("/salvar_chaves", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            binance_api_key: binanceKey,
+            binance_api_secret: binanceSecret,
+            openai_api_key: openaiKey
+        })
     });
 
-    btnPut.addEventListener('click', function () {
-        simularOrdem('put');
-    });
-});
+    const resultado = await resposta.json();
+    if (resultado.status === "sucesso") {
+        alert("🔐 Chaves salvas com sucesso!");
+    } else {
+        alert("⚠️ Erro ao salvar chaves.");
+    }
+}
+
+async function carregarDadosMercado() {
+    const resposta = await fetch("/dados_mercado");
+    const dados = await resposta.json();
+    document.getElementById("preco").innerText = `R$ ${dados.preco}`;
+    document.getElementById("variacao").innerText = `${dados.variacao}%`;
+    document.getElementById("volume").innerText = `${dados.volume}`;
+}
+
+setInterval(carregarDadosMercado, 5000);
+window.onload = carregarDadosMercado;
