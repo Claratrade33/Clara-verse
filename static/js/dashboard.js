@@ -1,48 +1,44 @@
-document.addEventListener("DOMContentLoaded", async function () {
-    const precoEl = document.getElementById("preco");
-    const variacaoEl = document.getElementById("variacao");
-    const volumeEl = document.getElementById("volume");
-    const rsiEl = document.getElementById("rsi");
-    const suporteEl = document.getElementById("suporte");
-    const resistenciaEl = document.getElementById("resistencia");
-    const sugestaoEl = document.getElementById("sugestao-texto");
+document.addEventListener("DOMContentLoaded", () => {
+  atualizarMercado();
 
-    async function atualizarInfo() {
-        try {
-            const resposta = await fetch("/dados_mercado");
-            const dados = await resposta.json();
-
-            precoEl.innerText = `Preço: $${dados.preco}`;
-            variacaoEl.innerText = `Variação: ${dados.variacao}%`;
-            volumeEl.innerText = `Volume: ${dados.volume}`;
-            rsiEl.innerText = `RSI: ${dados.rsi}`;
-            suporteEl.innerText = `SUP: ${dados.suporte}%`;
-            resistenciaEl.innerText = `RÉS: ${dados.resistencia}%`;
-
-            sugestaoEl.innerText = dados.sugestao || "Carregando sugestão da Clarinha...";
-
-        } catch (erro) {
-            console.error("Erro ao buscar dados do mercado:", erro);
-        }
-    }
-
-    async function executarAcao(acao) {
-        try {
-            const resposta = await fetch(`/executar/${acao}`, { method: "POST" });
-            const resultado = await resposta.json();
-            alert(`✅ ${resultado.mensagem}`);
-        } catch (erro) {
-            alert("❌ Erro ao executar ação.");
-            console.error(erro);
-        }
-    }
-
-    document.getElementById("btn-entrada").addEventListener("click", () => executarAcao("entrada"));
-    document.getElementById("btn-stop").addEventListener("click", () => executarAcao("stop"));
-    document.getElementById("btn-alvo").addEventListener("click", () => executarAcao("alvo"));
-    document.getElementById("btn-automatico").addEventListener("click", () => executarAcao("automatico"));
-    document.getElementById("btn-executar").addEventListener("click", () => executarAcao("executar"));
-
-    setInterval(atualizarInfo, 8000);
-    atualizarInfo();
+  const intervalo = setInterval(atualizarMercado, 10000);
 });
+
+function atualizarMercado() {
+  fetch("/dados_mercado?par=BTCUSDT")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("preco").innerText = data.preco || "--";
+      document.getElementById("variacao").innerText = data.variacao || "--";
+      document.getElementById("volume").innerText = data.volume || "--";
+    })
+    .catch(() => console.warn("Erro ao buscar dados do mercado"));
+}
+
+function salvarChaves() {
+  const binance_api_key = document.getElementById("binance_api_key").value;
+  const binance_api_secret = document.getElementById("binance_api_secret").value;
+  const openai_api_key = document.getElementById("openai_api_key").value;
+
+  fetch("/salvar_chaves", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ binance_api_key, binance_api_secret, openai_api_key })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("status-chaves").innerText = "Chaves salvas com sucesso!";
+    setTimeout(() => {
+      document.getElementById("status-chaves").innerText = "";
+    }, 3000);
+  });
+}
+
+function executarAcao(acao) {
+  fetch(`/executar_acao?comando=${acao}`)
+    .then(res => res.json())
+    .then(data => {
+      const sugestao = document.getElementById("sugestao");
+      if (sugestao) sugestao.innerText = data.resposta || "Sem resposta da IA.";
+    });
+}
