@@ -1,48 +1,43 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>ClaraVerse • Painel de Operações</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <title>ClaraVerse • Painel de Operações</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="painel-body">
-    <div class="menu-lateral">
-        <div class="logo">ClaraVerse</div>
-        <ul>
-            <li><a href="#"><img src="/static/icons/chart.svg" alt=""> Painel</a></li>
-            <li><a href="#"><img src="/static/icons/wallet.svg" alt=""> Entradas</a></li>
-            <li><a href="#"><img src="/static/icons/target.svg" alt=""> Alvo</a></li>
-            <li><a href="#"><img src="/static/icons/stop.svg" alt=""> Stop</a></li>
-            <li><a href="#"><img src="/static/icons/settings.svg" alt=""> Configurações</a></li>
-            <li><a href="#"><img src="/static/icons/ai.svg" alt=""> Automático</a></li>
-            <li><a href="/logout"><img src="/static/icons/logout.svg" alt=""> Sair</a></li>
-        </ul>
+<body class="painel">
+  <div class="sidebar">
+    <div class="logo">ClaraVerse</div>
+    <ul>
+      <li><a href="#"><img src="/static/icons/chart.svg" class="icon">Entrada</a></li>
+      <li><a href="#"><img src="/static/icons/stop.svg" class="icon">Stop</a></li>
+      <li><a href="#"><img src="/static/icons/target.svg" class="icon">Alvo</a></li>
+      <li><a href="#"><img src="/static/icons/settings.svg" class="icon">Configurar</a></li>
+      <li><a href="#"><img src="/static/icons/ai.svg" class="icon">Automático</a></li>
+      <li><a href="/logout"><img src="/static/icons/logout.svg" class="icon">Sair</a></li>
+    </ul>
+  </div>
+
+  <div class="main">
+    <h2>Painel de Operações</h2>
+
+    <!-- Gráfico da Binance -->
+    <div class="grafico">
+      <iframe
+        src="https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT"
+        width="100%"
+        height="400"
+        frameborder="0"
+        allowfullscreen>
+      </iframe>
     </div>
 
-    <div class="painel-container">
-        <div class="grafico-box">
-            <iframe src="https://www.tradingview.com/embed-widget/ticker-tape/?locale=br"
-                frameborder="0" class="grafico-frame"></iframe>
-        </div>
-
-        <div class="painel-controles">
-            <div class="painel-info">
-                <div class="painel-saldo">Saldo: <span>$10.000</span></div>
-                <div class="painel-status">Status: <span id="status">aguardando comando...</span></div>
-                <div class="painel-dados">
-                    Preço: <span id="preco">--</span> |
-                    Variação: <span id="variacao">--%</span> |
-                    Volume: <span id="volume">--</span>
-                </div>
-            </div>
-
-            <div class="painel-acoes">
-                <button class="btn-call" onclick="executarAcao('call')">CALL</button>
-                <button class="btn-put" onclick="executarAcao('put')">PUT</button>
-            </div>
-        </div>
+    <div class="status">
+      <p>Status: <span id="status">aguardando comando...</span></p>
+      <p>Preço: <span id="preco">--</span> | Variação: <span id="variacao">--%</span> | Volume: <span id="volume">--</span></p>
     </div>
+  </div>
 
-    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+  <script src="/static/js/dashboard.js"></script>
 </body>
 </html>
