@@ -1,152 +1,141 @@
-body.painel-futurista {
-    background-color: #0a0f1c;
-    color: #00f9ff;
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #0e0e11;
+  color: #ffffff;
 }
 
-.painel-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    width: 95%;
-    max-width: 1200px;
-    padding: 20px;
-    box-sizing: border-box;
+.menu-lateral {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 220px;
+  height: 100%;
+  background-color: #16161a;
+  padding: 20px 10px;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
 }
 
-.painel-coluna-esquerda,
-.painel-coluna-direita {
-    width: 20%;
-    min-width: 180px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
+.logo-menu {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #a962f7;
 }
 
-.painel-grafico {
-    width: 55%;
-    min-width: 280px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.botao-menu {
+  background-color: #1f1f25;
+  color: #ffffff;
+  border: none;
+  padding: 12px;
+  margin: 6px 0;
+  border-radius: 8px;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.botao-menu:hover {
+  background-color: #27272f;
 }
 
-h2 {
-    margin-bottom: 10px;
-    font-size: 24px;
-    color: #00f9ff;
+.painel-conteudo {
+  margin-left: 240px;
+  padding: 30px 40px;
 }
 
-.preco-info {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    font-size: 18px;
-    color: #ffffff;
-    margin-bottom: 10px;
+.painel-titulo {
+  font-size: 28px;
+  color: #a962f7;
+  margin-bottom: 20px;
 }
 
-iframe#grafico {
-    border-radius: 12px;
-    border: 2px solid #00f9ff;
+.secao-grafico iframe {
+  border-radius: 10px;
+  margin-bottom: 30px;
 }
 
-.botao-futurista {
-    background-color: transparent;
-    color: #00f9ff;
-    border: 2px solid #00f9ff;
-    border-radius: 10px;
-    padding: 12px 20px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    width: 100%;
-    text-align: center;
+.secao-mercado, .secao-config, .secao-botoes {
+  margin-bottom: 30px;
+  background-color: #1c1c22;
+  padding: 20px;
+  border-radius: 10px;
 }
 
-.botao-futurista:hover {
-    background-color: #00f9ff;
-    color: #0a0f1c;
+.secao-mercado h2,
+.secao-config h2 {
+  color: #7f52ff;
+  margin-bottom: 10px;
 }
 
-.botao-futurista.grande {
-    font-size: 20px;
-    padding: 15px 25px;
+.secao-config input {
+  display: block;
+  width: 100%;
+  background: #27272f;
+  border: 1px solid #3c3c46;
+  color: white;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
 }
 
-.info-indicadores {
-    font-size: 16px;
-    color: #ffffff;
-    margin-top: 10px;
-    background-color: #12192d;
-    padding: 10px;
-    border-radius: 10px;
-    width: 100%;
-    text-align: center;
+.secao-config button {
+  background-color: #7f52ff;
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.ia-box {
-    background-color: #12192d;
-    border-radius: 12px;
-    padding: 15px;
-    text-align: center;
-    color: #ffffff;
+.status-sucesso {
+  color: #00e676;
+  margin-top: 10px;
 }
 
-.ia-avatar img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 2px solid #00f9ff;
-    margin-bottom: 10px;
+.secao-botoes button {
+  background-color: #2e2e38;
+  border: none;
+  padding: 12px 18px;
+  margin: 10px 12px 0 0;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.secao-botoes button:hover {
+  background-color: #3b3b47;
 }
 
-.ia-sugestao {
-    font-size: 14px;
-    color: #c5f3f7;
-}
-
-.painel-botoes {
-    margin-top: 30px;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-/* Responsivo para celular */
+/* Responsivo mobile */
 @media (max-width: 768px) {
-    .painel-container {
-        flex-direction: column;
-        align-items: center;
-    }
+  .menu-lateral {
+    position: relative;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
 
-    .painel-coluna-esquerda,
-    .painel-coluna-direita,
-    .painel-grafico {
-        width: 100%;
-        align-items: center;
-    }
+  .botao-menu {
+    flex: 1;
+    text-align: center;
+    margin: 5px;
+  }
 
-    .painel-botoes {
-        flex-direction: column;
-        align-items: center;
-    }
+  .painel-conteudo {
+    margin-left: 0;
+    padding: 20px;
+  }
 
-    .botao-futurista {
-        width: 80%;
-    }
-
-    iframe#grafico {
-        height: 300px;
-    }
+  .painel-titulo {
+    font-size: 22px;
+  }
 }
