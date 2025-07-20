@@ -1,64 +1,48 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Painel de Operação • ClaraVerse</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+  <meta charset="UTF-8">
+  <title>ClaraVerse • Operações</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
-<body class="painel-futurista">
+<body class="painel-dark">
+  <div class="menu-lateral">
+    <div class="logo-menu">🚀 ClaraVerse</div>
+    <button class="botao-menu" onclick="window.location.href='/dashboard'">📊 Dashboard</button>
+    <button class="botao-menu" onclick="executarAcao('entrada')">📥 Entrada</button>
+    <button class="botao-menu" onclick="executarAcao('stop')">🛑 Stop</button>
+    <button class="botao-menu" onclick="executarAcao('alvo')">🎯 Alvo</button>
+    <button class="botao-menu" onclick="window.location.href='/configurar'">⚙️ Configurar</button>
+    <button class="botao-menu" onclick="executarAcao('automatico')">🤖 Automático</button>
+    <button class="botao-menu" onclick="window.location.href='/logout'">🚪 Sair</button>
+  </div>
 
-    <div class="painel-container">
+  <div class="painel-conteudo">
+    <h1 class="painel-titulo">👁️ Painel de Operações ClaraVerse</h1>
 
-        <!-- Coluna Esquerda -->
-        <div class="painel-coluna-esquerda">
-            <button class="botao-futurista grande">ENTRADA</button>
-            <button class="botao-futurista grande">STOP</button>
-            <button class="botao-futurista grande">ALVO</button>
+    <div class="painel-grid">
+      <div class="bloco-grafico">
+        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
+                width="100%" height="350" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
+      </div>
 
-            <div class="info-indicadores">
-                <div><strong>RSI</strong>: <span id="rsi">--</span></div>
-                <div><strong>SUP</strong>: <span id="suporte">--</span></div>
-                <div><strong>RÉS</strong>: <span id="resistencia">--</span></div>
-                <div><strong>VOL</strong>: <span id="volume">--</span></div>
-            </div>
-        </div>
+      <div class="bloco-indicadores">
+        <h2>📈 BTCUSDT</h2>
+        <p><strong>Preço:</strong> <span id="preco">--</span></p>
+        <p><strong>Variação:</strong> <span id="variacao">--</span>%</p>
+        <p><strong>Volume:</strong> <span id="volume">--</span></p>
+        <p><strong>RSI:</strong> <span id="rsi">--</span></p>
+        <p><strong>Suporte:</strong> <span id="suporte">--</span></p>
+        <p><strong>Resistência:</strong> <span id="resistencia">--</span></p>
+      </div>
 
-        <!-- Gráfico Central -->
-        <div class="painel-grafico">
-            <h2>BTC/USDT</h2>
-            <div class="preco-info">
-                <span class="preco-valor" id="preco">--</span>
-                <span class="variacao" id="variacao">--</span>
-                <span class="porcentagem" id="porcentagem">--%</span>
-            </div>
-            <div id="grafico-container">
-                <!-- Gráfico da Binance ou TradingView -->
-                <iframe id="grafico" src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark&style=1&locale=br" frameborder="0" width="100%" height="350"></iframe>
-            </div>
-        </div>
-
-        <!-- Coluna Direita (IA) -->
-        <div class="painel-coluna-direita">
-            <div class="ia-box">
-                <div class="ia-avatar">
-                    <img src="{{ url_for('static', filename='clarinha.png') }}" alt="Clarinha AI">
-                </div>
-                <div class="ia-sugestao">
-                    <p><strong>Sugestão:</strong></p>
-                    <p id="sugestao-ia">Entrada próxima ao suporte com stop bem abaixo</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Rodapé de Ações -->
-        <div class="painel-botoes">
-            <button class="botao-futurista">CONFIGURAR</button>
-            <button class="botao-futurista">EXECUTAR</button>
-            <button class="botao-futurista">AUTOMÁTICO</button>
-        </div>
-
+      <div class="bloco-sugestao">
+        <h2>🤖 Sugestão da Clarinha</h2>
+        <div id="sugestao">Aguardando IA...</div>
+        <button onclick="executarAcao('executar')">⚡ Executar Ação</button>
+      </div>
     </div>
-
+  </div>
 </body>
 </html>
