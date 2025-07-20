@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
-import os
 import requests
+import os
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -9,17 +9,18 @@ app.secret_key = os.urandom(24)
 USUARIO_PADRAO = "admin"
 SENHA_PADRAO = "claraverse2025"
 
-# 🔒 Armazenamento temporário das chaves
+# 🔒 Armazenamento simulado das chaves
 chaves_salvas = {
     "binance_api_key": "",
     "binance_api_secret": "",
     "openai_api_key": ""
 }
 
-# 💰 Modo Demo
-demo_saldo = {"BRL": 10000.00}
-
 @app.route("/")
+def home():
+    return redirect("/dashboard")
+
+@app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html")
 
@@ -44,7 +45,7 @@ def logout():
 def painel():
     if "usuario" not in session:
         return redirect("/login")
-    return render_template("painel.html", saldo=demo_saldo["BRL"])
+    return render_template("painel.html", chaves=chaves_salvas)
 
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
@@ -73,24 +74,5 @@ def dados_mercado():
             "volume": "--"
         })
 
-@app.route("/executar_ordem", methods=["POST"])
-def executar_ordem():
-    if "usuario" not in session:
-        return jsonify({"status": "erro", "mensagem": "Usuário não autenticado"})
-    
-    dados = request.json
-    direcao = dados.get("direcao")  # "call" ou "put"
-    valor = float(dados.get("valor", 0))
-
-    if valor > demo_saldo["BRL"]:
-        return jsonify({"status": "erro", "mensagem": "Saldo insuficiente"})
-
-    demo_saldo["BRL"] -= valor
-    return jsonify({
-        "status": "sucesso",
-        "mensagem": f"Ordem {direcao.upper()} de R${valor:.2f} executada no modo demo!",
-        "saldo_restante": f"R${demo_saldo['BRL']:.2f}"
-    })
-
-# 🔁 Para o Render
+# 🔁 Para compatibilidade com Render (Gunicorn)
 application = app
