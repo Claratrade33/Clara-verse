@@ -1,49 +1,105 @@
-/* Estilo exclusivo da tela de configuração */
-.secao-configuracoes {
-  background-color: #1c1c2e;
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0e0f1b;
+  color: #ffffff;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.painel-body {
+  background: #0e0f1b;
+  color: #ffffff;
+}
+
+.painel-container {
   padding: 20px;
-  border-radius: 10px;
-  color: #eee;
-  width: 100%;
-  max-width: 600px;
+  max-width: 1200px;
   margin: auto;
-  box-shadow: 0 0 10px #2d2d44;
 }
 
-.secao-configuracoes label {
-  display: block;
-  margin-top: 15px;
-  margin-bottom: 5px;
+.painel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  color: #00f9ff;
+}
+
+.painel-header h1 {
+  font-size: 24px;
+}
+
+.painel-saldo {
+  font-size: 18px;
   font-weight: bold;
 }
 
-.secao-configuracoes input {
-  width: 100%;
-  padding: 10px;
+.btn-sair {
+  background-color: #ff5555;
   border: none;
+  color: white;
+  padding: 8px 16px;
   border-radius: 5px;
-  background-color: #2c2c3e;
-  color: #eee;
+  cursor: pointer;
 }
 
-.secao-configuracoes button {
+.btn-sair:hover {
+  background-color: #ff2222;
+}
+
+.grafico-frame iframe {
+  border: 2px solid #00f9ff;
+  border-radius: 5px;
+}
+
+.dados-mercado p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.ia-resposta {
   margin-top: 20px;
-  width: 100%;
-  padding: 12px;
-  background-color: #5a44ff;
-  color: #fff;
-  font-weight: bold;
+  padding: 10px;
+  background-color: #14152a;
+  border-left: 4px solid #00f9ff;
+  border-radius: 5px;
+}
+
+.ia-resposta h3 {
+  color: #00f9ff;
+  margin-bottom: 10px;
+}
+
+.painel-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 30px;
+  justify-content: space-between;
+}
+
+.painel-botoes button {
+  flex: 1 1 30%;
+  padding: 14px;
+  font-size: 16px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: 0.3s ease;
+  font-weight: bold;
+  background-color: #1b1d33;
+  color: #ffffff;
+  border: 2px solid #00f9ff;
+  transition: 0.3s;
 }
 
-.secao-configuracoes button:hover {
-  background-color: #7660ff;
+.painel-botoes button:hover {
+  background-color: #00f9ff;
+  color: #0e0f1b;
 }
 
-.status-sucesso {
-  color: #00ff9c;
-  margin-top: 10px;
+.mensagem-status {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #00ff99;
+  text-align: center;
 }
