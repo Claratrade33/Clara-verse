@@ -1,53 +1,41 @@
-document.addEventListener("DOMContentLoaded", () => {
-    atualizarDadosMercado();
-    setInterval(atualizarDadosMercado, 10000); // atualiza a cada 10s
+document.addEventListener("DOMContentLoaded", function () {
+    buscarDadosMercado();
+    setInterval(buscarDadosMercado, 10000);
 });
 
-function atualizarDadosMercado() {
+function buscarDadosMercado() {
     fetch("/dados_mercado")
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-            document.getElementById("preco").innerText = data.preco;
-            document.getElementById("variacao").innerText = data.variacao;
-            document.getElementById("volume").innerText = data.volume;
-        })
-        .catch(error => console.error("Erro ao buscar dados do mercado:", error));
+            document.getElementById("preco").textContent = data.preco;
+            document.getElementById("variacao").textContent = data.variacao;
+            document.getElementById("volume").textContent = data.volume;
+        });
 }
 
 function salvarChaves() {
-    const binanceKey = document.getElementById("binance_api_key").value;
-    const binanceSecret = document.getElementById("binance_api_secret").value;
-    const openaiKey = document.getElementById("openai_api_key").value;
+    const payload = {
+        binance_api_key: document.getElementById("binance_api_key").value,
+        binance_api_secret: document.getElementById("binance_api_secret").value,
+        openai_api_key: document.getElementById("openai_api_key").value,
+        meta_lucro: document.getElementById("meta_lucro") ? document.getElementById("meta_lucro").value : null
+    };
 
     fetch("/salvar_chaves", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            binance_api_key: binanceKey,
-            binance_api_secret: binanceSecret,
-            openai_api_key: openaiKey
-        })
+        body: JSON.stringify(payload)
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
-        if (data.status === "sucesso") {
-            document.getElementById("status-chaves").innerText = "✅ Chaves salvas com sucesso!";
-        }
-    })
-    .catch(error => {
-        document.getElementById("status-chaves").innerText = "❌ Erro ao salvar chaves!";
-        console.error("Erro ao salvar chaves:", error);
+        document.getElementById("status-chaves").textContent = "Configurações salvas com sucesso!";
     });
 }
 
 function enviarComando(tipo) {
-    fetch(`/comando?acao=${tipo}`)
-        .then(response => response.json())
+    fetch(`/executar_comando?tipo=${tipo}`)
+        .then(res => res.json())
         .then(data => {
-            alert(`📡 Comando "${tipo}" enviado!\nIA: ${data.mensagem}`);
-        })
-        .catch(error => {
-            alert(`❌ Erro ao enviar comando "${tipo}"`);
-            console.error(error);
+            alert(`🧠 ClaraVerse:\n${data.mensagem}`);
         });
 }
