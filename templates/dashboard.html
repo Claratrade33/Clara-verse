@@ -1,73 +1,47 @@
+<!-- modelos/dashboard.html -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ClaraVerse • Portal</title>
+    <title>Painel de Controle ClaraVerse</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
-
-        body.dashboard-inicial {
-            margin: 0;
-            padding: 0;
-            font-family: 'Orbitron', sans-serif;
-            background: linear-gradient(150deg, #0e0e17, #1f1f2e);
-            color: #e0e0e0;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .container-dashboard {
-            text-align: center;
-            padding: 40px;
-            background-color: rgba(0,0,0,0.4);
-            border-radius: 16px;
-            box-shadow: 0 0 25px rgba(100, 100, 255, 0.3);
-        }
-
-        .logo {
-            width: 120px;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 2.2em;
-            margin-bottom: 10px;
-            color: #8ac4ff;
-        }
-
-        p {
-            font-size: 1.1em;
-            margin-bottom: 30px;
-            color: #bbbbbb;
-        }
-
-        .btn-principal {
-            display: inline-block;
-            padding: 14px 28px;
-            background-color: #6c63ff;
-            color: white;
-            font-size: 1em;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-
-        .btn-principal:hover {
-            background-color: #8f7eff;
-            transform: scale(1.05);
-        }
-    </style>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
 </head>
-<body class="dashboard-inicial">
-    <div class="container-dashboard">
-        <img src="{{ url_for('static', filename='logo_claraverse.png') }}" alt="Logo ClaraVerse" class="logo">
-        <h1>Bem-vindo ao ClaraVerse</h1>
-        <p>Seu universo de inteligência financeira, decisões em tempo real e autonomia total.</p>
-        <a href="{{ url_for('login') }}" class="btn-principal">Entrar no Painel</a>
+<body class="painel-dark">
+    <div class="menu-lateral">
+        <div class="logo-menu">🪐 ClaraVerse</div>
+        <button class="botao-menu" onclick="window.location.href='/dashboard'">🏠 Início</button>
+        <button class="botao-menu" onclick="window.location.href='/painel'">📊 Painel</button>
+        <button class="botao-menu" onclick="window.location.href='/configurar'">🛠️ Configurar</button>
+        <button class="botao-menu" onclick="window.location.href='/logout'">📕 Sair</button>
+    </div>
+
+    <div class="painel-conteudo">
+        <h1 class="painel-titulo">Painel de Operação BTC/USDT</h1>
+
+        <iframe class="grafico" src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark" frameborder="0"></iframe>
+
+        <div class="painel-botoes">
+            <button class="btn entrada">ENTRADA</button>
+            <button class="btn stop">STOP</button>
+            <button class="btn alvo">ALVO</button>
+            <button class="btn configurar" onclick="window.location.href='/configurar'">CONFIGURAR</button>
+            <button class="btn automatico">AUTOMÁTICO</button>
+        </div>
+
+        <div class="status-operacao">
+            <p>Preço Atual: <span id="preco"></span></p>
+            <p>Variação: <span id="variacao"></span></p>
+            <p>Volume: <span id="volume"></span></p>
+        </div>
+
+        <div class="bloco-ia">
+            <div class="clarinha-avatar"></div>
+            <div class="fala-ia">
+                <strong>Clarinha:</strong>
+                <p id="resposta-ia">Pronto para agir quando você estiver! 💡</p>
+            </div>
+        </div>
     </div>
 </body>
 </html>
