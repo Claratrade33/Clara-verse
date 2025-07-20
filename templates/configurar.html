@@ -1,32 +1,37 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Configurar APIs • ClaraVerse</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+  <meta charset="UTF-8">
+  <title>Configurar API - ClaraVerse</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script>
+    function salvarChaves() {
+      const dados = {
+        binance_api_key: document.getElementById("binance_api_key").value,
+        binance_api_secret: document.getElementById("binance_api_secret").value,
+        openai_api_key: document.getElementById("openai_api_key").value
+      };
+
+      fetch("/salvar_chaves", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados)
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("status").innerText = "✅ Chaves salvas com sucesso!";
+      });
+    }
+  </script>
 </head>
-<body class="configuracao-pagina">
-    <div class="container-configuracao">
-        <h1>🔐 Configurações de API</h1>
-
-        <div class="formulario-config">
-            <label for="binance_api_key">Binance API Key:</label>
-            <input type="password" id="binance_api_key" placeholder="Sua Binance API Key" value="{{ chaves['binance_api_key'] }}">
-
-            <label for="binance_api_secret">Binance API Secret:</label>
-            <input type="password" id="binance_api_secret" placeholder="Sua Binance API Secret" value="{{ chaves['binance_api_secret'] }}">
-
-            <label for="openai_api_key">OpenAI API Key:</label>
-            <input type="password" id="openai_api_key" placeholder="Sua OpenAI API Key" value="{{ chaves['openai_api_key'] }}">
-
-            <button id="btnSalvar">💾 Salvar Chaves</button>
-            <p id="status-chaves" class="status-sucesso"></p>
-        </div>
-
-        <div class="voltar-painel">
-            <a href="/painel">⬅️ Voltar para o Painel</a>
-        </div>
-    </div>
+<body>
+  <div class="painel-container">
+    <h1>⚙️ Configurar APIs</h1>
+    <input type="text" id="binance_api_key" placeholder="Binance API Key">
+    <input type="text" id="binance_api_secret" placeholder="Binance API Secret">
+    <input type="text" id="openai_api_key" placeholder="OpenAI API Key">
+    <button onclick="salvarChaves()">Salvar Chaves</button>
+    <p id="status"></p>
+  </div>
 </body>
 </html>
