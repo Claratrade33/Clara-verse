@@ -1,47 +1,12 @@
-<!-- modelos/dashboard.html -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel de Controle ClaraVerse</title>
+    <title>ClaraVerse • Portal</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
 </head>
-<body class="painel-dark">
-    <div class="menu-lateral">
-        <div class="logo-menu">🪐 ClaraVerse</div>
-        <button class="botao-menu" onclick="window.location.href='/dashboard'">🏠 Início</button>
-        <button class="botao-menu" onclick="window.location.href='/painel'">📊 Painel</button>
-        <button class="botao-menu" onclick="window.location.href='/configurar'">🛠️ Configurar</button>
-        <button class="botao-menu" onclick="window.location.href='/logout'">📕 Sair</button>
-    </div>
-
-    <div class="painel-conteudo">
-        <h1 class="painel-titulo">Painel de Operação BTC/USDT</h1>
-
-        <iframe class="grafico" src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark" frameborder="0"></iframe>
-
-        <div class="painel-botoes">
-            <button class="btn entrada">ENTRADA</button>
-            <button class="btn stop">STOP</button>
-            <button class="btn alvo">ALVO</button>
-            <button class="btn configurar" onclick="window.location.href='/configurar'">CONFIGURAR</button>
-            <button class="btn automatico">AUTOMÁTICO</button>
-        </div>
-
-        <div class="status-operacao">
-            <p>Preço Atual: <span id="preco"></span></p>
-            <p>Variação: <span id="variacao"></span></p>
-            <p>Volume: <span id="volume"></span></p>
-        </div>
-
-        <div class="bloco-ia">
-            <div class="clarinha-avatar"></div>
-            <div class="fala-ia">
-                <strong>Clarinha:</strong>
-                <p id="resposta-ia">Pronto para agir quando você estiver! 💡</p>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+<body class="dashboard-inicial">
+    <div class="container-dashboard">
+        <img src="{{ url_for('static', filename='logo_claraverse.png') }}" alt="Logo ClaraVerse" class="logo">
+        <h1>Bem-vindo ao ClaraVerse</h1>
+        <p>Sua central de inteligência para operações automatizadas
