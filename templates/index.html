@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>ClaraVerse - Painel de Operações</title>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #f2f2f2;
+            font-family: "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #111;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff00cc;
+        }
+        .painel {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+        .esquerda, .direita {
+            width: 20%;
+            padding: 10px;
+            background-color: #1a1a1a;
+        }
+        .centro {
+            width: 60%;
+            padding: 10px;
+            text-align: center;
+        }
+        .botao {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 16px;
+            background-color: #00ffe1;
+            border: none;
+            cursor: pointer;
+        }
+        .botao:hover {
+            background-color: #00ccbb;
+        }
+        .card {
+            background-color: #262626;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        🧠 ClaraVerse - Painel de Operações
+    </header>
+
+    <div class="painel">
+        <div class="esquerda">
+            <div class="card">
+                <h4>Livro de Ordens</h4>
+                <p>🔺 Venda: 117.910,22</p>
+                <p>🔻 Compra: 117.906,00</p>
+            </div>
+            <div class="card">
+                <h4>Par:</h4>
+                <select id="par">
+                    <option value="BTCUSDT">BTC/USDT</option>
+                    <option value="ETHUSDT">ETH/USDT</option>
+                    <option value="SOLUSDT">SOL/USDT</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="centro">
+            <div class="card">
+                <h2 id="preco">Carregando...</h2>
+                <p id="variacao">Variação: --%</p>
+                <p id="volume">Volume: --</p>
+            </div>
+            <iframe src="https://www.binance.com/pt-BR/trade/BTC_USDT?theme=dark" width="100%" height="500px" frameborder="0"></iframe>
+        </div>
+
+        <div class="direita">
+            <button class="botao">ENTRADA</button>
+            <button class="botao">ALVO</button>
+            <button class="botao">STOP</button>
+            <button class="botao">AUTOMÁTICO</button>
+            <button class="botao">CONFIGURAR</button>
+        </div>
+    </div>
+
+    <script>
+        async function atualizar() {
+            const par = document.getElementById("par").value;
+            const res = await fetch("/preco?par=" + par);
+            const data = await res.json();
+            if (data.preco) {
+                document.getElementById("preco").textContent = `💰 ${data.preco.toLocaleString("pt-BR", {style:"currency", currency:"USD"})}`;
+                document.getElementById("variacao").textContent = `Variação: ${data.variacao}%`;
+                document.getElementById("volume").textContent = `Volume: ${data.volume}`;
+            }
+        }
+        setInterval(atualizar, 5000);
+        atualizar();
+    </script>
+</body>
+</html>
