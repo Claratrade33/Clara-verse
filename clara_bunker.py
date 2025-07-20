@@ -5,18 +5,16 @@ import os
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# 🧠 Credenciais padrão
 USUARIO_PADRAO = "admin"
 SENHA_PADRAO = "claraverse2025"
 
-# 🔐 Chaves seguras armazenadas na memória (poderá ser migrado para DB depois)
 chaves_salvas = {
     "binance_api_key": "",
     "binance_api_secret": "",
-    "openai_api_key": ""
+    "openai_api_key": "",
+    "meta_lucro": ""
 }
 
-# 🌐 Rotas principais
 @app.route("/")
 def home():
     return redirect("/dashboard")
@@ -28,13 +26,10 @@ def dashboard():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        usuario = request.form.get("usuario")
-        senha = request.form.get("senha")
-        if usuario == USUARIO_PADRAO and senha == SENHA_PADRAO:
-            session["usuario"] = usuario
+        if request.form.get("usuario") == USUARIO_PADRAO and request.form.get("senha") == SENHA_PADRAO:
+            session["usuario"] = USUARIO_PADRAO
             return redirect("/painel")
-        else:
-            return render_template("login.html", erro="Usuário ou senha incorretos.")
+        return render_template("login.html", erro="Usuário ou senha incorretos.")
     return render_template("login.html")
 
 @app.route("/logout")
@@ -57,29 +52,32 @@ def configurar():
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
     data = request.json
-    chaves_salvas["binance_api_key"] = data.get("binance_api_key", "")
-    chaves_salvas["binance_api_secret"] = data.get("binance_api_secret", "")
-    chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
+    for key in chaves_salvas:
+        chaves_salvas[key] = data.get(key, "")
     return jsonify({"status": "sucesso"})
 
 @app.route("/dados_mercado")
 def dados_mercado():
-    par = request.args.get("par", "BTCUSDT")
     try:
-        url = f"https://api.binance.com/api/v3/ticker/24hr?symbol={par}"
-        response = requests.get(url)
-        dados = response.json()
-        return jsonify({
-            "preco": dados.get("lastPrice", "--"),
-            "variacao": dados.get("priceChangePercent", "--"),
-            "volume": dados.get("volume", "--")
-        })
+        r = requests.get("https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT")
+        d = r.json()
+        return jsonify({"preco": d.get("lastPrice", "--"), "variacao": d.get("priceChangePercent", "--"), "volume": d.get("volume", "--")})
     except:
-        return jsonify({
-            "preco": "--",
-            "variacao": "--",
-            "volume": "--"
-        })
+        return jsonify({"preco": "--", "variacao": "--", "volume": "--"})
 
-# 🔁 Render Compatibility
+@app.route("/executar_comando")
+def executar_comando():
+    tipo = request.args.get("tipo")
+    if tipo == "entrada":
+        msg = "Entrada registrada com sucesso!"
+    elif tipo == "stop":
+        msg = "Stop acionado!"
+    elif tipo == "alvo":
+        msg = "Alvo definido!"
+    elif tipo == "auto":
+        msg = "Modo automático ativado com IA ClaraVerse."
+    else:
+        msg = "Comando desconhecido."
+    return jsonify({"mensagem": msg})
+
 application = app
