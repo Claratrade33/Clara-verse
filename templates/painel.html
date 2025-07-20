@@ -7,20 +7,23 @@
     <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
 <body class="painel-dark">
+    <!-- MENU LATERAL -->
     <div class="menu-lateral">
         <div class="logo-menu">🪐 ClaraVerse</div>
         <button id="btnDashboard" class="botao-menu" onclick="window.location.href='/dashboard'">📊 Dashboard</button>
-        <button id="btnEntrada" class="botao-menu">📥 Entrada</button>
-        <button id="btnStop" class="botao-menu">🛑 Stop</button>
-        <button id="btnAlvo" class="botao-menu">🎯 Alvo</button>
+        <button id="btnEntrada" class="botao-menu" onclick="enviarComando('entrada')">📥 Entrada</button>
+        <button id="btnStop" class="botao-menu" onclick="enviarComando('stop')">🛑 Stop</button>
+        <button id="btnAlvo" class="botao-menu" onclick="enviarComando('alvo')">🎯 Alvo</button>
         <button id="btnConfigurar" class="botao-menu">⚙️ Configurar</button>
-        <button id="btnAuto" class="botao-menu">🤖 Automático</button>
+        <button id="btnAuto" class="botao-menu" onclick="enviarComando('auto')">🤖 Automático</button>
         <button class="botao-menu" onclick="window.location.href='/logout'">🚪 Sair</button>
     </div>
 
+    <!-- CONTEÚDO PRINCIPAL -->
     <div class="painel-conteudo">
         <h1 class="painel-titulo">Painel de Controle ClaraVerse</h1>
 
+        <!-- GRÁFICO -->
         <div class="secao-grafico">
             <iframe
                 src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
@@ -32,6 +35,7 @@
             </iframe>
         </div>
 
+        <!-- MERCADO -->
         <div class="secao-mercado">
             <h2>📈 Mercado BTC/USDT</h2>
             <p><strong>Preço:</strong> <span id="preco">--</span></p>
@@ -39,20 +43,14 @@
             <p><strong>Volume:</strong> <span id="volume">--</span></p>
         </div>
 
+        <!-- CONFIGURAÇÕES DE API -->
         <div class="secao-config">
             <h2>🔐 Configurações de API</h2>
             <input type="text" id="binance_api_key" placeholder="Binance API Key" value="{{ chaves['binance_api_key'] }}">
             <input type="text" id="binance_api_secret" placeholder="Binance API Secret" value="{{ chaves['binance_api_secret'] }}">
             <input type="text" id="openai_api_key" placeholder="OpenAI API Key" value="{{ chaves['openai_api_key'] }}">
-            <button onclick="salvarChaves()">Salvar Chaves</button>
+            <button class="botao-salvar" onclick="salvarChaves()">Salvar Chaves</button>
             <p id="status-chaves" class="status-sucesso"></p>
-        </div>
-
-        <div class="secao-botoes">
-            <button onclick="enviarComando('entrada')">✅ ENTRADA</button>
-            <button onclick="enviarComando('stop')">⛔ STOP</button>
-            <button onclick="enviarComando('alvo')">🎯 ALVO</button>
-            <button onclick="enviarComando('auto')">🤖 AUTOMÁTICO</button>
         </div>
     </div>
 </body>
