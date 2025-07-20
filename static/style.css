@@ -1,70 +1,152 @@
-body {
+body.painel-futurista {
+    background-color: #0a0f1c;
+    color: #00f9ff;
+    font-family: 'Segoe UI', sans-serif;
     margin: 0;
-    font-family: "Segoe UI", sans-serif;
-    background-color: #0d1117;
-    color: #c9d1d9;
-}
-
-.menu-lateral {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 200px;
-    height: 100%;
-    background-color: #161b22;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    padding: 20px 10px;
+    align-items: center;
 }
 
-.botao-menu {
-    background: none;
-    border: none;
-    color: #58a6ff;
-    padding: 10px;
-    text-align: left;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.painel-conteudo {
-    margin-left: 220px;
+.painel-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 95%;
+    max-width: 1200px;
     padding: 20px;
+    box-sizing: border-box;
 }
 
-.secao-config input {
-    display: block;
+.painel-coluna-esquerda,
+.painel-coluna-direita {
+    width: 20%;
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+.painel-grafico {
+    width: 55%;
+    min-width: 280px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h2 {
     margin-bottom: 10px;
-    padding: 10px;
-    width: 100%;
-    background-color: #0d1117;
-    border: 1px solid #30363d;
-    color: #c9d1d9;
+    font-size: 24px;
+    color: #00f9ff;
 }
 
-.secao-config button {
-    background-color: #238636;
-    border: none;
-    padding: 10px 20px;
-    color: white;
+.preco-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 18px;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+iframe#grafico {
+    border-radius: 12px;
+    border: 2px solid #00f9ff;
+}
+
+.botao-futurista {
+    background-color: transparent;
+    color: #00f9ff;
+    border: 2px solid #00f9ff;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    width: 100%;
+    text-align: center;
 }
 
-.status-sucesso {
-    color: #3fb950;
+.botao-futurista:hover {
+    background-color: #00f9ff;
+    color: #0a0f1c;
+}
+
+.botao-futurista.grande {
+    font-size: 20px;
+    padding: 15px 25px;
+}
+
+.info-indicadores {
+    font-size: 16px;
+    color: #ffffff;
     margin-top: 10px;
+    background-color: #12192d;
+    padding: 10px;
+    border-radius: 10px;
+    width: 100%;
+    text-align: center;
 }
 
-/* Responsivo */
+.ia-box {
+    background-color: #12192d;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    color: #ffffff;
+}
+
+.ia-avatar img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid #00f9ff;
+    margin-bottom: 10px;
+}
+
+.ia-sugestao {
+    font-size: 14px;
+    color: #c5f3f7;
+}
+
+.painel-botoes {
+    margin-top: 30px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* Responsivo para celular */
 @media (max-width: 768px) {
-    .menu-lateral {
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        overflow-x: scroll;
+    .painel-container {
+        flex-direction: column;
+        align-items: center;
     }
-    .painel-conteudo {
-        margin-left: 0;
-        padding-top: 120px;
+
+    .painel-coluna-esquerda,
+    .painel-coluna-direita,
+    .painel-grafico {
+        width: 100%;
+        align-items: center;
+    }
+
+    .painel-botoes {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .botao-futurista {
+        width: 80%;
+    }
+
+    iframe#grafico {
+        height: 300px;
     }
 }
