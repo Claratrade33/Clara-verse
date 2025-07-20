@@ -2,73 +2,52 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel ClaraVerse</title>
+    <title>ClaraVerse - Painel de Operações</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="dark-mode">
-    <div class="sidebar">
-        <h2 class="logo">ClaraVerse</h2>
-        <button onclick="enviarAcao('entrada')">ENTRADA</button>
-        <button onclick="enviarAcao('stop')">STOP</button>
-        <button onclick="enviarAcao('alvo')">ALVO</button>
-        <button onclick="enviarAcao('automatico')">AUTOMÁTICO</button>
-    </div>
+<body class="painel-clara">
+    <header class="top-bar">
+        <h1>ClaraVerse</h1>
+        <button id="btnConfig" class="btn-top">Configurações</button>
+        <a href="/logout" class="btn-top sair">Sair</a>
+    </header>
 
-    <div class="main">
-        <div class="top-bar">
-            <button class="config-btn" onclick="abrirModal()">CONFIGURAÇÕES</button>
-        </div>
-        <div class="chart-container">
-            <!-- TradingView Widget BEGIN -->
-            <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&hidesidetoolbar=1&theme=dark"
-                width="100%" height="500" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
-            <!-- TradingView Widget END -->
-        </div>
+    <div class="painel-container">
+        <nav class="menu-lateral">
+            <button onclick="enviarComando('call')">ENTRADA (CALL)</button>
+            <button onclick="enviarComando('put')">ENTRADA (PUT)</button>
+            <button onclick="enviarComando('stop')">STOP</button>
+            <button onclick="enviarComando('alvo')">ALVO</button>
+            <button onclick="enviarComando('auto')">AUTOMÁTICO</button>
+        </nav>
+
+        <main class="painel-grafico">
+            <canvas id="grafico"></canvas>
+            <div id="dadosMercado">
+                <p><strong>Preço:</strong> <span id="preco">--</span></p>
+                <p><strong>Variação 24h:</strong> <span id="variacao">--</span></p>
+                <p><strong>Volume:</strong> <span id="volume">--</span></p>
+            </div>
+        </main>
     </div>
 
     <!-- Modal de Configuração -->
-    <div id="modal" class="modal">
+    <div id="modalConfig" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="fecharModal()">&times;</span>
-            <h2>Configurar Chaves de API</h2>
-            <input id="binance_key" placeholder="Binance API Key">
-            <input id="binance_secret" placeholder="Binance API Secret">
-            <input id="openai_key" placeholder="OpenAI API Key">
-            <button onclick="salvarChaves()">Salvar e Fechar</button>
+            <h2>Configurar APIs</h2>
+            <label>Binance API Key:</label>
+            <input type="text" id="binanceKey" value="{{ chaves['binance_api_key'] }}">
+            <label>Binance API Secret:</label>
+            <input type="text" id="binanceSecret" value="{{ chaves['binance_api_secret'] }}">
+            <label>OpenAI Key:</label>
+            <input type="text" id="openaiKey" value="{{ chaves['openai_api_key'] }}">
+            <div class="modal-buttons">
+                <button onclick="salvarChaves()">Salvar e Fechar</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        function abrirModal() {
-            document.getElementById("modal").style.display = "block";
-        }
-
-        function fecharModal() {
-            document.getElementById("modal").style.display = "none";
-        }
-
-        function salvarChaves() {
-            const binance_api_key = document.getElementById("binance_key").value;
-            const binance_api_secret = document.getElementById("binance_secret").value;
-            const openai_api_key = document.getElementById("openai_key").value;
-
-            axios.post("/salvar_chaves", {
-                binance_api_key,
-                binance_api_secret,
-                openai_api_key
-            }).then(() => {
-                alert("Chaves salvas com sucesso!");
-                fecharModal();
-            }).catch(() => {
-                alert("Erro ao salvar as chaves.");
-            });
-        }
-
-        function enviarAcao(acao) {
-            alert("Botão '" + acao.toUpperCase() + "' acionado! (simulação)");
-            // Aqui você poderá ligar com backend futuramente
-        }
-    </script>
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>
 </html>
