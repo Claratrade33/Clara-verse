@@ -1,73 +1,59 @@
-document.addEventListener("DOMContentLoaded", () => {
-  atualizarDadosMercado();
+// Atualiza os dados do mercado
+async function atualizarDados() {
+  const resposta = await fetch("/dados_mercado");
+  const dados = await resposta.json();
 
-  const acaoBotoes = ["entrada", "stop", "alvo", "executar", "automatico"];
-  acaoBotoes.forEach((acao) => {
-    const botao = document.querySelector(`button[onclick*="${acao}"]`);
-    if (botao) {
-      botao.addEventListener("click", () => enviarAcao(acao));
-    }
+  document.getElementById("preco").innerText = dados.preco;
+  document.getElementById("variacao").innerText = dados.variacao;
+  document.getElementById("volume").innerText = dados.volume;
+  document.getElementById("rsi").innerText = dados.rsi;
+  document.getElementById("suporte").innerText = dados.suporte;
+  document.getElementById("resistencia").innerText = dados.resistencia;
+  document.getElementById("sugestao").innerText = dados.sugestao;
+}
+
+// Envia comandos como entrada, stop, alvo...
+async function enviarAcao(acao) {
+  const resposta = await fetch(`/executar/${acao}`, {
+    method: "POST"
   });
-
-  const btnSalvar = document.querySelector("button[onclick='salvarChaves()']");
-  if (btnSalvar) {
-    btnSalvar.addEventListener("click", salvarChaves);
-  }
-});
-
-function atualizarDadosMercado() {
-  fetch("/dados_mercado")
-    .then((res) => res.json())
-    .then((dados) => {
-      document.getElementById("preco").textContent = dados.preco;
-      document.getElementById("variacao").textContent = dados.variacao;
-      document.getElementById("volume").textContent = dados.volume;
-      document.getElementById("rsi").textContent = dados.rsi;
-      document.getElementById("suporte").textContent = dados.suporte;
-      document.getElementById("resistencia").textContent = dados.resistencia;
-      document.getElementById("sugestao").textContent = dados.sugestao;
-    })
-    .catch(() => {
-      document.getElementById("sugestao").textContent = "Erro ao buscar dados.";
-    });
+  const resultado = await resposta.json();
+  const status = document.getElementById("mensagemStatus");
+  status.innerText = resultado.mensagem;
+  setTimeout(() => {
+    status.innerText = "";
+  }, 3000);
 }
 
-function enviarAcao(acao) {
-  fetch(`/executar/${acao}`, { method: "POST" })
-    .then((res) => res.json())
-    .then((dados) => {
-      document.getElementById("mensagemStatus").textContent = dados.mensagem;
-    })
-    .catch(() => {
-      document.getElementById("mensagemStatus").textContent =
-        "Erro ao executar ação.";
-    });
-}
+// Salva as chaves de API com redirecionamento para o painel
+async function salvarChaves() {
+  const binanceKey = document.getElementById("binance_api_key").value;
+  const binanceSecret = document.getElementById("binance_api_secret").value;
+  const openaiKey = document.getElementById("openai_api_key").value;
 
-function salvarChaves() {
-  const binance_api_key = document.getElementById("binance_api_key")?.value || "";
-  const binance_api_secret = document.getElementById("binance_api_secret")?.value || "";
-  const openai_api_key = document.getElementById("openai_api_key")?.value || "";
-
-  fetch("/salvar_chaves", {
+  const resposta = await fetch("/salvar_chaves", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      binance_api_key,
-      binance_api_secret,
-      openai_api_key,
-    }),
-  })
-    .then((res) => res.json())
-    .then(() => {
-      document.getElementById("mensagemStatus").textContent =
-        "🔒 Chaves salvas com sucesso!";
-      setTimeout(() => {
-        window.location.href = "/painel";
-      }, 1500);
+      binance_api_key: binanceKey,
+      binance_api_secret: binanceSecret,
+      openai_api_key: openaiKey
     })
-    .catch(() => {
-      document.getElementById("mensagemStatus").textContent =
-        "Erro ao salvar as chaves.";
-    });
+  });
+
+  const resultado = await resposta.json();
+
+  const status = document.getElementById("status-chaves");
+  if (resultado.status === "sucesso") {
+    status.innerText = "🔒 Chaves salvas com sucesso!";
+    setTimeout(() => {
+      window.location.href = "/painel";
+    }, 1200);
+  } else {
+    status.innerText = "❌ Erro ao salvar as chaves.";
+  }
 }
+
+// Atualizar mercado automaticamente a cada 10 segundos
+setInterval(atualizarDados, 10000);
+window.onload = atualizarDados;
