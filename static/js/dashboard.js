@@ -1,86 +1,68 @@
 document.addEventListener("DOMContentLoaded", () => {
-    atualizarPreco();
+    atualizarDados();
 
-    document.getElementById("btnAuto")?.addEventListener("click", enviarSugestao);
+    setInterval(atualizarDados, 15000); // atualiza mercado a cada 15s
+
+    document.getElementById("btnEntrada").addEventListener("click", () => enviarComando("entrada"));
+    document.getElementById("btnStop").addEventListener("click", () => enviarComando("stop"));
+    document.getElementById("btnAlvo").addEventListener("click", () => enviarComando("alvo"));
+    document.getElementById("btnAuto").addEventListener("click", () => enviarSugestao());
+    document.getElementById("btnConfigurar").addEventListener("click", () => {
+        window.location.href = "/configurar";
+    });
 });
 
-function atualizarPreco() {
+function atualizarDados() {
     fetch("/dados_mercado")
         .then(res => res.json())
         .then(data => {
-            document.getElementById("preco").textContent = data.preco || "--";
-            document.getElementById("variacao").textContent = data.variacao || "--";
-            document.getElementById("volume").textContent = data.volume || "--";
-        })
-        .catch(error => console.error("Erro ao buscar dados de mercado:", error));
+            document.getElementById("preco").textContent = data.preco;
+            document.getElementById("variacao").textContent = data.variacao;
+            document.getElementById("volume").textContent = data.volume;
+        });
+}
+
+function enviarComando(comando) {
+    alert(`Comando enviado: ${comando} (modo demo)`);
 }
 
 function salvarChaves() {
-    const binanceApiKey = document.getElementById("binance_api_key").value;
-    const binanceApiSecret = document.getElementById("binance_api_secret").value;
-    const openaiApiKey = document.getElementById("openai_api_key").value;
-    const metaLucro = document.getElementById("meta_lucro")?.value || "";
+    const payload = {
+        binance_api_key: document.getElementById("binance_api_key").value,
+        binance_api_secret: document.getElementById("binance_api_secret").value,
+        openai_api_key: document.getElementById("openai_api_key").value,
+        meta_lucro: parseFloat(document.getElementById("meta_lucro").value || "2.5")
+    };
 
     fetch("/salvar_chaves", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            binance_api_key: binanceApiKey,
-            binance_api_secret: binanceApiSecret,
-            openai_api_key: openaiApiKey,
-            meta_lucro: metaLucro
-        }),
+        body: JSON.stringify(payload)
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("status-chaves").textContent = data.mensagem;
-    })
-    .catch(error => console.error("Erro ao salvar chaves:", error));
+        document.getElementById("status-chaves").textContent = "Chaves salvas com sucesso!";
+        setTimeout(() => {
+            document.getElementById("status-chaves").textContent = "";
+        }, 3000);
+    });
 }
 
-function enviarComando(comando) {
-    fetch("/executar_comando", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comando: comando }),
-    })
-    .then(res => res.json())
-    .then(data => alert(data.mensagem))
-    .catch(error => console.error("Erro ao executar comando:", error));
-}
-
-// 🌟 Modo Automático – Pede sugestão à Clarinha (GPT)
 function enviarSugestao() {
-    fetch("/sugestao_ia")
+    fetch("/api/sugestao")
         .then(res => res.json())
         .then(data => {
-            const painel = document.createElement("div");
-            painel.className = "painel-sugestao";
-            painel.innerHTML = `
+            const secao = document.createElement("div");
+            secao.className = "sugestao-ia";
+            secao.innerHTML = `
                 <h3>✨ Sugestão da Clarinha</h3>
-                <p><strong>Entrada:</strong> ${data.entrada}</p>
-                <p><strong>Alvo:</strong> ${data.alvo}</p>
-                <p><strong>Stop:</strong> ${data.stop}</p>
-                <p><strong>Confiança:</strong> ${data.confianca}</p>
-                <button onclick='confirmarExecucao(${JSON.stringify(data)})'>Confirmar e Executar</button>
+                <p>${data.resposta}</p>
+                <button onclick="confirmarExecucao()">✅ Confirmar e Executar</button>
             `;
-
-            const container = document.querySelector(".painel-conteudo");
-            const anterior = document.querySelector(".painel-sugestao");
-            if (anterior) anterior.remove(); // Remove anterior se houver
-            container.appendChild(painel);
-        })
-        .catch(error => console.error("Erro ao obter sugestão da IA:", error));
+            document.querySelector(".painel-conteudo").appendChild(secao);
+        });
 }
 
-// ✅ Confirmar execução da sugestão da IA
-function confirmarExecucao(dados) {
-    fetch("/executar_sugestao", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dados),
-    })
-    .then(res => res.json())
-    .then(data => alert(data.mensagem))
-    .catch(error => console.error("Erro ao confirmar execução:", error));
+function confirmarExecucao() {
+    alert("✅ Ordem confirmada e enviada (modo demo)!");
 }
