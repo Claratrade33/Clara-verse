@@ -1,73 +1,48 @@
-function mostrarSecao(secaoId) {
-  const secoes = document.querySelectorAll('.secao');
-  secoes.forEach(secao => {
-    secao.classList.remove('ativa');
-  });
-  const secaoSelecionada = document.getElementById(secaoId);
-  if (secaoSelecionada) {
-    secaoSelecionada.classList.add('ativa');
-  }
+// Atualiza os dados do mercado a cada 5 segundos
+function atualizarDadosMercado() {
+    fetch('/dados_mercado?par=BTCUSDT')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("preco").textContent = data.preco;
+            document.getElementById("variacao").textContent = data.variacao;
+            document.getElementById("volume").textContent = data.volume;
+        })
+        .catch(() => {
+            document.getElementById("preco").textContent = "--";
+            document.getElementById("variacao").textContent = "--";
+            document.getElementById("volume").textContent = "--";
+        });
+}
+setInterval(atualizarDadosMercado, 5000);
+window.onload = atualizarDadosMercado;
+
+// Salvar as chaves via /salvar_chaves
+function salvarChaves() {
+    const dados = {
+        binance_api_key: document.getElementById("binance_api_key").value,
+        binance_api_secret: document.getElementById("binance_api_secret").value,
+        openai_api_key: document.getElementById("openai_api_key").value
+    };
+
+    fetch("/salvar_chaves", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(dados)
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("status-chaves").textContent = "🔒 Chaves salvas com sucesso!";
+        document.getElementById("status-chaves").style.color = "lime";
+    })
+    .catch(() => {
+        document.getElementById("status-chaves").textContent = "Erro ao salvar as chaves.";
+        document.getElementById("status-chaves").style.color = "red";
+    });
 }
 
-// ENTRADA
-document.getElementById('formEntrada')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const valor = e.target.valor_entrada.value;
-  const resposta = await fetch('/entrada', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ valor })
-  });
-  const json = await resposta.json();
-  alert(json.mensagem || 'Entrada enviada!');
-});
+// Envia o tipo de comando para futura lógica (entrada, stop, alvo, automático)
+function enviarComando(tipo) {
+    alert(`⚙️ Comando '${tipo.toUpperCase()}' ativado! (em modo de demonstração)`);
 
-// STOP
-document.getElementById('formStop')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const valor = e.target.valor_stop.value;
-  const resposta = await fetch('/stop', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ valor })
-  });
-  const json = await resposta.json();
-  alert(json.mensagem || 'Stop configurado!');
-});
-
-// ALVO
-document.getElementById('formAlvo')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const valor = e.target.valor_alvo.value;
-  const resposta = await fetch('/alvo', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ valor })
-  });
-  const json = await resposta.json();
-  alert(json.mensagem || 'Alvo configurado!');
-});
-
-// CONFIGURAR CHAVES
-document.getElementById('formChaves')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const binance_key = e.target.binance_key.value;
-  const binance_secret = e.target.binance_secret.value;
-  const openai_key = e.target.openai_key.value;
-  const resposta = await fetch('/salvar_chaves', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ binance_key, binance_secret, openai_key })
-  });
-  const json = await resposta.json();
-  alert(json.mensagem || 'Chaves salvas!');
-});
-
-// MODO AUTOMÁTICO
-async function ativarModoAuto() {
-  const confirmar = confirm("Tem certeza que deseja ativar o modo automático?");
-  if (!confirmar) return;
-  const resposta = await fetch('/automatico', { method: 'POST' });
-  const json = await resposta.json();
-  alert(json.mensagem || 'Modo automático ativado!');
+    // Aqui você poderá futuramente conectar com /executar_acao ou outra rota com lógica real.
 }
