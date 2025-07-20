@@ -2,35 +2,34 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ClaraVerse • Configurar</title>
+    <title>Configurar • ClaraVerse</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
 <body class="painel-dark">
     <div class="menu-lateral">
         <div class="logo-menu">🪐 ClaraVerse</div>
-        <button class="botao-menu" onclick="window.location.href='/painel'">📊 Painel</button>
-        <button class="botao-menu" onclick="window.location.href='/dashboard'">🏠 Início</button>
+        <button class="botao-menu" onclick="window.location.href='/painel'">⬅️ Voltar ao Painel</button>
         <button class="botao-menu" onclick="window.location.href='/logout'">🚪 Sair</button>
     </div>
 
     <div class="painel-conteudo">
-        <h1 class="painel-titulo">🔐 Configurações da Inteligência</h1>
+        <h1 class="painel-titulo">🔐 Configurações de API</h1>
 
         <div class="secao-config">
-            <label for="binance_api_key">Binance API Key</label>
-            <input type="text" id="binance_api_key" placeholder="Digite sua Binance API Key" value="{{ chaves['binance_api_key'] }}">
+            <label>🔑 Binance API Key</label>
+            <input type="text" id="binance_api_key" placeholder="Binance API Key" value="{{ chaves['binance_api_key'] }}">
 
-            <label for="binance_api_secret">Binance API Secret</label>
-            <input type="text" id="binance_api_secret" placeholder="Digite sua Binance API Secret" value="{{ chaves['binance_api_secret'] }}">
+            <label>🧪 Binance API Secret</label>
+            <input type="text" id="binance_api_secret" placeholder="Binance API Secret" value="{{ chaves['binance_api_secret'] }}">
 
-            <label for="openai_api_key">OpenAI API Key</label>
-            <input type="text" id="openai_api_key" placeholder="Digite sua OpenAI API Key" value="{{ chaves['openai_api_key'] }}">
+            <label>🧠 OpenAI API Key</label>
+            <input type="text" id="openai_api_key" placeholder="OpenAI API Key" value="{{ chaves['openai_api_key'] }}">
 
-            <label for="lucro_diario_meta">Meta de Lucro Diário (%)</label>
-            <input type="number" id="lucro_diario_meta" placeholder="Ex: 3.5" step="0.1" min="0" max="100">
+            <label>🎯 Meta de Lucro Diário (%)</label>
+            <input type="number" step="0.1" id="meta_lucro" value="{{ chaves['meta_lucro'] }}">
 
-            <button onclick="salvarChaves()">💾 Salvar Configurações</button>
+            <button onclick="salvarChaves()">💾 Salvar Chaves</button>
             <p id="status-chaves" class="status-sucesso"></p>
         </div>
     </div>
