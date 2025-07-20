@@ -1,12 +1,42 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>ClaraVerse • Portal</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body class="dashboard-inicial">
-    <div class="container-dashboard">
-        <img src="{{ url_for('static', filename='logo_claraverse.png') }}" alt="Logo ClaraVerse" class="logo">
-        <h1>Bem-vindo ao ClaraVerse</h1>
-        <p>Sua central de inteligência para operações automatizadas
+document.addEventListener("DOMContentLoaded", function () {
+    carregarDadosMercado();
+
+    setInterval(carregarDadosMercado, 10000); // Atualiza a cada 10s
+});
+
+function carregarDadosMercado() {
+    fetch("/dados_mercado")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("preco").innerText = data.preco;
+            document.getElementById("variacao").innerText = data.variacao;
+            document.getElementById("volume").innerText = data.volume;
+        });
+}
+
+function salvarChaves() {
+    const binanceKey = document.getElementById("binance_api_key").value;
+    const binanceSecret = document.getElementById("binance_api_secret").value;
+    const openaiKey = document.getElementById("openai_api_key").value;
+
+    fetch("/salvar_chaves", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            binance_api_key: binanceKey,
+            binance_api_secret: binanceSecret,
+            openai_api_key: openaiKey
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "sucesso") {
+            document.getElementById("status-chaves").innerText = "🔒 Chaves salvas com sucesso!";
+        }
+    });
+}
+
+function enviarComando(tipo) {
+    alert(`Comando "${tipo.toUpperCase()}" enviado para ClaraVerse!`);
+    // Aqui você pode futuramente acionar backend para IA operar via API
+}
