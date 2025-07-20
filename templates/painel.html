@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>ClaraVerse • Painel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
 <body class="painel-dark">
     <div class="menu-lateral">
@@ -14,7 +14,7 @@
         <button class="botao-menu" onclick="enviarComando('stop')">🛑 Stop</button>
         <button class="botao-menu" onclick="enviarComando('alvo')">🎯 Alvo</button>
         <button class="botao-menu" onclick="window.location.href='/configurar'">⚙️ Configurar</button>
-        <button class="botao-menu" onclick="enviarComando('auto')">🤖 Automático</button>
+        <button class="botao-menu" onclick="enviarSugestao()">🤖 Automático</button>
         <button class="botao-menu" onclick="window.location.href='/logout'">🚪 Sair</button>
     </div>
 
@@ -39,11 +39,13 @@
             <p><strong>Volume:</strong> <span id="volume">--</span></p>
         </div>
 
-        <div class="secao-botoes">
-            <button onclick="enviarComando('entrada')">✅ ENTRADA</button>
-            <button onclick="enviarComando('stop')">⛔ STOP</button>
-            <button onclick="enviarComando('alvo')">🎯 ALVO</button>
-            <button onclick="enviarComando('auto')">🤖 AUTOMÁTICO</button>
+        <div class="secao-sugestao" id="sugestao-container" style="display:none;">
+            <h2>✨ Sugestão da Clarinha</h2>
+            <p><strong>Entrada:</strong> <span id="sugestao-entrada">--</span></p>
+            <p><strong>Alvo:</strong> <span id="sugestao-alvo">--</span></p>
+            <p><strong>Stop:</strong> <span id="sugestao-stop">--</span></p>
+            <p><strong>Confiança:</strong> <span id="sugestao-confianca">--</span>%</p>
+            <button onclick="confirmarExecucao()">✅ Confirmar e Executar</button>
         </div>
     </div>
 </body>
