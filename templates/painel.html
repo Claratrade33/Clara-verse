@@ -2,42 +2,61 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel ClaraVerse</title>
+    <title>Painel de Operações • ClaraVerse</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
-<body class="painel">
-    <div class="sidebar">
-        <h2>ClaraVerse</h2>
-        <ul>
-            <li><button onclick="enviarComando('entrada')">ENTRADA</button></li>
-            <li><button onclick="enviarComando('stop')">STOP</button></li>
-            <li><button onclick="enviarComando('alvo')">ALVO</button></li>
-            <li><button onclick="enviarComando('automatico')">AUTOMÁTICO</button></li>
-            <li><button onclick="abrirConfiguracoes()">CONFIGURAÇÕES</button></li>
-            <li><a href="/logout">SAIR</a></li>
-        </ul>
+<body class="painel-page">
+
+    <header class="topbar">
+        <img src="{{ url_for('static', filename='logo_claraverse.png') }}" alt="Logo" class="logo-topo">
+        <h1>ClaraVerse • Painel de Operações</h1>
+        <a href="/logout" class="logout">Sair</a>
+    </header>
+
+    <div class="painel-container">
+        <aside class="sidebar">
+            <button onclick="executarAcao('entrada')">🟢 Entrada</button>
+            <button onclick="executarAcao('stop')">🔴 Stop</button>
+            <button onclick="executarAcao('alvo')">🎯 Alvo</button>
+            <button onclick="alternarConfiguracoes()">⚙️ Configurar</button>
+            <button onclick="ativarAutomatico()">🤖 Automático</button>
+        </aside>
+
+        <main class="painel-principal">
+            <section class="grafico-section">
+                <iframe 
+                    src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&theme=dark"
+                    frameborder="0"
+                    width="100%"
+                    height="500px"
+                    allowtransparency="true"
+                    scrolling="no">
+                </iframe>
+            </section>
+
+            <section class="status-section">
+                <div id="status-operacao">Status: aguardando comando...</div>
+                <div id="dados-mercado">
+                    <span>Preço: <strong id="preco">--</strong></span> |
+                    <span>Variação: <strong id="variacao">--</strong>%</span> |
+                    <span>Volume: <strong id="volume">--</strong></span>
+                </div>
+            </section>
+
+            <section class="configuracoes-section" id="configuracoes" style="display: none;">
+                <h3>🔐 Configurar Chaves de API</h3>
+                <label>Binance API Key:</label>
+                <input type="text" id="binance_api_key" value="{{ chaves.binance_api_key }}">
+                <label>Binance API Secret:</label>
+                <input type="text" id="binance_api_secret" value="{{ chaves.binance_api_secret }}">
+                <label>OpenAI API Key:</label>
+                <input type="text" id="openai_api_key" value="{{ chaves.openai_api_key }}">
+                <button onclick="salvarChaves()">Salvar e Conectar</button>
+                <p id="mensagem-config"></p>
+            </section>
+        </main>
     </div>
 
-    <div class="main-content">
-        <div class="grafico-binance">
-            <iframe
-                src="https://www.tradingview.com/embed-widget/ticker-tape/?symbols=BINANCE:BTCUSDT"
-                width="100%" height="100%" frameborder="0" allowtransparency="true" scrolling="no">
-            </iframe>
-        </div>
-    </div>
-
-    <!-- Modal de configurações -->
-    <div id="configModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="fecharConfiguracoes()">&times;</span>
-            <h2>Configurar Chaves de API</h2>
-            <input type="text" id="binance_api_key" placeholder="Binance API Key" value="{{ chaves['binance_api_key'] }}">
-            <input type="text" id="binance_api_secret" placeholder="Binance API Secret" value="{{ chaves['binance_api_secret'] }}">
-            <input type="text" id="openai_api_key" placeholder="OpenAI API Key" value="{{ chaves['openai_api_key'] }}">
-            <button onclick="salvarChaves()">Salvar e Fechar</button>
-        </div>
-    </div>
 </body>
 </html>
