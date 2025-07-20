@@ -14,37 +14,35 @@
       <button class="btn-sair" onclick="window.location.href='/logout'">Sair</button>
     </div>
 
-    <div class="painel-conteudo">
-      <div class="grafico-frame">
-        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
-                width="100%" height="400" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
-      </div>
-
-      <div class="dados-mercado">
-        <p><strong>📈 Preço:</strong> <span id="preco">--</span></p>
-        <p><strong>📊 Variação:</strong> <span id="variacao">--</span>%</p>
-        <p><strong>📦 Volume:</strong> <span id="volume">--</span></p>
-        <p><strong>🧠 RSI:</strong> <span id="rsi">--</span></p>
-        <p><strong>📉 Suporte:</strong> <span id="suporte">--</span></p>
-        <p><strong>📈 Resistência:</strong> <span id="resistencia">--</span></p>
-      </div>
-
-      <div class="ia-resposta">
-        <h3>💡 Estratégia da Clarinha:</h3>
-        <p id="sugestao">Aguardando sugestão da IA...</p>
-      </div>
-
-      <div class="painel-botoes">
-        <button onclick="enviarAcao('entrada')">✅ ENTRADA</button>
-        <button onclick="enviarAcao('stop')">🛑 STOP</button>
-        <button onclick="enviarAcao('alvo')">🎯 ALVO</button>
-        <button onclick="enviarAcao('executar')">🚀 EXECUTAR</button>
-        <button onclick="enviarAcao('automatico')">🤖 AUTOMÁTICO</button>
-        <button onclick="window.location.href='/configurar'">⚙️ CONFIGURAR</button>
-      </div>
-
-      <p class="mensagem-status" id="mensagemStatus"></p>
+    <div class="grafico-frame">
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
+              width="100%" height="400" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
     </div>
+
+    <div class="dados-mercado">
+      <p><strong>📈 Preço:</strong> <span id="preco">--</span></p>
+      <p><strong>📊 Variação:</strong> <span id="variacao">--</span>%</p>
+      <p><strong>📦 Volume:</strong> <span id="volume">--</span></p>
+      <p><strong>🧠 RSI:</strong> <span id="rsi">--</span></p>
+      <p><strong>📉 Suporte:</strong> <span id="suporte">--</span></p>
+      <p><strong>📈 Resistência:</strong> <span id="resistencia">--</span></p>
+    </div>
+
+    <div class="ia-resposta">
+      <h3>💡 Estratégia da Clarinha:</h3>
+      <p id="sugestao">Aguardando sugestão da IA...</p>
+    </div>
+
+    <div class="painel-botoes">
+      <button onclick="enviarAcao('entrada')">✅ ENTRADA</button>
+      <button onclick="enviarAcao('stop')">🛑 STOP</button>
+      <button onclick="enviarAcao('alvo')">🎯 ALVO</button>
+      <button onclick="enviarAcao('executar')">🚀 EXECUTAR</button>
+      <button onclick="enviarAcao('automatico')">🤖 AUTOMÁTICO</button>
+      <button onclick="window.location.href='/configurar'">⚙️ CONFIGURAR</button>
+    </div>
+
+    <p class="mensagem-status" id="mensagemStatus"></p>
   </div>
 </body>
 </html>
