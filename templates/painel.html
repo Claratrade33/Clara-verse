@@ -2,48 +2,60 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ClaraVerse • Painel</title>
+    <title>ClaraVerse • Operações</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
 <body class="painel-dark">
+
+    <!-- Menu lateral -->
     <div class="menu-lateral">
-        <div class="logo-menu">✨ ClaraVerse</div>
-        <button class="botao-menu" onclick="window.location.href='/dashboard'">🏠 Início</button>
-        <button class="botao-menu" onclick="window.location.href='/painel'">📊 Painel</button>
-        <button class="botao-menu" onclick="window.location.href='/configurar'">⚙️ Configurar</button>
-        <button class="botao-menu" onclick="window.location.href='/logout'">🚪 Sair</button>
+        <div class="logo-menu">🪐 ClaraVerse</div>
+        <button onclick="window.location.href='/dashboard'">📊 Dashboard</button>
+        <button onclick="window.location.href='/painel'">💼 Painel</button>
+        <button onclick="window.location.href='/configuracoes'">⚙️ Configurações</button>
+        <button onclick="window.location.href='/logout'">🚪 Sair</button>
     </div>
 
-    <div class="painel-conteudo">
-        <h1 class="painel-titulo">Painel de Controle ClaraVerse</h1>
-
-        <div id="grafico-container">
-            <!-- Gráfico será inserido aqui -->
-            <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark&style=1&timezone=America%2FSao_Paulo" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
+    <!-- Painel central -->
+    <div class="painel-operacoes">
+        <div class="top-bar">
+            <div class="status-operacao">
+                💰 Saldo: <span id="saldo">R$ 5.000,00</span> |
+                📈 Status: <span id="status-op">Esperando...</span>
+            </div>
+            <div class="controle-modo">
+                <button id="modo-manual" class="btn-modo ativo">Modo Manual</button>
+                <button id="modo-auto" class="btn-modo">Modo Automático</button>
+            </div>
         </div>
 
-        <div class="info-mercado">
-            <p><strong>Mercado BTC/USDT</strong></p>
-            <p>Preço: <span id="preco">--</span></p>
-            <p>Variação: <span id="variacao">--</span></p>
-            <p>Volume: <span id="volume">--</span></p>
+        <!-- Gráfico -->
+        <div class="grafico-frame">
+            <iframe
+                src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
+                frameborder="0" width="100%" height="350" allowtransparency="true" scrolling="no">
+            </iframe>
         </div>
 
-        <div class="painel-botoes">
-            <button onclick="executarEntrada()" class="botao-acao">✅ ENTRADA</button>
-            <button onclick="executarStop()" class="botao-acao">🛑 STOP</button>
-            <button onclick="executarAlvo()" class="botao-acao">🎯 ALVO</button>
-            <button onclick="enviarSugestao()" class="botao-acao">🤖 AUTOMÁTICO</button>
+        <!-- Botões CALL/PUT -->
+        <div class="botoes-operacao">
+            <button class="botao-call" onclick="enviarComando('call')">📈 CALL</button>
+            <button class="botao-put" onclick="enviarComando('put')">📉 PUT</button>
         </div>
 
-        <div id="sugestao-container" class="painel-sugestao" style="display: none;">
-            <h2>🔮 Sugestão da Clarinha:</h2>
-            <p><strong>Entrada:</strong> <span id="sugestao-entrada"></span></p>
-            <p><strong>Stop:</strong> <span id="sugestao-stop"></span></p>
-            <p><strong>Alvo:</strong> <span id="sugestao-alvo"></span></p>
-            <p><strong>Confiança:</strong> <span id="sugestao-confianca"></span></p>
-            <button onclick="confirmarExecucao()" class="botao-confirmar">🚀 Confirmar e Executar</button>
+        <!-- Área da IA -->
+        <div class="painel-ia">
+            <h3>🤖 Inteligência ClaraVerse</h3>
+            <div id="mensagem-ia">Aguardando comando...</div>
+        </div>
+
+        <!-- Histórico de operação -->
+        <div class="historico">
+            <h3>📜 Histórico</h3>
+            <ul id="lista-historico">
+                <!-- Aqui vão as execuções -->
+            </ul>
         </div>
     </div>
 </body>
