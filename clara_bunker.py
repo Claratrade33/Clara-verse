@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template
 from binance.client import Client
 import openai
 from cryptography.fernet import Fernet
@@ -18,58 +18,69 @@ binance = Client(API_KEY, API_SECRET)
 openai.api_key = OPENAI_KEY
 app = Flask(__name__)
 
-# HTML EMBUTIDO
-html = """
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Clara Bunker</title>
-  <script src="https://s3.tradingview.com/tv.js"></script>
-</head>
-<body>
-  <h1>Clara Bunker - Operações Automatizadas</h1>
-  <div id="tv_chart_container"></div>
-  <script>
-    new TradingView.widget({
-      "container_id": "tv_chart_container",
-      "width": "100%",
-      "height": 400,
-      "symbol": "BINANCE:BTCUSDT",
-      "interval": "5",
-      "timezone": "Etc/UTC",
-      "theme": "dark",
-      "style": "1",
-      "locale": "en",
-      "toolbar_bg": "#f1f3f6",
-      "enable_publishing": false,
-      "hide_side_toolbar": false,
-      "allow_symbol_change": true,
-      "studies": []
-    });
-  </script>
-  <form method="post" action="/auto">
-    <button type="submit">AUTOMÁTICO</button>
-  </form>
-</body>
-</html>
-"""
-
+# Rotas para as páginas HTML
 @app.route("/", methods=["GET"])
-def home():
-    return render_template_string(html)
+def index():
+    return render_template("index.html")
 
-@app.route("/auto", methods=["POST"])
-def auto_trade():
-    msg = "Clara, analise os pares BTC/USDT, SUI/USDT e PEPE/USDT e diga: entrada, alvo, stop e confiança."
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": msg}]
-    )
-    result = response.choices[0].message.content
+@app.route("/configurar", methods=["GET"])
+def configurar():
+    return render_template("configurar.html")
 
-    # Lógica para enviar ordens reais para Binance
-    print("GPT respondeu:", result)
-    return f"<h2>Resultado da Clara:</h2><pre>{result}</pre><a href='/'>Voltar</a>"
+@app.route("/login", methods=["GET"])
+def login():
+    return render_template("login.html")
+
+@app.route("/painel", methods=["GET"])
+def painel():
+    return render_template("painel.html")
+
+# Endpoints da API
+@app.route('/obter_preco', methods=['GET'])
+def obter_preco():
+    try:
+        ticker = binance.get_symbol_ticker(symbol="BTCUSDT")
+        return jsonify({'preco': ticker['price']})
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
+
+@app.route('/obter_saldo', methods=['GET'])
+def obter_saldo():
+    try:
+        account_info = binance.get_account()
+        usdt_balance = next((item for item in account_info['balances'] if item['asset'] == 'USDT'), None)
+        return jsonify({'saldo': usdt_balance['free'] if usdt_balance else 0})
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
+
+@app.route('/executar_acao', methods=['POST'])
+def executar_acao():
+    data = request.json
+    acao = data.get('acao')
+    
+    try:
+        if acao == 'comprar':
+            order = binance.order_market_buy(symbol='BTCUSDT', quantity=0.001)
+            return jsonify({'mensagem': 'Compra realizada com sucesso!', 'detalhes': order})
+        elif acao == 'vender':
+            order = binance.order_market_sell(symbol='BTCUSDT', quantity=0.001)
+            return jsonify({'mensagem': 'Venda realizada com sucesso!', 'detalhes': order})
+        else:
+            return jsonify({'mensagem': 'Ação inválida'}), 400
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
+
+@app.route('/obter_sugestao_ia', methods=['GET'])
+def obter_sugestao_ia():
+    try:
+        prompt = "Sugira uma ação de trading para o par BTC/USDT."
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return jsonify({'resposta': response.choices[0].message.content})
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=7860)
