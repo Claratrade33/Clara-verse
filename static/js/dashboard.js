@@ -12,17 +12,17 @@ function atualizarDadosMercado() {
       document.getElementById("sugestao").innerText = data.sugestao;
     })
     .catch(() => {
-      document.getElementById("sugestao").innerText = "Erro ao obter dados.";
+      document.getElementById("sugestao").innerText = "Erro ao obter dados da IA.";
     });
 }
 
-// Chama a função de atualização assim que a página carrega
+// Inicializa atualização automática se estiver no painel
 if (window.location.pathname === "/painel") {
   atualizarDadosMercado();
-  setInterval(atualizarDadosMercado, 10000); // Atualiza a cada 10 segundos
+  setInterval(atualizarDadosMercado, 10000); // Atualiza a cada 10s
 }
 
-// Envia uma ação de trading (entrada, stop, etc)
+// Envia uma ação de operação
 function enviarAcao(acao) {
   fetch(`/executar/${acao}`, {
     method: "POST"
