@@ -10,19 +10,15 @@ function atualizarDadosMercado() {
       document.getElementById("suporte").innerText = data.suporte;
       document.getElementById("resistencia").innerText = data.resistencia;
       document.getElementById("sugestao").innerText = data.sugestao;
-    })
-    .catch(() => {
-      document.getElementById("sugestao").innerText = "Erro ao obter dados da IA.";
     });
 }
 
-// Inicializa atualização automática se estiver no painel
 if (window.location.pathname === "/painel") {
   atualizarDadosMercado();
-  setInterval(atualizarDadosMercado, 10000); // Atualiza a cada 10s
+  setInterval(atualizarDadosMercado, 10000);
 }
 
-// Envia uma ação de operação
+// Envia uma ação de trading (entrada, stop, etc)
 function enviarAcao(acao) {
   fetch(`/executar/${acao}`, {
     method: "POST"
@@ -32,10 +28,7 @@ function enviarAcao(acao) {
       const status = document.getElementById("mensagemStatus");
       status.innerText = data.mensagem;
       status.style.display = "block";
-      setTimeout(() => status.style.display = "none", 4000);
-    })
-    .catch(() => {
-      alert("Erro ao enviar ação.");
+      setTimeout(() => status.style.display = "none", 5000);
     });
 }
 
@@ -58,21 +51,13 @@ function salvarChaves() {
   })
     .then(response => response.json())
     .then(data => {
-      const status = document.getElementById("status-chaves");
       if (data.status === "sucesso") {
-        status.innerText = "🔐 Chaves salvas com sucesso!";
-        status.style.color = "lightgreen";
+        document.getElementById("status-chaves").innerText = "✅ Chaves salvas com sucesso!";
         setTimeout(() => {
           window.location.href = "/painel";
         }, 1500);
       } else {
-        status.innerText = "❌ Erro ao salvar: " + data.mensagem;
-        status.style.color = "red";
+        document.getElementById("status-chaves").innerText = "❌ Erro ao salvar chaves.";
       }
-    })
-    .catch(() => {
-      const status = document.getElementById("status-chaves");
-      status.innerText = "❌ Erro ao salvar as chaves.";
-      status.style.color = "red";
     });
 }
