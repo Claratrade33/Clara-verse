@@ -36,26 +36,44 @@ def loop_automatico():
         try:
             print("🤖 IA Clarinha analisando...")
             openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
-            from clarinha_cosmica import ClarinhaOraculo
-            clarinha = ClarinhaOraculo(openai_key)
-            dados = clarinha.consultar_mercado()
-            resposta = clarinha.interpretar_como_deusa(dados)
-            conteudo = resposta.lower()
+            from clarinha_oraculo import analisar_mercado_e_sugerir
+            resposta = analisar_mercado_e_sugerir(openai_key)
+            conteudo = resposta.get("resposta", "").lower()
             if "comprar" in conteudo:
                 saldo_simulado -= 10
-                print("💚 Compra simulada!")
             elif "vender" in conteudo:
                 saldo_simulado += 10
-                print("❤️ Venda simulada!")
-            else:
-                print("⚪ IA recomendou aguardar.")
         except Exception as e:
-            print("Erro no modo automático:", str(e))
+            print("Erro automático:", e)
         time.sleep(15)
 
 @app.route('/')
 def index():
-    return render_template('index.html', saldo=saldo_simulado)
+    return render_template('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        usuario = request.form['usuario']
+        senha = request.form['senha']
+        if usuario in usuarios and usuarios[usuario] == senha:
+            session['usuario'] = usuario
+            session.permanent = True
+            return redirect('/painel')
+        return render_template('login.html', erro='Credenciais inválidas.')
+    return render_template('login.html')
+
+@app.route('/painel')
+def painel():
+    if 'usuario' in session:
+        return render_template('painel.html', saldo=saldo_simulado)
+    return redirect('/login')
+
+@app.route('/configurar')
+def configurar():
+    if 'usuario' in session:
+        return render_template('configurar.html')
+    return redirect('/login')
 
 @app.route('/salvar_chaves', methods=['POST'])
 def salvar_chaves():
@@ -71,22 +89,17 @@ def executar_acao():
     global saldo_simulado, modo_auto_ativo
     dados = request.json
     acao = dados.get('acao')
-
     if acao == 'comprar':
         saldo_simulado -= 10
-        return jsonify({'mensagem': 'Compra realizada (simulação)', 'saldo': saldo_simulado})
     elif acao == 'vender':
         saldo_simulado += 10
-        return jsonify({'mensagem': 'Venda realizada (simulação)', 'saldo': saldo_simulado})
     elif acao == 'auto':
         if not modo_auto_ativo:
             modo_auto_ativo = True
             threading.Thread(target=loop_automatico).start()
-            return jsonify({'mensagem': 'Modo automático ativado!', 'saldo': saldo_simulado})
         else:
             modo_auto_ativo = False
-            return jsonify({'mensagem': 'Modo automático desativado!', 'saldo': saldo_simulado})
-    return jsonify({'mensagem': 'Ação inválida.', 'saldo': saldo_simulado})
+    return jsonify({'mensagem': f"Ação '{acao}' executada!", 'saldo': saldo_simulado})
 
 @app.route('/obter_saldo')
 def obter_saldo():
@@ -111,7 +124,7 @@ def obter_sugestao_ia():
         sugestao = clarinha.interpretar_como_deusa(dados)
         return jsonify({'resposta': sugestao})
     except Exception as e:
-        return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
+        return jsonify({'resposta': f'Erro IA: {str(e)}'})
 
 carregar_chaves()
 application = app
