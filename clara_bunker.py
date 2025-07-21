@@ -8,6 +8,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.permanent_session_lifetime = timedelta(hours=6)
 
+# Chave fixa para criptografia
 CHAVE_CRIPTO_FIXA = b'xApbCQFxxa3Yy3YKkzP9JkkfE4WaXxN8eSpK7uBRuGA='
 fernet = Fernet(CHAVE_CRIPTO_FIXA)
 
@@ -16,17 +17,24 @@ chaves_armazenadas = {}
 saldo_simulado = 10000.00
 modo_auto_ativo = False
 
+# -------------------- FUNÇÃO AUTOMÁTICA --------------------
 def loop_automatico():
     global modo_auto_ativo, saldo_simulado
     while modo_auto_ativo:
         try:
             print("🤖 IA Clarinha analisando...")
+
+            # Recupera as chaves
             openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
-            from clarinha_oraculo import analisar_mercado_e_sugerir
             bin_key = fernet.decrypt(chaves_armazenadas['binance'].encode()).decode()
             bin_sec = fernet.decrypt(chaves_armazenadas['binance_secret'].encode()).decode()
+
+            # Roda o oráculo
+            from inteligencia import analisar_mercado_e_sugerir
             resposta = analisar_mercado_e_sugerir(bin_key, bin_sec, openai_key)
             conteudo = resposta.get("resposta", "").lower()
+
+            # Simula entrada
             if "comprar" in conteudo:
                 saldo_simulado -= 10
                 print("💚 Compra simulada!")
@@ -39,9 +47,11 @@ def loop_automatico():
             print("Erro IA:", str(e))
         time.sleep(15)
 
+# -------------------- ROTAS --------------------
+
 @app.route('/')
 def home():
-    return render_template('index.html')  # Página inicial institucional ClaraVerse
+    return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -55,16 +65,16 @@ def login():
         return render_template('login.html', erro='Credenciais inválidas.')
     return render_template('login.html')
 
-@app.route('/dashboard')
-def dashboard():
-    if 'usuario' in session:
-        return render_template('dashboard.html', saldo=saldo_simulado)
-    return redirect('/login')
-
 @app.route('/painel')
 def painel():
     if 'usuario' in session:
         return render_template('painel.html', saldo=saldo_simulado)
+    return redirect('/login')
+
+@app.route('/dashboard')
+def dashboard():
+    if 'usuario' in session:
+        return render_template('dashboard.html', saldo=saldo_simulado)
     return redirect('/login')
 
 @app.route('/configurar')
@@ -76,16 +86,21 @@ def configurar():
 @app.route('/salvar_chaves', methods=['POST'])
 def salvar_chaves():
     dados = request.json
-    chaves_armazenadas['openai'] = fernet.encrypt(dados['openaiKey'].encode()).decode()
-    chaves_armazenadas['binance'] = fernet.encrypt(dados['binanceKey'].encode()).decode()
-    chaves_armazenadas['binance_secret'] = fernet.encrypt(dados['binanceSecret'].encode()).decode()
-    return jsonify({'status': 'ok'})
+    try:
+        chaves_armazenadas['openai'] = fernet.encrypt(dados['openaiKey'].encode()).decode()
+        chaves_armazenadas['binance'] = fernet.encrypt(dados['binanceKey'].encode()).decode()
+        chaves_armazenadas['binance_secret'] = fernet.encrypt(dados['binanceSecret'].encode()).decode()
+        print("🔐 Chaves salvas com sucesso.")
+        return jsonify({'status': 'ok'})
+    except Exception as e:
+        return jsonify({'status': 'erro', 'detalhe': str(e)})
 
 @app.route('/executar_acao', methods=['POST'])
 def executar_acao():
     global saldo_simulado, modo_auto_ativo
     dados = request.json
     acao = dados.get('acao')
+
     if acao == 'comprar':
         saldo_simulado -= 10
         return jsonify({'mensagem': 'Compra realizada (simulação)', 'saldo': saldo_simulado})
@@ -118,15 +133,17 @@ def obter_preco():
 @app.route('/obter_sugestao_ia')
 def obter_sugestao_ia():
     try:
-        from clarinha_cosmica import ClarinhaOraculo
+        from clarinha_oraculo import ClarinhaOraculo
+
         openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
         clarinha = ClarinhaOraculo(openai_key)
         dados = clarinha.consultar_mercado()
         sugestao = clarinha.interpretar_como_deusa(dados)
         return jsonify({'resposta': sugestao})
     except Exception as e:
-        return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
+        return jsonify({'resposta': f'❌ Erro ao acessar a IA: {str(e)}'})
 
+# -------------------- DEPLOY --------------------
 application = app
 
 if __name__ == '__main__':
