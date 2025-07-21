@@ -1,5 +1,6 @@
 import openai
 import requests
+import json  # Certifique-se de importar o módulo json
 
 class ClarinhaOraculo:
     def __init__(self, openai_api_key):
@@ -10,21 +11,21 @@ class ClarinhaOraculo:
         try:
             url = f"https://api.binance.com/api/v3/ticker/24hr?symbol={par}"
             response = requests.get(url)
-            dados = response.json()
 
+            if response.status_code != 200:
+                print(f"Erro na resposta da API: {response.status_code}")
+                return {"par": par, "preco": "--", "variacao": "--", "volume": "--"}
+
+            dados = response.json()
             return {
                 "par": par,
                 "preco": dados.get("lastPrice", "--"),
                 "variacao": dados.get("priceChangePercent", "--"),
                 "volume": dados.get("volume", "--")
             }
-        except:
-            return {
-                "par": par,
-                "preco": "--",
-                "variacao": "--",
-                "volume": "--"
-            }
+        except requests.exceptions.RequestException as e:
+            print(f"Erro ao acessar a API da Binance: {e}")
+            return {"par": par, "preco": "--", "variacao": "--", "volume": "--"}
 
     def interpretar_como_deusa(self, dados, meta_lucro=2.5):
         prompt = f"""
@@ -63,6 +64,10 @@ Responda em JSON no formato:
                 temperature=0.4
             )
             conteudo = resposta.choices[0].message.content.strip()
-            return conteudo
+            try:
+                resposta_json = json.loads(conteudo)
+                return resposta_json
+            except json.JSONDecodeError:
+                return {"erro": "Falha ao decodificar a resposta JSON."}
         except Exception as e:
-            return f"Erro ao consultar Clarinha: {e}"
+            return {"erro": f"Erro ao consultar Clarinha: {e}"}
