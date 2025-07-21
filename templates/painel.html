@@ -1,31 +1,109 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Painel ClaraVerse</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Painel de Operações</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <div class="header">📊 Painel ClaraVerse</div>
-    <div class="container">
-        <div class="card">
-            <p class="saldo">💰 Saldo Atual: ${{ saldo }} USDT</p>
-            <div id="grafico"></div>
-        </div>
-
-        <div class="card">
-            <button class="button" onclick="executarAcao('compra')">🟢 Entrada (Comprar)</button>
-            <button class="button" onclick="executarAcao('venda')">🔴 Stop (Vender)</button>
-            <button class="button" onclick="obterSugestaoIA()">🔮 Sugestão da IA</button>
-            <a href="/configurar" class="button">⚙️ Configurar Chaves</a>
-        </div>
-
-        <div class="card">
-            <h3>📡 Sugestão da Clarinha:</h3>
-            <p id="respostaTexto">Clique no botão acima para consultar.</p>
-        </div>
+    <h1>Painel de Operações</h1>
+    <p>Saldo: R$ {{ saldo }}</p>
+    <div id="dados-mercado">
+        <p>Carregando dados do mercado...</p>
     </div>
-    <script src="/static/dashboard.js"></script>
+    <button id="executar-entrada">Entrada</button>
+    <button id="executar-stop">Stop</button>
+    <button id="executar-alvo">Alvo</button>
+    <button id="executar-automatico">Alternar Automático</button>
+    <button id="logout">Logout</button>
+
+    <script>
+        function atualizarDadosMercado() {
+            $.ajax({
+                type: 'GET',
+                url: '/dados_mercado',
+                success: function(data) {
+                    if (data.erro) {
+                        $('#dados-mercado').html('<p>' + data.erro + '</p>');
+                    } else {
+                        $('#dados-mercado').html('<p>Preço BTC/USDT: ' + data.price + '</p>');
+                    }
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        $('#executar-entrada').click(function() {
+            $.ajax({
+                type: 'POST',
+                url: '/executar_acao',
+                data: JSON.stringify({ acao: 'entrada' }),
+                contentType: 'application/json',
+                success: function(response) {
+                    alert(response.status);
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        });
+
+        $('#executar-stop').click(function() {
+            $.ajax({
+                type: 'POST',
+                url: '/executar_acao',
+                data: JSON.stringify({ acao: 'stop' }),
+                contentType: 'application/json',
+                success: function(response) {
+                    alert(response.status);
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        });
+
+        $('#executar-alvo').click(function() {
+            $.ajax({
+                type: 'POST',
+                url: '/executar_acao',
+                data: JSON.stringify({ acao: 'alvo' }),
+                contentType: 'application/json',
+                success: function(response) {
+                    alert(response.status);
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        });
+
+        $('#executar-automatico').click(function() {
+            $.ajax({
+                type: 'POST',
+                url: '/executar_acao',
+                data: JSON.stringify({ acao: 'automatico' }),
+                contentType: 'application/json',
+                success: function(response) {
+                    alert(response.status);
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        });
+
+        $('#logout').click(function() {
+            window.location.href = '/logout';
+        });
+
+        // Atualiza os dados de mercado ao carregar a página
+        $(document).ready(function() {
+            atualizarDadosMercado();
+            setInterval(atualizarDadosMercado, 10000); // Atualiza a cada 10 segundos
+        });
+    </script>
 </body>
 </html>
