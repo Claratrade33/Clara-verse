@@ -1,142 +1,75 @@
 import os
-import time
-import json
-import requests
-import openai
-import threading
-from datetime import timedelta
-from flask import Flask, render_template, request, redirect, session, jsonify
+from flask import Flask, request, jsonify, render_template_string
+from binance.client import Client
+from openai import OpenAI
 from cryptography.fernet import Fernet
-from clarinha_oraculo import oraculo_divino
-from clarinha_cosmica import ClarinhaOraculo
 
+# CHAVE FERNET
+FERNET_KEY = "ylh-urjGFbF60dGJcGjEWY5SKGbhui-8SUItRz7YMZk="
+fernet = Fernet(FERNET_KEY.encode())
+
+# CHAVES CRIPTOGRAFADAS
+API_KEY = fernet.decrypt(b"gAAAAABoe_tmC3u_LkLDxTnp5p-7wgMiHVcKvJIOgEQFfBTWjRx5CC2Ts3Z1PPx-vEA1ChEFZMxi1THdulmp8WK8wCJzBmS8vHAWEU4pooCBt8tVrlf0NkfOur-pEtjpjZt6NSpPUbhFvIqjtwNDnQAtMQL_mPfM8Dype0oShNoTkcMnECOsmF0=").decode()
+API_SECRET = fernet.decrypt(b"gAAAAABoe_tmrN2tKPQsPVYlnxp-wKItqZNirJXN_9eKHhle-_z_eud6i1pGpdG-ZRsDf_g26q2jlRixSXv8h_ZwOv5p4lu3AshCRbHXRpPvcHJ8LaoqGOP2ZQNH4h-8WUdPOSlEXYz2NXJHOlYMigWiyZO8d2w0NYlQa0N2Vv-CpDMOXuIXcN8=").decode()
+OPENAI_KEY = fernet.decrypt(b"gAAAAABoe_xqx7jAACfbXHrmoFSrEU_x2uJbVsrYNvjpn-IWOD02jHr6pAtSznZZkFd0cE50OcdsFukYMR441vQgThN8UaoeQXvbD76jS3wJkvlcGJcwfbwWOi2dEd9MgZuEULE92B9UYLFVzgKzP3ZJ-IRmsF_ppg==").decode()
+
+# CLIENTES
+binance = Client(API_KEY, API_SECRET)
+openai = OpenAI(api_key=OPENAI_KEY)
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
-app.permanent_session_lifetime = timedelta(hours=6)
 
-# Chave de criptografia fixa
-CHAVE_CRIPTO_FIXA = b'xApbCQFxxa3Yy3YKkzP9JkkfE4WaXxN8eSpK7uBRuGA='
-fernet = Fernet(CHAVE_CRIPTO_FIXA)
+# HTML EMBUTIDO
+html = """
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Clara Bunker</title>
+  <script src="https://s3.tradingview.com/tv.js"></script>
+</head>
+<body>
+  <h1>≡ƒæü∩╕Å Clara Bunker - Opera├º├╡es Automatizadas</h1>
+  <div id="tv_chart_container"></div>
+  <script>
+    new TradingView.widget({
+      "container_id": "tv_chart_container",
+      "width": "100%",
+      "height": 400,
+      "symbol": "BINANCE:BTCUSDT",
+      "interval": "5",
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": "#f1f3f6",
+      "enable_publishing": false,
+      "hide_side_toolbar": false,
+      "allow_symbol_change": true,
+      "studies": []
+    });
+  </script>
+  <form method="post" action="/auto">
+    <button type="submit">AUTOM├üTICO ≡ƒñû</button>
+  </form>
+</body>
+</html>
+"""
 
-# Dados de configuração e estado
-usuarios = {'admin': 'claraverse2025'}
-chaves_armazenadas = {}
-saldo_simulado = 10000.00
-modo_auto_ativo = False
-
-def loop_automatico():
-    global modo_auto_ativo, saldo_simulado
-    while modo_auto_ativo:
-        try:
-            print("IA Clarinha analisando...")
-            openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
-            bin_key = fernet.decrypt(chaves_armazenadas['binance'].encode()).decode()
-            bin_sec = fernet.decrypt(chaves_armazenadas['binance_secret'].encode()).decode()
-            
-            # Obter sugestão da IA
-            resposta = oraculo_divino(bin_key, openai_key, [])
-            conteudo = resposta.get("resposta_espiritual", "").lower()
-
-            # Simulação de compra e venda
-            if "comprar" in conteudo:
-                saldo_simulado -= 10
-                print("Compra simulada!")
-            elif "vender" in conteudo:
-                saldo_simulado += 10
-                print("Venda simulada!")
-            else:
-                print("IA recomendou aguardar.")
-        except Exception as e:
-            print("Erro IA:", str(e))
-        time.sleep(15)  # Aguarda 15 segundos antes da próxima análise
-
-@app.route('/')
+@app.route("/", methods=["GET"])
 def home():
-    return render_template('index.html')
+    return render_template_string(html)
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        usuario = request.form['usuario']
-        senha = request.form['senha']
-        if usuario in usuarios and usuarios[usuario] == senha:
-            session['usuario'] = usuario
-            session.permanent = True
-            return redirect('/painel')
-        return render_template('login.html', erro='Credenciais inválidas.')
-    return render_template('login.html')
+@app.route("/auto", methods=["POST"])
+def auto_trade():
+    msg = "Clara, analise os pares BTC/USDT, SUI/USDT e PEPE/USDT e diga: entrada, alvo, stop e confian├ºa."
+    response = openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": msg}]
+    )
+    result = response.choices[0].message.content
 
-@app.route('/painel')
-def painel():
-    if 'usuario' in session:
-        return render_template('painel.html', saldo=saldo_simulado)
-    return redirect('/login')
+    # Aqui voc├¬ pode adicionar l├│gica para enviar ordens reais para Binance com base no resultado.
+    print("GPT respondeu:", result)
+    return f"<h2>≡ƒôê Resultado da Clara:</h2><pre>{result}</pre><a href='/'>Voltar</a>"
 
-@app.route('/configurar')
-def configurar():
-    if 'usuario' in session:
-        return render_template('configurar.html')
-    return redirect('/login')
-
-@app.route('/salvar_chaves', methods=['POST'])
-def salvar_chaves():
-    dados = request.json
-    chaves_armazenadas['openai'] = fernet.encrypt(dados['openaiKey'].encode()).decode()
-    chaves_armazenadas['binance'] = fernet.encrypt(dados['binanceKey'].encode()).decode()
-    chaves_armazenadas['binance_secret'] = fernet.encrypt(dados['binanceSecret'].encode()).decode()
-    return jsonify({'status': 'ok'})
-
-@app.route('/executar_acao', methods=['POST'])
-def executar_acao():
-    global saldo_simulado, modo_auto_ativo
-    dados = request.json
-    acao = dados.get('acao')
-
-    if acao == 'comprar':
-        saldo_simulado -= 10
-        return jsonify({'mensagem': 'Compra realizada (simulação)', 'saldo': saldo_simulado})
-
-    elif acao == 'vender':
-        saldo_simulado += 10
-        return jsonify({'mensagem': 'Venda realizada (simulação)', 'saldo': saldo_simulado})
-
-    elif acao == 'auto':
-        if not modo_auto_ativo:
-            modo_auto_ativo = True
-            threading.Thread(target=loop_automatico).start()
-            return jsonify({'mensagem': 'Modo automático ativado!', 'saldo': saldo_simulado})
-        else:
-            modo_auto_ativo = False
-            return jsonify({'mensagem': 'Modo automático desativado!', 'saldo': saldo_simulado})
-
-    return jsonify({'mensagem': 'Ação inválida.', 'saldo': saldo_simulado})
-
-@app.route('/obter_saldo')
-def obter_saldo():
-    return jsonify({'saldo': round(saldo_simulado, 2)})
-
-@app.route('/obter_preco')
-def obter_preco():
-    try:
-        r = requests.get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT")
-        if r.status_code == 200:
-            preco = float(r.json()['price'])
-            return jsonify({'preco': preco})
-        else:
-            return jsonify({'preco': '--', 'erro': 'Erro ao obter preço.'})
-    except Exception as e:
-        return jsonify({'preco': '--', 'erro': str(e)})
-
-@app.route('/obter_sugestao_ia')
-def obter_sugestao_ia():
-    try:
-        openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
-        clarinha = ClarinhaOraculo(openai_key)
-        dados = clarinha.consultar_mercado()
-        sugestao = clarinha.interpretar_como_deusa(dados)
-        return jsonify({'resposta': sugestao})
-    except Exception as e:
-        return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')  # Define o host para 0.0.0.0 para permitir acesso externo
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=7860)
