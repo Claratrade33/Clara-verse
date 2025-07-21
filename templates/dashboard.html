@@ -1,30 +1,20 @@
-document.addEventListener("DOMContentLoaded", function () {
-  buscarDados();
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>ClaraVerse • Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-body">
+  <div class="dashboard-container">
+    <h1>🌠 Bem-vindo ao ClaraVerse</h1>
+    <p>Selecione uma opção para iniciar:</p>
 
-  setInterval(buscarDados, 10000); // Atualiza a cada 10 segundos
-});
-
-function buscarDados() {
-  fetch("/dados_mercado")
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById("preco").textContent = data.preco;
-      document.getElementById("variacao").textContent = data.variacao;
-      document.getElementById("volume").textContent = data.volume;
-      document.getElementById("rsi").textContent = data.rsi;
-      document.getElementById("suporte").textContent = data.suporte;
-      document.getElementById("resistencia").textContent = data.resistencia;
-      document.getElementById("sugestao").textContent = data.sugestao;
-    });
-}
-
-function enviarAcao(acao) {
-  fetch(`/executar/${acao}`, { method: "POST" })
-    .then(response => response.json())
-    .then(data => {
-      const status = document.getElementById("mensagemStatus");
-      status.textContent = data.mensagem;
-      status.classList.add("ativo");
-      setTimeout(() => status.classList.remove("ativo"), 3000);
-    });
-}
+    <div class="dashboard-botoes">
+      <a href="/login" class="btn-dashboard">🔐 Login</a>
+      <a href="/painel" class="btn-dashboard">📊 Acessar Painel</a>
+      <a href="/configurar" class="btn-dashboard">⚙️ Configurar API</a>
+    </div>
+  </div>
+</body>
+</html>
