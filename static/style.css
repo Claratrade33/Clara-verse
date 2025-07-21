@@ -1,170 +1,124 @@
+/* ===== Estilo Geral ===== */
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
-  background-color: #0b0f1a;
+  background: #0f0f1a;
   color: #ffffff;
 }
 
-a {
-  color: #00f7ff;
-  text-decoration: none;
+h1, h2, h3 {
+  color: #ffffff;
 }
 
-.login-page,
-.configurar-body,
-.painel-body {
+button {
+  background: #00c2ff;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+button:hover {
+  background: #009fcc;
+}
+
+input[type="text"], input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  background-color: #1a1a2e;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 6px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #bbb;
+}
+
+/* ===== Página de Configuração ===== */
+.configurar-body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(145deg, #0f1322, #0b0f1a);
+  height: 100vh;
 }
 
-.login-container,
-.configurar-container,
-.painel-container {
-  background-color: #151b2e;
-  border-radius: 12px;
-  padding: 30px;
-  width: 90%;
+.configurar-container {
+  background: #1b1b2f;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0, 194, 255, 0.3);
+  width: 100%;
   max-width: 500px;
-  box-shadow: 0 0 20px rgba(0, 247, 255, 0.2);
 }
 
-.logo-login {
-  display: block;
-  margin: 0 auto 20px;
-  width: 80px;
-}
-
-.login-form input,
-.configurar-container input {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border: none;
-  border-radius: 8px;
-  background-color: #1e253f;
-  color: white;
-  font-size: 16px;
-}
-
-.login-form button,
-.configurar-container button,
-.painel-botoes button {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  background: #00f7ff;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
+#status-chaves {
+  margin-top: 10px;
   font-weight: bold;
-  color: #0b0f1a;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.login-form button:hover,
-.configurar-container button:hover,
-.painel-botoes button:hover {
-  background: #00d4dd;
-}
-
-.painel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #101624;
-  padding: 10px 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-.painel-saldo {
-  font-size: 16px;
-  color: #00f7ff;
-}
-
-.btn-sair {
-  background-color: #ff4b5c;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.painel-conteudo {
-  background-color: #151b2e;
-  padding: 20px;
-  border-radius: 10px;
-}
-
-.grafico-frame {
-  margin-bottom: 20px;
-  border: 2px solid #00f7ff;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.dados-mercado p,
-.ia-resposta p {
-  margin: 8px 0;
-  font-size: 15px;
-}
-
-.ia-resposta {
-  background-color: #1d263f;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 20px;
-}
-
-.painel-botoes {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.mensagem-status {
-  margin-top: 15px;
-  padding: 10px;
-  background-color: #00f7ff;
-  color: #0b0f1a;
-  border-radius: 6px;
-  font-weight: bold;
-  text-align: center;
-  display: none;
+  color: #00ff99;
 }
 
 .status-sucesso {
-  color: #00ffb3;
-  font-weight: bold;
-  text-align: center;
-  margin-top: 15px;
+  color: #00ff99;
 }
 
-.erro {
-  color: #ff4b5c;
-  text-align: center;
-  font-weight: bold;
+.status-erro {
+  color: #ff6666;
+}
+
+/* ===== Painel Principal ===== */
+.painel-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.info-box {
+  background-color: #151525;
+  padding: 20px;
   margin-bottom: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #000;
 }
 
-.btn-voltar {
-  background-color: #444c72;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  padding: 10px;
+.info-box p {
+  margin: 5px 0;
+}
+
+.botao-acao {
+  margin: 10px 5px 0 0;
+}
+
+/* ===== Mensagem de Status ===== */
+#mensagemStatus {
+  margin-top: 20px;
+  font-size: 16px;
   font-weight: bold;
-  cursor: pointer;
-  width: 100%;
+  color: #00ff99;
+  display: none;
 }
 
-.btn-voltar:hover {
-  background-color: #2d3253;
+/* ===== Responsivo ===== */
+@media (max-width: 600px) {
+  .configurar-container, .painel-container {
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  button {
+    width: 100%;
+    justify-content: center;
+  }
 }
