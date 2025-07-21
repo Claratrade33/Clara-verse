@@ -31,7 +31,10 @@
     <button onclick="executarAcao('vender')">🔴 STOP</button>
     <button onclick="executarAcao('auto')">⚙️ AUTO</button>
     <button onclick="obterSugestaoIA()">🔮 SUGESTÃO IA</button>
-    <button onclick="window.location.href='configurar.html'">⚙️ CONFIGURAR</button>
+    <button onclick="window.location.href='/configurar'">
+      <img src="{{ url_for('static', filename='settings.svg') }}" alt="Configurar" style="height:16px; vertical-align:middle; margin-right:5px;">
+      CONFIGURAR
+    </button>
   </section>
 
   <section id="resposta-ia">
