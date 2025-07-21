@@ -1,18 +1,49 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 from cryptography.fernet import Fernet
-import os, requests, openai
+from binance.client import Client
+import requests, openai, threading, time, os
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Chave fixa para criptografia entre reinícios
 CHAVE_CRIPTO_FIXA = b'xApbCQFxxa3Yy3YKkzP9JkkfE4WaXxN8eSpK7uBRuGA='
 fernet = Fernet(CHAVE_CRIPTO_FIXA)
 
-# Banco de dados simples em memória
 usuarios = {'admin': 'claraverse2025'}
 chaves_armazenadas = {}
-saldo_simulado = 1000.0
+saldo_simulado = 10000.00
+modo_auto_ativo = False
+
+# 🔁 Auto Loop
+def loop_automatico():
+    global modo_auto_ativo, saldo_simulado
+    while modo_auto_ativo:
+        try:
+            print("🤖 IA Clarinha analisando...")
+            openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
+            from clarinha_oraculo import analisar_mercado_e_sugerir
+            bin_key = fernet.decrypt(chaves_armazenadas['binance'].encode()).decode()
+            bin_sec = fernet.decrypt(chaves_armazenadas['binance_secret'].encode()).decode()
+
+            resposta = analisar_mercado_e_sugerir(bin_key, bin_sec, openai_key)
+
+            conteudo = resposta.get("resposta", "").lower()
+
+            if "comprar" in conteudo:
+                saldo_simulado -= 10
+                print("💚 Compra simulada!")
+            elif "vender" in conteudo:
+                saldo_simulado += 10
+                print("❤️ Venda simulada!")
+            else:
+                print("⚪ IA recomendou aguardar.")
+
+        except Exception as e:
+            print("Erro IA:", str(e))
+
+        time.sleep(15)  # executa a cada 15 segundos
+
+# 🌐 ROTAS
 
 @app.route('/')
 def index():
@@ -29,12 +60,6 @@ def login():
         return render_template('login.html', erro='Credenciais inválidas.')
     return render_template('login.html')
 
-@app.route('/dashboard')
-def dashboard():
-    if 'usuario' in session:
-        return render_template('dashboard.html')
-    return redirect('/login')
-
 @app.route('/configurar')
 def configurar():
     if 'usuario' in session:
@@ -50,15 +75,10 @@ def painel():
 @app.route('/salvar_chaves', methods=['POST'])
 def salvar_chaves():
     dados = request.json
-    openai_key = dados.get('openaiKey', '')
-    binance_key = dados.get('binanceKey', '')
-    binance_secret = dados.get('binanceSecret', '')
-
-    chaves_armazenadas['openai'] = fernet.encrypt(openai_key.encode()).decode()
-    chaves_armazenadas['binance'] = fernet.encrypt(binance_key.encode()).decode()
-    chaves_armazenadas['binance_secret'] = fernet.encrypt(binance_secret.encode()).decode()
-
-    return jsonify({'status': 'ok', 'mensagem': 'Chaves salvas com sucesso!'})
+    chaves_armazenadas['openai'] = fernet.encrypt(dados['openaiKey'].encode()).decode()
+    chaves_armazenadas['binance'] = fernet.encrypt(dados['binanceKey'].encode()).decode()
+    chaves_armazenadas['binance_secret'] = fernet.encrypt(dados['binanceSecret'].encode()).decode()
+    return jsonify({'status': 'ok'})
 
 @app.route('/executar_acao', methods=['POST'])
 def executar_acao():
@@ -66,26 +86,29 @@ def executar_acao():
     dados = request.json
     acao = dados.get('acao')
 
-    if acao == 'entrada':
+    if acao == 'comprar':
         saldo_simulado -= 10
-        return jsonify({'mensagem': 'ENTRADA realizada com sucesso.', 'saldo': saldo_simulado})
-    elif acao == 'stop':
-        saldo_simulado -= 5
-        return jsonify({'mensagem': 'STOP acionado.', 'saldo': saldo_simulado})
-    elif acao == 'alvo':
-        saldo_simulado += 15
-        return jsonify({'mensagem': 'ALVO atingido com lucro!', 'saldo': saldo_simulado})
+        return jsonify({'mensagem': 'Compra realizada (simulação)', 'saldo': saldo_simulado})
+
+    elif acao == 'vender':
+        saldo_simulado += 10
+        return jsonify({'mensagem': 'Venda realizada (simulação)', 'saldo': saldo_simulado})
+
     elif acao == 'auto':
-        return jsonify({'mensagem': 'Modo automático ativado!', 'saldo': saldo_simulado})
-    elif acao == 'executar':
-        saldo_simulado -= 7
-        return jsonify({'mensagem': 'Operação executada com sucesso.', 'saldo': saldo_simulado})
-    else:
-        return jsonify({'mensagem': 'Ação inválida.', 'saldo': saldo_simulado})
+        global modo_auto_ativo
+        if not modo_auto_ativo:
+            modo_auto_ativo = True
+            threading.Thread(target=loop_automatico).start()
+            return jsonify({'mensagem': 'Modo automático ativado!', 'saldo': saldo_simulado})
+        else:
+            modo_auto_ativo = False
+            return jsonify({'mensagem': 'Modo automático desativado!', 'saldo': saldo_simulado})
+
+    return jsonify({'mensagem': 'Ação inválida.', 'saldo': saldo_simulado})
 
 @app.route('/obter_saldo')
 def obter_saldo():
-    return jsonify({'saldo': saldo_simulado})
+    return jsonify({'saldo': round(saldo_simulado, 2)})
 
 @app.route('/obter_preco')
 def obter_preco():
@@ -94,28 +117,21 @@ def obter_preco():
         preco = float(r.json()['price'])
         return jsonify({'preco': preco})
     except:
-        return jsonify({'preco': 'Erro'})
+        return jsonify({'preco': '--'})
 
 @app.route('/obter_sugestao_ia')
 def obter_sugestao_ia():
     try:
+        from clarinha_cosmica import ClarinhaOraculo
         openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
-        openai.api_key = openai_key
+        clarinha = ClarinhaOraculo(openai_key)
+        dados = clarinha.consultar_mercado()
+        sugestao = clarinha.interpretar_como_deusa(dados)
+        return jsonify({'resposta': sugestao})
+    except Exception as e:
+        return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
 
-        resposta = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "Você é uma IA financeira que sugere operações no par BTC/USDT."},
-                {"role": "user", "content": "Qual a melhor operação agora?"}
-            ],
-            temperature=0.7
-        )
-        conteudo = resposta['choices'][0]['message']['content']
-        return jsonify({'resposta': conteudo})
-    except:
-        return jsonify({'resposta': 'IA indisponível no momento.'})
-
-# Compatível com Render
+# Render compatível
 application = app
 
 if __name__ == '__main__':
