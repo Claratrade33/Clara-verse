@@ -26,19 +26,8 @@ def index():
 @application.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        return redirect(url_for('painel'))
-    return render_template("login.html")
-
-@application.route("/painel", methods=["GET"])
-def painel():
-    global binance, openai
-    if not API_KEY or not API_SECRET or not OPENAI_KEY:
         return redirect(url_for('configurar'))
-    
-    binance = Client(API_KEY, API_SECRET)
-    openai.api_key = OPENAI_KEY
-    
-    return render_template("painel.html")
+    return render_template("login.html")
 
 @application.route("/configurar", methods=["GET", "POST"])
 def configurar():
@@ -60,6 +49,17 @@ def configurar():
         return redirect(url_for('painel'))
     
     return render_template("configurar.html")
+
+@application.route("/painel", methods=["GET"])
+def painel():
+    global binance, openai
+    if not API_KEY or not API_SECRET or not OPENAI_KEY:
+        return redirect(url_for('configurar'))
+    
+    binance = Client(API_KEY, API_SECRET)
+    openai.api_key = OPENAI_KEY
+    
+    return render_template("painel.html")
 
 # Endpoints da API
 @application.route('/obter_preco', methods=['GET'])
