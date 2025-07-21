@@ -18,7 +18,7 @@
 
     <main class="painel-main">
       <section class="painel-grafico">
-        <iframe src="https://www.binance.com/pt-BR/trade/BTC_USDT" frameborder="0" width="100%" height="320"></iframe>
+        <iframe src="https://www.binance.com/pt-BR/trade/BTC_USDT" frameborder="0" width="100%" height="300"></iframe>
       </section>
 
       <section class="painel-botoes">
@@ -28,6 +28,7 @@
         <button id="btnExecutar" class="btn-operar executar"><i class="fas fa-rocket"></i> EXECUTAR</button>
         <button id="btnAuto" class="btn-operar auto"><i class="fas fa-robot"></i> AUTOMÁTICO</button>
         <button id="btnIA" class="btn-operar ia"><i class="fas fa-brain"></i> SUGESTÃO IA</button>
+        <a href="/configurar" class="btn-operar configurar"><i class="fas fa-cogs"></i> CONFIGURAR</a>
       </section>
 
       <section class="painel-ia">
@@ -37,6 +38,17 @@
         <div class="fala-ia" id="resposta-ia">
           Olá! Sou a Clarinha. Pronta para analisar o mercado pra você.
         </div>
+      </section>
+
+      <section class="painel-binance">
+        <h3><i class="fab fa-btc"></i> Análise de Mercado (Binance)</h3>
+        <ul>
+          <li>🧠 RSI atual: <strong>--</strong></li>
+          <li>📉 Suporte: <strong>--</strong></li>
+          <li>📈 Resistência: <strong>--</strong></li>
+          <li>📊 Tendência: <strong>--</strong></li>
+        </ul>
+        <small class="mensagem-binance">* Dados em tempo real via API pública da Binance.</small>
       </section>
     </main>
   </div>
