@@ -1,42 +1,36 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>ClaraVerse • Inteligência Financeira</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8" />
+  <title>ClaraVerse - Inteligência Financeira</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://kit.fontawesome.com/a2d9a66df8.js" crossorigin="anonymous"></script>
 </head>
-<body class="home-body">
-  <div class="home-container">
-    <header class="home-header">
-      <img src="{{ url_for('static', filename='logo_claraverse.png') }}" alt="ClaraVerse Logo" class="home-logo">
-      <h1 class="home-title">ClaraVerse</h1>
+<body class="dashboard-body">
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <h1><i class="fas fa-galaxy"></i> ClaraVerse</h1>
+      <p>Inteligência financeira com visão cósmica.</p>
+      <a href="/login" class="dashboard-btn"><i class="fas fa-sign-in-alt"></i> Começar</a>
     </header>
 
-    <main class="home-main">
-      <h2 class="home-slogan">A plataforma de<br><span>inteligência financeira</span></h2>
-      <p class="home-subtext">A ClaraVerse oferece soluções avançadas<br>para otimizar seus investimentos.</p>
-
-      <a href="/login" class="home-button">SAIBA MAIS</a>
-
-      <div class="home-features">
-        <div class="feature">
-          <img src="{{ url_for('static', filename='icons/chart.svg') }}" alt="Ícone de Análise">
-          <p>Análise de<br><strong>Mercado</strong></p>
-        </div>
-        <div class="feature">
-          <img src="{{ url_for('static', filename='icons/ai.svg') }}" alt="Ícone de Estratégias">
-          <p>Estratégias<br><strong>Automatizadas</strong></p>
-        </div>
-        <div class="feature">
-          <img src="{{ url_for('static', filename='icons/target.svg') }}" alt="Ícone de Segurança">
-          <p>Segurança<br><strong>Avançada</strong></p>
-        </div>
-        <div class="feature">
-          <img src="{{ url_for('static', filename='icons/wallet.svg') }}" alt="Ícone de Suporte">
-          <p>Suporte<br><strong>Especializado</strong></p>
-        </div>
+    <section class="dashboard-recursos">
+      <div class="recurso">
+        <i class="fas fa-robot"></i>
+        <h3>IA Estratégica</h3>
+        <p>Análises espirituais com GPT-4 conectadas ao mercado em tempo real.</p>
       </div>
-    </main>
+      <div class="recurso">
+        <i class="fas fa-shield-alt"></i>
+        <h3>Segurança Avançada</h3>
+        <p>Chaves criptografadas e decisões protegidas por Clarinha.</p>
+      </div>
+      <div class="recurso">
+        <i class="fas fa-sync-alt"></i>
+        <h3>Modo Automático</h3>
+        <p>Ative o modo auto e deixe a IA operar sozinha com consciência.</p>
+      </div>
+    </section>
   </div>
 </body>
 </html>
