@@ -6,48 +6,38 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script>
     async function salvarChaves() {
-      const openaiKey = document.getElementById('openai').value;
-      const binanceKey = document.getElementById('binance').value;
+      const openaiKey = document.getElementById('openaiKey').value;
+      const binanceKey = document.getElementById('binanceKey').value;
       const binanceSecret = document.getElementById('binanceSecret').value;
 
       if (!openaiKey || !binanceKey || !binanceSecret) {
-        alert('Preencha todas as chaves.');
+        alert("Preencha todos os campos.");
         return;
       }
 
-      try {
-        const res = await fetch('/salvar_chaves', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ openaiKey, binanceKey, binanceSecret })
-        });
+      const res = await fetch('/salvar_chaves', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ openaiKey, binanceKey, binanceSecret })
+      });
 
-        const data = await res.json();
-        if (data.status === 'ok') {
-          alert('🔐 Chaves salvas com sucesso!');
-          window.location.href = '/painel';
-        } else {
-          alert('Erro ao salvar chaves.');
-        }
-      } catch (err) {
-        alert('Erro de conexão com servidor.');
+      const data = await res.json();
+      if (data.status === 'ok') {
+        alert('🔐 Chaves salvas com sucesso!');
+        window.location.href = '/painel';
+      } else {
+        alert('Erro ao salvar chaves.');
       }
     }
   </script>
 </head>
 <body>
-  <div class="container">
-    <h1>⚙️ Configurar API</h1>
-    <label for="openai">🔑 Chave OpenAI:</label><br>
-    <input type="password" id="openai" placeholder="sk-..." /><br><br>
-
-    <label for="binance">🔑 Binance API Key:</label><br>
-    <input type="password" id="binance" placeholder="API Key Binance" /><br><br>
-
-    <label for="binanceSecret">🔐 Binance Secret Key:</label><br>
-    <input type="password" id="binanceSecret" placeholder="Secret Key Binance" /><br><br>
-
-    <button onclick="salvarChaves()">💾 Salvar e Iniciar</button>
+  <div class="config-container">
+    <h2>🔧 Configurar Chaves de API</h2>
+    <input type="text" id="openaiKey" placeholder="🔑 OpenAI API Key"><br>
+    <input type="text" id="binanceKey" placeholder="🔑 Binance API Key"><br>
+    <input type="text" id="binanceSecret" placeholder="🔒 Binance Secret Key"><br>
+    <button onclick="salvarChaves()">💾 Salvar</button>
   </div>
 </body>
 </html>
