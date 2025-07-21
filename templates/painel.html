@@ -10,7 +10,7 @@
 <body>
   <header>
     <h1 style="color:#00ffff">ClaraVerse</h1>
-    <p style="color: #00ff99; font-weight: bold;">
+    <p class="saldo" style="color: #00ff99; font-weight: bold;">
       🔥 Saldo Atual: ${{ saldo }} USDT
     </p>
   </header>
@@ -27,12 +27,24 @@
   </section>
 
   <section id="botoes">
-    <button onclick="executarAcao('comprar')">🟢 ENTRADA</button>
-    <button onclick="executarAcao('vender')">🔴 STOP</button>
-    <button onclick="executarAcao('auto')">⚙️ AUTO</button>
-    <button onclick="obterSugestaoIA()">🔮 SUGESTÃO IA</button>
+    <button onclick="executarAcao('comprar')">
+      <img src="{{ url_for('static', filename='icons/wallet.svg') }}" alt="Entrada" style="height:16px; vertical-align:middle; margin-right:5px;">
+      ENTRADA
+    </button>
+    <button onclick="executarAcao('vender')">
+      <img src="{{ url_for('static', filename='icons/stop.svg') }}" alt="Stop" style="height:16px; vertical-align:middle; margin-right:5px;">
+      STOP
+    </button>
+    <button onclick="executarAcao('auto')">
+      <img src="{{ url_for('static', filename='icons/target.svg') }}" alt="Auto" style="height:16px; vertical-align:middle; margin-right:5px;">
+      AUTO
+    </button>
+    <button onclick="obterSugestaoIA()">
+      <img src="{{ url_for('static', filename='icons/ai.svg') }}" alt="IA" style="height:16px; vertical-align:middle; margin-right:5px;">
+      SUGESTÃO IA
+    </button>
     <button onclick="window.location.href='/configurar'">
-      <img src="{{ url_for('static', filename='settings.svg') }}" alt="Configurar" style="height:16px; vertical-align:middle; margin-right:5px;">
+      <img src="{{ url_for('static', filename='icons/settings.svg') }}" alt="Configurar" style="height:16px; vertical-align:middle; margin-right:5px;">
       CONFIGURAR
     </button>
   </section>
