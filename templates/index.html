@@ -18,115 +18,50 @@
       min-height: 100vh;
       text-align: center;
     }
-
     .logo {
       display: flex;
       align-items: center;
       gap: 10px;
       margin-bottom: 30px;
     }
-
-    .logo img {
-      width: 40px;
-      height: 40px;
-    }
-
-    h1 {
-      font-size: 2.5em;
-      font-weight: bold;
-      margin-bottom: 15px;
-      color: #ffffff;
-    }
-
-    p {
-      font-size: 1.2em;
-      color: #ccc;
-      margin-bottom: 30px;
-    }
-
+    .logo img { width: 40px; height: 40px; }
+    h1 { font-size: 2.5em; margin-bottom: 15px; color: #ffffff; }
+    p { font-size: 1.2em; color: #ccc; margin-bottom: 30px; }
     .botao {
-      background: #3ee2ff;
-      color: #000;
-      font-weight: bold;
-      padding: 12px 28px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: 0.3s;
-      font-size: 1em;
+      background: #3ee2ff; color: #000; font-weight: bold;
+      padding: 12px 28px; border-radius: 8px; border: none;
+      cursor: pointer; transition: 0.3s; font-size: 1em;
     }
-
-    .botao:hover {
-      background: #00d0ff;
-    }
-
+    .botao:hover { background: #00d0ff; }
     .icones {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      margin-top: 60px;
-      flex-wrap: wrap;
+      display: flex; justify-content: center; gap: 40px;
+      margin-top: 60px; flex-wrap: wrap;
     }
-
     .icone {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display: flex; flex-direction: column; align-items: center;
       color: #80f2ff;
     }
-
-    .icone img {
-      width: 40px;
-      height: 40px;
-      margin-bottom: 10px;
-    }
-
+    .icone img { width: 40px; height: 40px; margin-bottom: 10px; }
     @media(max-width: 600px) {
-      h1 {
-        font-size: 2em;
-      }
-
-      p {
-        font-size: 1em;
-        padding: 0 20px;
-      }
-
-      .icones {
-        gap: 25px;
-        flex-direction: column;
-      }
+      h1 { font-size: 2em; }
+      p { font-size: 1em; padding: 0 20px; }
+      .icones { gap: 25px; flex-direction: column; }
     }
   </style>
 </head>
 <body>
-
   <div class="logo">
     <img src="/static/logo.png" alt="Logo ClaraVerse">
     <h2>ClaraVerse</h2>
   </div>
-
   <h1>A plataforma de<br> inteligência financeira</h1>
   <p>A ClaraVerse oferece soluções avançadas para otimizar seus investimentos.</p>
   <button class="botao" onclick="window.location.href='/login'">SAIBA MAIS</button>
-
   <div class="icones">
-    <div class="icone">
-      <img src="/static/icon-analise.png" alt="Análise">
-      <span>Análise de<br> Mercado</span>
-    </div>
-    <div class="icone">
-      <img src="/static/icon-estrategia.png" alt="Estratégia">
-      <span>Estratégias<br> Automatizadas</span>
-    </div>
-    <div class="icone">
-      <img src="/static/icon-seguranca.png" alt="Segurança">
-      <span>Segurança<br> Avançada</span>
-    </div>
-    <div class="icone">
-      <img src="/static/icon-suporte.png" alt="Suporte">
-      <span>Suporte<br> Especializado</span>
-    </div>
+    <div class="icone"><img src="/static/icon-analise.png"><span>Análise de<br> Mercado</span></div>
+    <div class="icone"><img src="/static/icon-estrategia.png"><span>Estratégias<br> Automatizadas</span></div>
+    <div class="icone"><img src="/static/icon-seguranca.png"><span>Segurança<br> Avançada</span></div>
+    <div class="icone"><img src="/static/icon-suporte.png"><span>Suporte<br> Especializado</span></div>
   </div>
-
 </body>
 </html>
