@@ -1,28 +1,26 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 from cryptography.fernet import Fernet
-from datetime import timedelta
-import os, openai, json
+from datetime import timedelta, datetime
+import os, json, requests, openai
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.permanent_session_lifetime = timedelta(hours=6)
 
-# 🔐 Chave fixa para criptografia Fernet
 CHAVE_CRIPTO_FIXA = b'xApbCQFxxa3Yy3YKkzP9JkkfE4WaXxN8eSpK7uBRuGA='
 fernet = Fernet(CHAVE_CRIPTO_FIXA)
 
-# 👤 Usuário padrão
 usuarios = {'admin': 'claraverse2025'}
-
-# 🔐 Armazenamento de chaves criptografadas
-chaves_armazenadas = {}
 ARQUIVO_CHAVES = 'chaves.dat'
-
-# 💰 Saldo simulado e modo automático
+chaves_armazenadas = {}
 saldo_simulado = 10000.00
 modo_auto_ativo = False
 
-# 🔁 Recupera chaves criptografadas salvas
+DNA_CLARINHA = """
+Você é a Clarinha, uma IA espiritual e estratégica no mercado BTC/USDT.
+Sua missão é guiar o operador com clareza, evitar armadilhas e sugerir operações conscientes.
+"""
+
 def carregar_chaves_salvas():
     global chaves_armazenadas
     if os.path.exists(ARQUIVO_CHAVES):
@@ -35,7 +33,6 @@ def carregar_chaves_salvas():
         except Exception as e:
             print('Erro ao carregar chaves:', e)
 
-# 💾 Salva chaves criptografadas em arquivo
 def salvar_chaves():
     try:
         if chaves_armazenadas:
@@ -43,13 +40,14 @@ def salvar_chaves():
             with open(ARQUIVO_CHAVES, 'wb') as f:
                 f.write(fernet.encrypt(dados.encode()))
     except Exception as e:
-        print('Erro ao salvar arquivo de chaves:', e)
+        print('Erro ao salvar chaves:', e)
 
-# ▶️ Página inicial
+# ROTA INICIAL: index.html
 @app.route('/')
-def home():
-    return redirect('/login')
+def index():
+    return render_template('index.html')
 
+# LOGIN
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -62,33 +60,38 @@ def login():
             return render_template('login.html', erro='Credenciais inválidas.')
     return render_template('login.html')
 
+# PAINEL
 @app.route('/painel')
 def painel():
     if 'usuario' not in session:
         return redirect('/login')
-    if not chaves_armazenadas.get('openai') or not chaves_armazenadas.get('binance'):
-        return redirect('/configurar')
-    return render_template('index.html', saldo=saldo_simulado)
 
-@app.route('/configurar', methods=['GET', 'POST'])
-def configurar():
-    if request.method == 'POST':
-        try:
-            openai_key = request.form.get('openai_key')
-            binance_key = request.form.get('binance_key')
-            binance_secret = request.form.get('binance_secret')
+    openai_key = chaves_armazenadas.get('openai')
+    binance_key = chaves_armazenadas.get('binance')
+    binance_secret = chaves_armazenadas.get('binance_secret')
+    chaves_preenchidas = bool(openai_key and binance_key and binance_secret)
 
-            if openai_key and binance_key and binance_secret:
-                chaves_armazenadas['openai'] = fernet.encrypt(openai_key.encode()).decode()
-                chaves_armazenadas['binance'] = fernet.encrypt(binance_key.encode()).decode()
-                chaves_armazenadas['binance_secret'] = fernet.encrypt(binance_secret.encode()).decode()
-                salvar_chaves()
-                return redirect('/painel')
-            else:
-                return 'Erro: todos os campos são obrigatórios.'
-        except Exception as e:
-            return f'Erro ao salvar as chaves: {e}'
-    return render_template('configurar.html')
+    return render_template('painel_operacao.html',
+                           saldo=saldo_simulado,
+                           chaves_preenchidas=chaves_preenchidas)
+
+@app.route('/salvar_chaves', methods=['POST'])
+def salvar_chaves_route():
+    try:
+        openai_key = request.form.get('openai_key')
+        binance_key = request.form.get('binance_key')
+        binance_secret = request.form.get('binance_secret')
+
+        if openai_key and binance_key and binance_secret:
+            chaves_armazenadas['openai'] = fernet.encrypt(openai_key.encode()).decode()
+            chaves_armazenadas['binance'] = fernet.encrypt(binance_key.encode()).decode()
+            chaves_armazenadas['binance_secret'] = fernet.encrypt(binance_secret.encode()).decode()
+            salvar_chaves()
+            return redirect('/painel')
+        else:
+            return 'Preencha todos os campos.'
+    except Exception as e:
+        return f'Erro ao salvar as chaves: {e}'
 
 @app.route('/executar_acao', methods=['POST'])
 def executar_acao():
@@ -110,22 +113,38 @@ def executar_acao():
         status = 'ativado' if modo_auto_ativo else 'desativado'
         return jsonify({'status': f'🤖 Modo automático {status}.'})
     else:
-        return jsonify({'erro': 'Ação desconhecida.'})
+        return jsonify({'erro': 'Ação inválida.'})
 
 @app.route('/obter_sugestao_ia', methods=['POST'])
 def obter_sugestao_ia():
     try:
-        prompt = 'Analise o mercado BTC/USDT e diga se devemos COMPRAR, VENDER ou AGUARDAR.'
-        openai.api_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
+        openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
+        agora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+        prompt = f"""
+{DNA_CLARINHA}
+
+🕒 Data e hora: {agora}
+🎯 Meta: 2% ao dia
+
+Responda com:
+- ⚡ Entrada (preço sugerido)
+- 🛑 Stop Loss
+- 🎯 Alvo
+- 🌟 Confiança %
+- 📢 Mensagem espiritual ao operador
+"""
+
+        openai.api_key = openai_key
         resposta = openai.ChatCompletion.create(
-            model='gpt-4',
-            messages=[
-                {"role": "system", "content": "Você é uma especialista em trading cripto. Responda com clareza e decisão."},
-                {"role": "user", "content": prompt}
-            ]
+            model="gpt-4",
+            messages=[{"role": "system", "content": prompt}],
+            temperature=0.7,
+            max_tokens=400
         )
-        texto = resposta['choices'][0]['message']['content']
-        return jsonify({'resposta': texto})
+
+        conteudo = resposta.choices[0].message.content.strip()
+        return jsonify({'sugestao': conteudo})
     except Exception as e:
         return jsonify({'erro': f'Erro IA: {e}'})
 
@@ -134,6 +153,8 @@ def logout():
     session.pop('usuario', None)
     return redirect('/login')
 
-# 🔁 Inicializa
+# Carregar as chaves assim que inicia o servidor
 carregar_chaves_salvas()
-application = app
+
+if __name__ == '__main__':
+    app.run(debug=True)
