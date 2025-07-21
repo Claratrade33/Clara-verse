@@ -2,18 +2,34 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>ClaraVerse - Dashboard</title>
+  <title>ClaraVerse - Início</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="dashboard-container">
-    <h1>📊 Bem-vindo à ClaraVerse</h1>
-    <p>Seu saldo atual é de <strong>${{ saldo }}</strong> USDT</p>
-    <div class="menu">
-      <a href="/painel">🧠 Painel de Operações</a>
-      <a href="/configurar">⚙️ Configurar Chaves</a>
-      <a href="/logout">🚪 Sair</a>
+  <div class="tela-inicial">
+    <h1 class="titulo-principal">✨ ClaraVerse</h1>
+    <p class="subtitulo">Plataforma Inteligente de Decisão Financeira</p>
+
+    <div class="icones-iniciais">
+      <div class="icone-bloco">
+        <img src="{{ url_for('static', filename='icons/chart.svg') }}" alt="Análise de Mercado">
+        <span>Análise de Mercado</span>
+      </div>
+      <div class="icone-bloco">
+        <img src="{{ url_for('static', filename='icons/wallet.svg') }}" alt="Simulação de Investimentos">
+        <span>Simulação de Investimentos</span>
+      </div>
+      <div class="icone-bloco">
+        <img src="{{ url_for('static', filename='icons/ai.svg') }}" alt="IA Estratégica">
+        <span>IA Estratégica</span>
+      </div>
+      <div class="icone-bloco">
+        <img src="{{ url_for('static', filename='icons/target.svg') }}" alt="Alvos Inteligentes">
+        <span>Alvos Inteligentes</span>
+      </div>
     </div>
+
+    <a href="/login" class="botao-principal">🚀 ENTRAR NA PLATAFORMA</a>
   </div>
 </body>
 </html>
