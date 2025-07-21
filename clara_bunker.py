@@ -41,7 +41,7 @@ def loop_automatico():
 
 @app.route('/')
 def home():
-    return render_template('index.html')  # ← agora abre a página inicial correta
+    return render_template('index.html')  # Página inicial institucional ClaraVerse
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
