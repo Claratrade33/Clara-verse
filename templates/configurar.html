@@ -1,66 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Configurar API • ClaraVerse</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+    <meta charset="UTF-8">
+    <title>ClaraVerse - Configurar API</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://kit.fontawesome.com/a2d9a66df8.js" crossorigin="anonymous"></script>
 </head>
 <body class="configurar-body">
-  <div class="configurar-container">
-    <h1>⚙️ Configurar API</h1>
+    <div class="container-config">
+        <h2><i class="fas fa-key"></i> Configurar Chaves de API</h2>
 
-    <label for="binance_api_key">🔑 Binance API Key:</label>
-    <input type="text" id="binance_api_key" value="{{ chaves['binance_api_key'] }}">
+        <div id="formulario">
+            <label for="openaiKey">Chave OpenAI:</label>
+            <input type="password" id="openaiKey" placeholder="sk-...">
 
-    <label for="binance_api_secret">🔐 Binance API Secret:</label>
-    <input type="text" id="binance_api_secret" value="{{ chaves['binance_api_secret'] }}">
+            <label for="binanceKey">Chave Binance:</label>
+            <input type="password" id="binanceKey" placeholder="Binance API Key">
 
-    <label for="openai_api_key">🧠 OpenAI API Key:</label>
-    <input type="text" id="openai_api_key" value="{{ chaves['openai_api_key'] }}">
+            <label for="binanceSecret">Segredo Binance:</label>
+            <input type="password" id="binanceSecret" placeholder="Binance API Secret">
 
-    <button onclick="salvarChaves()">
-      💾 Salvar e Ir para o Painel
-    </button>
+            <button id="salvarBtn">
+                <i class="fas fa-save"></i> Salvar e Iniciar
+            </button>
+        </div>
 
-    <p id="status-chaves" class="status-sucesso"></p>
-  </div>
+        <div id="mensagem" class="mensagem-sucesso" style="display: none;">
+            ✅ Chaves salvas com sucesso! Redirecionando...
+        </div>
+    </div>
 
-  <script>
-    function salvarChaves() {
-      const binance_api_key = document.getElementById("binance_api_key").value;
-      const binance_api_secret = document.getElementById("binance_api_secret").value;
-      const openai_api_key = document.getElementById("openai_api_key").value;
+    <script>
+        document.getElementById("salvarBtn").addEventListener("click", function () {
+            const openaiKey = document.getElementById("openaiKey").value;
+            const binanceKey = document.getElementById("binanceKey").value;
+            const binanceSecret = document.getElementById("binanceSecret").value;
 
-      fetch("/salvar_chaves", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          binance_api_key,
-          binance_api_secret,
-          openai_api_key
-        })
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.status === "sucesso") {
-            document.getElementById("status-chaves").innerText = "✅ Chaves salvas com sucesso!";
-            
-            // Esconde os campos após salvar
-            document.getElementById("binance_api_key").style.display = "none";
-            document.getElementById("binance_api_secret").style.display = "none";
-            document.getElementById("openai_api_key").style.display = "none";
-
-            setTimeout(() => {
-              window.location.href = "/painel";
-            }, 1500);
-          } else {
-            document.getElementById("status-chaves").innerText = "❌ Erro ao salvar chaves.";
-          }
+            fetch("/salvar_chaves", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ openaiKey, binanceKey, binanceSecret })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    document.getElementById("formulario").style.display = "none";
+                    document.getElementById("mensagem").style.display = "block";
+                    setTimeout(() => {
+                        window.location.href = "/painel";
+                    }, 2000);
+                }
+            });
         });
-    }
-  </script>
+    </script>
 </body>
 </html>
