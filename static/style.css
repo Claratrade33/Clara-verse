@@ -1,156 +1,186 @@
-/* GERAL */
 body {
   margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #0a0f2c;
-  color: #e6e6f0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #0b0c1e;
+  color: #ffffff;
 }
 
-/* CONTAINER PRINCIPAL */
-.painel-body, .configurar-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.painel-container {
+  max-width: 900px;
+  margin: 0 auto;
   padding: 20px;
 }
 
-/* CONTEÚDO CENTRAL */
-.painel-container {
-  max-width: 900px;
-  width: 100%;
-}
-
-/* GRÁFICO */
-.grafico-frame {
-  border: 2px solid #1f2a4c;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 25px;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
-}
-
-/* BLOCO DE INFORMAÇÕES */
-.info-box {
-  background-color: #111633;
-  border-radius: 10px;
-  padding: 15px 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 0 8px rgba(0, 128, 255, 0.1);
-}
-
-.info-box p {
-  margin: 10px 0;
-  font-size: 16px;
+.painel-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  background: #1a1c2d;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
 }
 
-.info-box strong {
-  margin-right: 8px;
+.painel-header h1 {
+  font-size: 1.6em;
+  color: #00fff7;
 }
 
-/* BOTÕES DE AÇÃO */
-.botao-acao {
-  background-color: #1e90ff;
-  color: #ffffff;
+.versao {
+  font-size: 0.6em;
+  background: #1a1c2d;
+  padding: 2px 6px;
+  margin-left: 8px;
+  border: 1px solid #00fff7;
+  border-radius: 4px;
+}
+
+.painel-info span {
+  display: inline-block;
+  margin-left: 15px;
+  font-size: 0.9em;
+}
+
+.painel-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.painel-grafico iframe {
+  border: none;
+  border-radius: 8px;
+}
+
+.painel-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-operar {
+  padding: 12px 20px;
+  font-size: 1em;
+  font-weight: bold;
+  color: #fff;
   border: none;
   border-radius: 6px;
-  padding: 12px 20px;
-  margin: 8px 5px 0;
-  font-size: 15px;
-  font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(30, 144, 255, 0.3);
-  transition: background-color 0.2s ease;
-}
-
-.botao-acao:hover {
-  background-color: #0072e3;
-}
-
-/* STATUS MENSAGEM */
-#mensagemStatus {
+  transition: transform 0.2s ease;
+  min-width: 140px;
   text-align: center;
-  font-weight: bold;
-  margin-top: 10px;
-  color: #00ffb7;
 }
 
-/* CONFIGURAR */
-.configurar-container {
-  background-color: #111633;
-  border-radius: 10px;
+.btn-operar:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.entrada { background: #4caf50; }
+.stop    { background: #f44336; }
+.alvo    { background: #2196f3; }
+.executar { background: #9c27b0; }
+.auto    { background: #ff9800; }
+.ia      { background: #00bcd4; }
+
+.painel-ia {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  background: #141629;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.avatar-ia img {
+  width: 60px;
+  border-radius: 50%;
+  border: 2px solid #00fff7;
+}
+
+.fala-ia {
+  flex: 1;
+  font-size: 1em;
+  background: #1f2135;
+  padding: 10px 15px;
+  border-radius: 6px;
+  border-left: 4px solid #00fff7;
+}
+
+/* Tela de configuração */
+
+.configurar-body {
+  background: #0c0c1d;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container-config {
+  background: #1a1c2e;
   padding: 30px;
+  border-radius: 10px;
   width: 100%;
-  max-width: 450px;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+  max-width: 400px;
 }
 
-.configurar-container h1 {
+.container-config h2 {
+  margin-bottom: 20px;
+  color: #00fff7;
   text-align: center;
-  margin-bottom: 25px;
-  font-size: 22px;
-  color: #00eaff;
 }
 
-.configurar-container label {
-  display: block;
-  margin: 12px 0 6px;
-  font-weight: bold;
-}
-
-.configurar-container input[type="text"] {
+.container-config input {
   width: 100%;
   padding: 10px;
+  margin-bottom: 15px;
   border: none;
-  border-radius: 6px;
-  background-color: #222c50;
+  border-radius: 5px;
+  background: #2c2e42;
   color: #fff;
-  font-size: 14px;
 }
 
-.configurar-container button {
-  margin-top: 20px;
+.container-config button {
   width: 100%;
   padding: 12px;
+  background: #00fff7;
+  color: #000;
+  font-weight: bold;
   border: none;
-  border-radius: 6px;
-  background-color: #00bfff;
-  color: white;
-  font-size: 16px;
+  border-radius: 5px;
   cursor: pointer;
-  font-weight: bold;
 }
 
-.configurar-container button:hover {
-  background-color: #009acd;
-}
-
-/* MENSAGEM DE STATUS */
-#status-chaves {
-  margin-top: 15px;
+.mensagem-sucesso {
+  margin-top: 20px;
+  background: #dff0d8;
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
   text-align: center;
-  font-weight: bold;
-  color: #00ffb7;
 }
 
-/* RESPONSIVO */
+/* Responsivo */
+
 @media (max-width: 600px) {
-  .botao-acao {
+  .painel-botoes {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn-operar {
     width: 100%;
-    margin: 8px 0;
   }
 
-  .grafico-frame iframe {
-    height: 300px;
+  .painel-ia {
+    flex-direction: column;
+    align-items: center;
   }
 
-  .info-box {
-    padding: 10px 15px;
-  }
-
-  .configurar-container {
-    padding: 20px;
+  .fala-ia {
+    font-size: 0.95em;
   }
 }
