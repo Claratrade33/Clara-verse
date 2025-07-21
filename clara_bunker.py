@@ -40,8 +40,8 @@ def loop_automatico():
         time.sleep(15)
 
 @app.route('/')
-def index():
-    return render_template('painel.html', saldo=saldo_simulado)
+def home():
+    return redirect('/login')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -51,20 +51,26 @@ def login():
         if usuario in usuarios and usuarios[usuario] == senha:
             session['usuario'] = usuario
             session.permanent = True
-            return redirect('/painel')
+            return redirect('/dashboard')
         return render_template('login.html', erro='Credenciais inválidas.')
     return render_template('login.html')
 
-@app.route('/configurar')
-def configurar():
+@app.route('/dashboard')
+def dashboard():
     if 'usuario' in session:
-        return render_template('configurar.html')
+        return render_template('dashboard.html', saldo=saldo_simulado)
     return redirect('/login')
 
 @app.route('/painel')
 def painel():
     if 'usuario' in session:
         return render_template('painel.html', saldo=saldo_simulado)
+    return redirect('/login')
+
+@app.route('/configurar')
+def configurar():
+    if 'usuario' in session:
+        return render_template('configurar.html')
     return redirect('/login')
 
 @app.route('/salvar_chaves', methods=['POST'])
@@ -77,7 +83,7 @@ def salvar_chaves():
 
 @app.route('/executar_acao', methods=['POST'])
 def executar_acao():
-    global saldo_simulado
+    global saldo_simulado, modo_auto_ativo
     dados = request.json
     acao = dados.get('acao')
     if acao == 'comprar':
@@ -87,7 +93,6 @@ def executar_acao():
         saldo_simulado += 10
         return jsonify({'mensagem': 'Venda realizada (simulação)', 'saldo': saldo_simulado})
     elif acao == 'auto':
-        global modo_auto_ativo
         if not modo_auto_ativo:
             modo_auto_ativo = True
             threading.Thread(target=loop_automatico).start()
