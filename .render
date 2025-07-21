@@ -1,7 +1,0 @@
-{
-  "startCommand": "gunicorn clara_bunker:app",
-  "buildCommand": "pip install -r requirements.txt",
-  "envVars": {
-    "PORT": "10000"
-  }
-}
