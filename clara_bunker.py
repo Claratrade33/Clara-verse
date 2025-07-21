@@ -1,5 +1,6 @@
 import os
-from flask import Flask, request, jsonify, render_template
+import json
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from binance.client import Client
 import openai
 from cryptography.fernet import Fernet
@@ -8,34 +9,57 @@ from cryptography.fernet import Fernet
 FERNET_KEY = "ylh-urjGFbF60dGJcGjEWY5SKGbhui-8SUItRz7YMZk="
 fernet = Fernet(FERNET_KEY.encode())
 
-# CHAVES CRIPTOGRAFADAS
-API_KEY = fernet.decrypt(b"gAAAAABoe_tmC3u_LkLDxTnp5p-7wgMiHVcKvJIOgEQFfBTWjRx5CC2Ts3Z1PPx-vEA1ChEFZMxi1THdulmp8WK8wCJzBmS8vHAWEU4pooCBt8tVrlf0NkfOur-pEtjpjZt6NSpPUbhFvIqjtwNDnQAtMQL_mPfM8Dype0oShNoTkcMnECOsmF0=").decode()
-API_SECRET = fernet.decrypt(b"gAAAAABoe_tmrN2tKPQsPVYlnxp-wKItqZNirJXN_9eKHhle-_z_eud6i1pGpdG-ZRsDf_g26q2jlRixSXv8h_ZwOv5p4lu3AshCRbHXRpPvcHJ8LaoqGOP2ZQNH4h-8WUdPOSlEXYz2NXJHOlYMigWiyZO8d2w0NYlQa0N2Vv-CpDMOXuIXcN8=").decode()
-OPENAI_KEY = fernet.decrypt(b"gAAAAABoe_xqx7jAACfbXHrmoFSrEU_x2uJbVsrYNvjpn-IWOD02jHr6pAtSznZZkFd0cE50OcdsFukYMR441vQgThN8UaoeQXvbD76jS3wJkvlcGJcwfbwWOi2dEd9MgZuEULE92B9UYLFVzgKzP3ZJ-IRmsF_ppg==").decode()
-
 # CLIENTES
-binance = Client(API_KEY, API_SECRET)
-openai.api_key = OPENAI_KEY
-
-# Instância da aplicação Flask
 application = Flask(__name__)
+
+# Variáveis globais para chaves API
+API_KEY = None
+API_SECRET = None
+OPENAI_KEY = None
+binance = None
 
 # Rotas para as páginas HTML
 @application.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
 
-@application.route("/configurar", methods=["GET"])
-def configurar():
-    return render_template("configurar.html")
-
-@application.route("/login", methods=["GET"])
+@application.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        return redirect(url_for('painel'))
     return render_template("login.html")
 
 @application.route("/painel", methods=["GET"])
 def painel():
+    global binance, openai
+    if not API_KEY or not API_SECRET or not OPENAI_KEY:
+        return redirect(url_for('configurar'))
+    
+    binance = Client(API_KEY, API_SECRET)
+    openai.api_key = OPENAI_KEY
+    
     return render_template("painel.html")
+
+@application.route("/configurar", methods=["GET", "POST"])
+def configurar():
+    if request.method == "POST":
+        global API_KEY, API_SECRET, OPENAI_KEY
+        data = request.form
+        API_KEY = data['binanceApiKey']
+        API_SECRET = data['binanceSecretKey']
+        OPENAI_KEY = data['openaiKey']
+        
+        # Salvar as chaves em um arquivo
+        with open('config.json', 'w') as config_file:
+            json.dump({
+                'openai_key': OPENAI_KEY,
+                'binance_api_key': API_KEY,
+                'binance_secret_key': API_SECRET
+            }, config_file)
+
+        return redirect(url_for('painel'))
+    
+    return render_template("configurar.html")
 
 # Endpoints da API
 @application.route('/obter_preco', methods=['GET'])
