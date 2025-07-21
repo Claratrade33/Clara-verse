@@ -1,48 +1,46 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Painel • ClaraVerse</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+  <meta charset="UTF-8" />
+  <title>ClaraVerse - Painel de Operações</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://kit.fontawesome.com/a2d9a66df8.js" crossorigin="anonymous"></script>
 </head>
 <body class="painel-body">
   <div class="painel-container">
+    <header class="painel-header">
+      <h1>ClaraVerse <span class="versao">Operações</span></h1>
+      <div class="painel-info">
+        <span><i class="fas fa-coins"></i> Saldo: <strong id="saldo">0 USDT</strong></span>
+        <span><i class="fab fa-btc"></i> BTC: <strong id="preco-btc">--</strong></span>
+      </div>
+    </header>
 
-    <!-- Gráfico -->
-    <div class="grafico-frame">
-      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
-              width="100%" height="400" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
-    </div>
+    <main class="painel-main">
+      <section class="painel-grafico">
+        <iframe src="https://www.binance.com/pt-BR/trade/BTC_USDT" frameborder="0" width="100%" height="320"></iframe>
+      </section>
 
-    <!-- Indicadores -->
-    <div class="info-box">
-      <p>📊 <strong>Preço:</strong> <span id="preco">--</span></p>
-      <p>📈 <strong>Variação:</strong> <span id="variacao">--</span></p>
-      <p>💹 <strong>Volume:</strong> <span id="volume">--</span></p>
-      <p>📉 <strong>RSI:</strong> <span id="rsi">--</span></p>
-      <p>🟦 <strong>Suporte:</strong> <span id="suporte">--</span></p>
-      <p>🟥 <strong>Resistência:</strong> <span id="resistencia">--</span></p>
-    </div>
+      <section class="painel-botoes">
+        <button id="btnEntrada" class="btn-operar entrada"><i class="fas fa-play"></i> ENTRADA</button>
+        <button id="btnStop" class="btn-operar stop"><i class="fas fa-times-circle"></i> STOP</button>
+        <button id="btnAlvo" class="btn-operar alvo"><i class="fas fa-bullseye"></i> ALVO</button>
+        <button id="btnExecutar" class="btn-operar executar"><i class="fas fa-rocket"></i> EXECUTAR</button>
+        <button id="btnAuto" class="btn-operar auto"><i class="fas fa-robot"></i> AUTOMÁTICO</button>
+        <button id="btnIA" class="btn-operar ia"><i class="fas fa-brain"></i> SUGESTÃO IA</button>
+      </section>
 
-    <!-- Sugestão da IA -->
-    <div class="info-box">
-      <strong>🤖 Sugestão da IA:</strong>
-      <p id="sugestao">Aguardando IA...</p>
-    </div>
-
-    <!-- Botões -->
-    <div class="info-box">
-      <button class="botao-acao" onclick="enviarAcao('entrada')">📥 ENTRADA</button>
-      <button class="botao-acao" onclick="enviarAcao('stop')">⛔ STOP</button>
-      <button class="botao-acao" onclick="enviarAcao('executar')">🚀 EXECUTAR</button>
-      <button class="botao-acao" onclick="enviarAcao('automatico')">🤖 AUTOMÁTICO</button>
-      <a href="/configurar"><button class="botao-acao">⚙️ CONFIGURAR</button></a>
-    </div>
-
-    <!-- Mensagem de status -->
-    <p id="mensagemStatus"></p>
-
+      <section class="painel-ia">
+        <div class="avatar-ia">
+          <img src="https://i.imgur.com/PKQHh8Y.png" alt="Clarinha" />
+        </div>
+        <div class="fala-ia" id="resposta-ia">
+          Olá! Sou a Clarinha. Pronta para analisar o mercado pra você.
+        </div>
+      </section>
+    </main>
   </div>
+
+  <script src="/static/dashboard.js"></script>
 </body>
 </html>
