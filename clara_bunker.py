@@ -35,7 +35,7 @@ def loop_automatico():
     global modo_auto_ativo, saldo_simulado
     while modo_auto_ativo:
         try:
-            print("ð¤ IA Clarinha analisando...")
+            print("🤖 IA Clarinha analisando...")
             openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
             bin_key = fernet.decrypt(chaves_armazenadas['binance'].encode()).decode()
             bin_sec = fernet.decrypt(chaves_armazenadas['binance_secret'].encode()).decode()
@@ -44,14 +44,14 @@ def loop_automatico():
             conteudo = resposta.get("resposta", "").lower()
             if "comprar" in conteudo:
                 saldo_simulado -= 10
-                print("ð Compra simulada!")
+                print("💚 Compra simulada!")
             elif "vender" in conteudo:
                 saldo_simulado += 10
-                print("â¤ï¸ Venda simulada!")
+                print("❤️ Venda simulada!")
             else:
-                print("âª IA recomendou aguardar.")
+                print("⚪ IA recomendou aguardar.")
         except Exception as e:
-            print("Erro IA:", str(e))
+            print("Erro no modo automático:", str(e))
         time.sleep(15)
 
 @app.route('/')
@@ -67,7 +67,7 @@ def login():
             session['usuario'] = usuario
             session.permanent = True
             return redirect('/painel')
-        return render_template('login.html', erro='Credenciais invÃ¡lidas.')
+        return render_template('login.html', erro='Credenciais inválidas.')
     return render_template('login.html')
 
 @app.route('/dashboard')
@@ -105,19 +105,19 @@ def executar_acao():
 
     if acao == 'comprar':
         saldo_simulado -= 10
-        return jsonify({'mensagem': 'Compra realizada (simulaÃ§Ã£o)', 'saldo': saldo_simulado})
+        return jsonify({'mensagem': 'Compra realizada (simulação)', 'saldo': saldo_simulado})
     elif acao == 'vender':
         saldo_simulado += 10
-        return jsonify({'mensagem': 'Venda realizada (simulaÃ§Ã£o)', 'saldo': saldo_simulado})
+        return jsonify({'mensagem': 'Venda realizada (simulação)', 'saldo': saldo_simulado})
     elif acao == 'auto':
         if not modo_auto_ativo:
             modo_auto_ativo = True
             threading.Thread(target=loop_automatico).start()
-            return jsonify({'mensagem': 'Modo automÃ¡tico ativado!', 'saldo': saldo_simulado})
+            return jsonify({'mensagem': 'Modo automático ativado!', 'saldo': saldo_simulado})
         else:
             modo_auto_ativo = False
-            return jsonify({'mensagem': 'Modo automÃ¡tico desativado!', 'saldo': saldo_simulado})
-    return jsonify({'mensagem': 'AÃ§Ã£o invÃ¡lida.', 'saldo': saldo_simulado})
+            return jsonify({'mensagem': 'Modo automático desativado!', 'saldo': saldo_simulado})
+    return jsonify({'mensagem': 'Ação inválida.', 'saldo': saldo_simulado})
 
 @app.route('/obter_saldo')
 def obter_saldo():
@@ -144,7 +144,7 @@ def obter_sugestao_ia():
     except Exception as e:
         return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
 
-# Carregar chaves no inÃ­cio
+# Carrega as chaves da memória criptografada
 carregar_chaves()
 
 application = app
