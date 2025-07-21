@@ -1,12 +1,14 @@
-from flask import Flask, render_template, request, redirect, session, jsonify
-from cryptography.fernet import Fernet
-from binance.client import Client
-from datetime import timedelta
+import os
+import time
+import json
 import requests
 import openai
 import threading
-import time
-import os
+from datetime import timedelta
+from flask import Flask, render_template, request, redirect, session, jsonify
+from cryptography.fernet import Fernet
+from clarinha_oraculo import oraculo_divino
+from clarinha_cosmica import ClarinhaOraculo
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -28,13 +30,12 @@ def loop_automatico():
         try:
             print("IA Clarinha analisando...")
             openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
-            from clarinha_oraculo import analisar_mercado_e_sugerir  # Certifique-se de que essa função está definida
             bin_key = fernet.decrypt(chaves_armazenadas['binance'].encode()).decode()
             bin_sec = fernet.decrypt(chaves_armazenadas['binance_secret'].encode()).decode()
             
             # Obter sugestão da IA
-            resposta = analisar_mercado_e_sugerir(bin_key, bin_sec, openai_key)
-            conteudo = resposta.get("resposta", "").lower()
+            resposta = oraculo_divino(bin_key, openai_key, [])
+            conteudo = resposta.get("resposta_espiritual", "").lower()
 
             # Simulação de compra e venda
             if "comprar" in conteudo:
@@ -129,7 +130,6 @@ def obter_preco():
 @app.route('/obter_sugestao_ia')
 def obter_sugestao_ia():
     try:
-        from clarinha_cosmica import ClarinhaOraculo
         openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
         clarinha = ClarinhaOraculo(openai_key)
         dados = clarinha.consultar_mercado()
@@ -137,8 +137,6 @@ def obter_sugestao_ia():
         return jsonify({'resposta': sugestao})
     except Exception as e:
         return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
-
-application = app
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')  # Define o host para 0.0.0.0 para permitir acesso externo
