@@ -1,109 +1,59 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel de Operações</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>ClaraVerse • Painel de Operações</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/dashboard.js" defer></script>
 </head>
 <body>
-    <h1>Painel de Operações</h1>
-    <p>Saldo: R$ {{ saldo }}</p>
-    <div id="dados-mercado">
-        <p>Carregando dados do mercado...</p>
+    <div class="top-bar">
+        <span class="logo">🔷 ClaraVerse • Painel de Operações</span>
+        <span class="saldo">💰 Saldo Simulado: {{ saldo }} USDT</span>
+        <a href="/logout" class="btn-sair">Sair</a>
     </div>
-    <button id="executar-entrada">Entrada</button>
-    <button id="executar-stop">Stop</button>
-    <button id="executar-alvo">Alvo</button>
-    <button id="executar-automatico">Alternar Automático</button>
-    <button id="logout">Logout</button>
 
-    <script>
-        function atualizarDadosMercado() {
-            $.ajax({
-                type: 'GET',
-                url: '/dados_mercado',
-                success: function(data) {
-                    if (data.erro) {
-                        $('#dados-mercado').html('<p>' + data.erro + '</p>');
-                    } else {
-                        $('#dados-mercado').html('<p>Preço BTC/USDT: ' + data.price + '</p>');
-                    }
-                },
-                error: function(error) {
-                    console.error(error);
-                }
-            });
-        }
+    <div class="painel-grafico">
+        <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_12345&symbol=BINANCE:BTCUSDT&interval=1&hidesidetoolbar=1&theme=dark"
+                frameborder="0" allowtransparency="true" scrolling="no" width="100%" height="300"></iframe>
+    </div>
 
-        $('#executar-entrada').click(function() {
-            $.ajax({
-                type: 'POST',
-                url: '/executar_acao',
-                data: JSON.stringify({ acao: 'entrada' }),
-                contentType: 'application/json',
-                success: function(response) {
-                    alert(response.status);
-                },
-                error: function(error) {
-                    console.error(error);
-                }
-            });
-        });
+    <div class="indicadores">
+        <p>📈 <strong>Preço:</strong> --</p>
+        <p>📊 <strong>Variação:</strong> --%</p>
+        <p>📦 <strong>Volume:</strong> --</p>
+        <p>🧠 <strong>RSI:</strong> --</p>
+        <p>📉 <strong>Suporte:</strong> --</p>
+        <p>📈 <strong>Resistência:</strong> --</p>
+    </div>
 
-        $('#executar-stop').click(function() {
-            $.ajax({
-                type: 'POST',
-                url: '/executar_acao',
-                data: JSON.stringify({ acao: 'stop' }),
-                contentType: 'application/json',
-                success: function(response) {
-                    alert(response.status);
-                },
-                error: function(error) {
-                    console.error(error);
-                }
-            });
-        });
+    <div class="estrategia">
+        <h3>💡 <span style="color:#00ffe5">Estratégia da Clarinha:</span></h3>
+        <div id="resposta-ia">Aguardando sugestão da IA...</div>
+        <button onclick="obterSugestaoIA()">📩 Consultar IA</button>
+    </div>
 
-        $('#executar-alvo').click(function() {
-            $.ajax({
-                type: 'POST',
-                url: '/executar_acao',
-                data: JSON.stringify({ acao: 'alvo' }),
-                contentType: 'application/json',
-                success: function(response) {
-                    alert(response.status);
-                },
-                error: function(error) {
-                    console.error(error);
-                }
-            });
-        });
+    <div class="botoes-operacoes">
+        <button onclick="executarAcao('entrada')">✅ ENTRADA</button>
+        <button onclick="executarAcao('stop')">🔴 STOP</button>
+        <button onclick="executarAcao('alvo')">🎯 ALVO</button>
+        <button onclick="executarAcao('executar')">🚀 EXECUTAR</button>
+        <button onclick="executarAcao('automatico')">🤖 AUTOMÁTICO</button>
+        <a href="/painel#config"><button>⚙️ CONFIGURAR</button></a>
+    </div>
 
-        $('#executar-automatico').click(function() {
-            $.ajax({
-                type: 'POST',
-                url: '/executar_acao',
-                data: JSON.stringify({ acao: 'automatico' }),
-                contentType: 'application/json',
-                success: function(response) {
-                    alert(response.status);
-                },
-                error: function(error) {
-                    console.error(error);
-                }
-            });
-        });
-
-        $('#logout').click(function() {
-            window.location.href = '/logout';
-        });
-
-        // Atualiza os dados de mercado ao carregar a página
-        $(document).ready(function() {
-            atualizarDadosMercado();
-            setInterval(atualizarDadosMercado, 10000); // Atualiza a cada 10 segundos
-        });
-    </script>
+    <div class="configuracao" id="config">
+        <h3>🔐 Configuração das Chaves</h3>
+        {% if not chaves_preenchidas %}
+        <form action="/salvar_chaves" method="POST">
+            <input type="text" name="openai_key" placeholder="🔑 OpenAI API Key" required><br>
+            <input type="text" name="binance_key" placeholder="📘 Binance API Key" required><br>
+            <input type="text" name="binance_secret" placeholder="📘 Binance Secret Key" required><br>
+            <button type="submit">💾 Salvar Chaves</button>
+        </form>
+        {% else %}
+        <p>✅ Chaves configuradas.</p>
+        {% endif %}
+    </div>
 </body>
 </html>
