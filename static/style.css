@@ -1,122 +1,62 @@
 body {
-  background-color: #0d0d1a;
-  color: #fff;
+  background-color: #0a0a0f;
+  color: #00ffff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
 }
 
 header {
-  background-color: #1a1a2e;
-  padding: 15px;
+  background: #111122;
+  padding: 20px;
   text-align: center;
   border-bottom: 2px solid #00ffff;
 }
 
 h1 {
   margin: 0;
-  font-size: 28px;
-  color: #00ffff;
-}
-
-section#grafico {
-  padding: 20px;
-  background-color: #111122;
-  border-bottom: 1px solid #333;
+  font-size: 2em;
 }
 
 #botoes {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 15px;
-  padding: 20px;
-  background-color: #0f0f1f;
+  gap: 10px;
+  margin: 20px;
 }
 
-#botoes button {
-  background-color: #00cccc;
-  color: white;
-  border: none;
+button {
   padding: 12px 20px;
   font-size: 16px;
+  border: none;
+  background: #222244;
+  color: #00ffff;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-in-out;
 }
 
-#botoes button:hover {
-  background-color: #00aaaa;
+button:hover {
+  background: #00ffff;
+  color: #0a0a0f;
 }
 
 #resposta-ia {
-  margin: 20px auto;
-  max-width: 800px;
-  background-color: #1c1c2e;
-  border: 1px solid #444;
+  margin: 30px auto;
+  max-width: 600px;
+  background: #111122;
   padding: 20px;
   border-radius: 10px;
+  border: 1px solid #00ffff;
 }
 
-#resposta-ia h3 {
-  margin-top: 0;
-  color: #00ffff;
-}
-
-#respostaTexto {
-  font-size: 18px;
-  color: #b3ffe6;
-}
-
-.config-container {
-  margin: 60px auto;
-  max-width: 400px;
-  background-color: #1c1c2e;
-  padding: 30px;
-  border-radius: 10px;
-  border: 1px solid #00cccc;
+#grafico {
+  padding: 20px;
   text-align: center;
 }
 
-.config-container input {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-}
-
-.config-container button {
-  background-color: #00cccc;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.config-container button:hover {
-  background-color: #00aaaa;
-}
-
-@media screen and (max-width: 600px) {
-  #botoes {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  #botoes button {
-    width: 90%;
-    margin-bottom: 10px;
-  }
-
-  .config-container {
-    width: 90%;
-  }
-
-  iframe {
-    height: 300px;
-  }
+.saldo {
+  font-size: 18px;
+  color: #00ff99;
 }
