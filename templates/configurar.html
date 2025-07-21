@@ -11,16 +11,17 @@
     <h1>⚙️ Configurar API</h1>
 
     <label for="binance_api_key">🔑 Binance API Key:</label>
-    <input type="text" id="binance_api_key" value="{{ chaves['binance_api_key'] }}">
+    <input type="text" id="binance_api_key" value="{{ chaves['binance_api_key'] }}" placeholder="Sua Binance API Key">
 
     <label for="binance_api_secret">🔐 Binance API Secret:</label>
-    <input type="text" id="binance_api_secret" value="{{ chaves['binance_api_secret'] }}">
+    <input type="text" id="binance_api_secret" value="{{ chaves['binance_api_secret'] }}" placeholder="Sua Binance API Secret">
 
     <label for="openai_api_key">🧠 OpenAI API Key:</label>
-    <input type="text" id="openai_api_key" value="{{ chaves['openai_api_key'] }}">
+    <input type="text" id="openai_api_key" value="{{ chaves['openai_api_key'] }}" placeholder="Sua OpenAI API Key">
 
     <button onclick="salvarChaves()">💾 Salvar Chaves</button>
     <p id="status-chaves" class="status-sucesso"></p>
+
     <br><br>
     <button onclick="window.location.href='/painel'" class="btn-voltar">⬅️ Voltar para o Painel</button>
   </div>
