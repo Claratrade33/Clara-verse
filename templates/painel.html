@@ -1,33 +1,42 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>ClaraVerse - Painel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+  <meta charset="UTF-8">
+  <title>ClaraVerse - Painel</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </head>
 <body>
-    <div class="topo">
-        <h1>ClaraVerse</h1>
-        <div class="saldo">💰 Saldo Atual: <span id="saldo">${{ saldo }}</span> USDT</div>
-    </div>
+  <header>
+    <h1 style="color:#00ffff">ClaraVerse</h1>
+    <p style="color: #00ff99; font-weight: bold;">
+      🔥 Saldo Atual: ${{ saldo }} USDT
+    </p>
+  </header>
 
-    <div class="grafico-container">
-        <iframe src="https://www.tradingview.com/embed-widget/single-quote/?symbol=BINANCE:BTCUSDT&theme=dark"
-                width="100%" height="120" frameborder="0" allowtransparency="true"></iframe>
-    </div>
+  <section id="grafico">
+    <iframe
+      src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_7e1d1&symbol=BINANCE:BTCUSDT&interval=1&symboledit=1&saveimage=1&toolbarbg=F1F3F6&studies=[]&theme=dark&style=1&timezone=America/Sao_Paulo&withdateranges=1&hideideas=1&studies_overrides={}&overrides={}"
+      width="100%"
+      height="350"
+      frameborder="0"
+      allowtransparency="true"
+      scrolling="no"
+    ></iframe>
+  </section>
 
-    <div class="botoes">
-        <button onclick="executarAcao('comprar')">🟢 ENTRADA</button>
-        <button onclick="executarAcao('vender')">🔴 STOP</button>
-        <button onclick="executarAcao('auto')">⚙️ AUTO</button>
-        <button onclick="obterSugestaoIA()">🔮 SUGESTÃO IA</button>
-        <a href="/configurar"><button>🛠️ CONFIGURAR</button></a>
-    </div>
+  <section id="botoes">
+    <button onclick="executarAcao('comprar')">🟢 ENTRADA</button>
+    <button onclick="executarAcao('vender')">🔴 STOP</button>
+    <button onclick="executarAcao('auto')">⚙️ AUTO</button>
+    <button onclick="obterSugestaoIA()">🔮 SUGESTÃO IA</button>
+    <button onclick="window.location.href='/configurar'">⚙️ CONFIGURAR</button>
+  </section>
 
-    <div class="resultado">
-        <h3>👁️ Resposta da IA:</h3>
-        <pre id="resposta-ia">Aguardando consulta...</pre>
-    </div>
+  <section id="resposta-ia">
+    <h3 style="color:#00ffff">💬 Resposta da IA:</h3>
+    <p id="respostaTexto">Aguardando consulta...</p>
+  </section>
 </body>
 </html>
