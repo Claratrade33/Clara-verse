@@ -1,33 +1,21 @@
 // dashboard.js
 
 document.addEventListener("DOMContentLoaded", function() {
-    // Função para obter o preço
-    function obterPreco() {
-        fetch('/obter_preco')
-            .then(response => response.json())
-            .then(data => {
-                if (data.preco) {
-                    document.getElementById("preco").innerText = `Preço BTC: $${data.preco}`;
-                } else {
-                    console.error(data.erro);
-                }
-            });
-    }
-
-    // Função para obter saldo
+    // Função para obter o saldo
     function obterSaldo() {
         fetch('/obter_saldo')
             .then(response => response.json())
             .then(data => {
                 if (data.saldo) {
-                    document.getElementById("saldo").innerText = `Saldo USDT: $${data.saldo}`;
+                    document.getElementById("saldo").innerText = `🔥 Saldo Atual: $${data.saldo} USDT`;
                 } else {
                     console.error(data.erro);
                 }
-            });
+            })
+            .catch(error => console.error('Erro ao obter saldo:', error));
     }
 
-    // Função para executar ação
+    // Função para executar uma ação de compra ou venda
     function executarAcao(acao) {
         fetch('/executar_acao', {
             method: 'POST',
@@ -40,22 +28,43 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             if (data.mensagem) {
                 alert(data.mensagem);
+                obterSaldo(); // Atualiza saldo após a ação
             } else {
                 console.error(data.erro);
             }
-        });
+        })
+        .catch(error => console.error('Erro ao executar ação:', error));
     }
 
-    // Chame as funções para obter preço e saldo ao carregar o painel
-    obterPreco();
-    obterSaldo();
+    // Função para obter sugestão da IA
+    function obterSugestaoIA() {
+        fetch('/obter_sugestao_ia')
+            .then(response => response.json())
+            .then(data => {
+                const respostaElement = document.getElementById("respostaIA").querySelector("p");
+                if (data.resposta) {
+                    respostaElement.innerText = data.resposta;
+                } else {
+                    console.error(data.erro);
+                }
+            })
+            .catch(error => console.error('Erro ao obter sugestão:', error));
+    }
 
-    // Adicione event listeners para botões, se necessário
+    // Chama as funções ao carregar o painel
+    obterSaldo();
+    obterSugestaoIA();
+
+    // Adiciona event listeners para os botões
     document.getElementById("comprarBtn").addEventListener("click", function() {
         executarAcao('comprar');
     });
 
     document.getElementById("venderBtn").addEventListener("click", function() {
         executarAcao('vender');
+    });
+
+    document.getElementById("sugerirBtn").addEventListener("click", function() {
+        obterSugestaoIA();
     });
 });
