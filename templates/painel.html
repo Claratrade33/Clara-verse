@@ -4,68 +4,26 @@
     <meta charset="UTF-8">
     <title>ClaraVerse - Operações</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
-    <style>
-        body {
-            background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        h1 {
-            color: #00ffff;
-            margin-bottom: 5px;
-        }
-        .saldo {
-            font-size: 22px;
-            margin-bottom: 30px;
-            color: #00ff99;
-            font-weight: bold;
-        }
-        #botoes {
-            margin-top: 20px;
-        }
-        .botao {
-            padding: 15px 25px;
-            font-size: 16px;
-            margin: 10px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        #btn-entrada { background-color: #2ecc71; color: white; }
-        #btn-stop { background-color: #e74c3c; color: white; }
-        #btn-alvo { background-color: #3498db; color: white; }
-        #btn-executar { background-color: #9b59b6; color: white; }
-        #btn-sugestao { background-color: #1abc9c; color: white; }
-        #btn-auto { background-color: #f39c12; color: white; }
-        #resposta-ia {
-            background-color: #121212;
-            color: #00ffff;
-            padding: 12px;
-            margin-top: 30px;
-            border-radius: 8px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-    </style>
 </head>
-<body>
-    <h1>ClaraVerse</h1>
-    <div class="saldo">Saldo Atual: ${{ saldo }} USDT</div>
+<body class="painel-body">
+    <div class="painel-container">
+        <h1>🌌 ClaraVerse</h1>
+        <div class="saldo">Saldo Atual: ${{ saldo }} USDT</div>
 
-    <div id="botoes">
-        <button class="botao" id="btn-entrada" onclick="executarAcao('comprar')">ENTRADA</button>
-        <button class="botao" id="btn-stop" onclick="executarAcao('vender')">STOP</button>
-        <button class="botao" id="btn-alvo">ALVO</button>
-        <button class="botao" id="btn-executar">EXECUTAR</button>
-        <button class="botao" id="btn-sugestao" onclick="obterSugestaoIA()">SUGESTÃO IA</button>
-        <button class="botao" id="btn-auto" onclick="executarAcao('auto')">AUTO</button>
+        <div class="botoes">
+            <button class="entrada" onclick="executarAcao('comprar')">ENTRADA</button>
+            <button class="stop" onclick="executarAcao('vender')">STOP</button>
+            <button class="alvo" onclick="executarAcao('comprar')">ALVO</button>
+            <button class="executar" onclick="executarAcao('executar')">EXECUTAR</button>
+            <button class="sugestao" onclick="obterSugestaoIA()">SUGESTÃO IA</button>
+            <button class="auto" onclick="executarAcao('auto')">AUTO</button>
+        </div>
+
+        <div id="resposta-ia">
+            Olá! Sou a Clarinha. Pronta para guiar você no mercado.
+        </div>
     </div>
 
-    <div id="resposta-ia">Olá! Sou a Clarinha. Pronta para guiar você no mercado.</div>
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>
 </html>
