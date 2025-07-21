@@ -1,70 +1,100 @@
-// dashboard.js
+let chart;
+let historico = [];
 
-document.addEventListener("DOMContentLoaded", function() {
-    // Função para obter o saldo
-    function obterSaldo() {
-        fetch('/obter_saldo')
-            .then(response => response.json())
-            .then(data => {
-                if (data.saldo) {
-                    document.getElementById("saldo").innerText = `🔥 Saldo Atual: $${data.saldo} USDT`;
-                } else {
-                    console.error(data.erro);
-                }
-            })
-            .catch(error => console.error('Erro ao obter saldo:', error));
+async function atualizarPreco() {
+    try {
+        const res = await fetch('/obter_preco');
+        const data = await res.json();
+        document.getElementById('preco').innerText = `$${parseFloat(data.preco).toFixed(2)}`;
+        historico.push(parseFloat(data.preco));
+        if (historico.length > 20) historico.shift();
+        atualizarGrafico();
+    } catch {
+        document.getElementById('preco').innerText = 'Erro';
     }
+}
 
-    // Função para executar uma ação de compra ou venda
-    function executarAcao(acao) {
-        fetch('/executar_acao', {
+async function atualizarSaldo() {
+    try {
+        const res = await fetch('/obter_saldo');
+        const data = await res.json();
+        const saldoElem = document.querySelector('.saldo');
+        if (saldoElem) {
+            saldoElem.innerText = `💰 Saldo Atual: $${data.saldo} USDT`;
+        }
+    } catch (e) {
+        console.log('Erro saldo:', e);
+    }
+}
+
+function atualizarGrafico() {
+    if (!chart) return;
+    chart.data.labels = historico.map((_, i) => i + 1);
+    chart.data.datasets[0].data = historico;
+    chart.update();
+}
+
+async function executarAcao(acao) {
+    try {
+        const res = await fetch('/executar_acao', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ acao })
+        });
+        const data = await res.json();
+        alert(data.mensagem);
+        atualizarSaldo();
+    } catch (e) {
+        alert('Erro ao executar ação');
+    }
+}
+
+async function obterSugestaoIA() {
+    try {
+        const respostaElem = document.getElementById('respostaTexto');
+        if (respostaElem) respostaElem.innerText = '⏳ Consultando Clarinha...';
+        const res = await fetch('/obter_sugestao_ia');
+        const data = await res.json();
+        if (respostaElem) respostaElem.innerText = data.resposta;
+    } catch {
+        const respostaElem = document.getElementById('respostaTexto');
+        if (respostaElem) respostaElem.innerText = 'Erro ao consultar IA.';
+    }
+}
+
+window.onload = () => {
+    const graficoContainer = document.getElementById("grafico");
+    if (graficoContainer) {
+        const ctx = document.createElement("canvas");
+        ctx.id = "graficoBTC";
+        graficoContainer.appendChild(ctx);
+
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Preço BTC/USDT',
+                    data: [],
+                    borderColor: 'cyan',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.3
+                }]
             },
-            body: JSON.stringify({ acao: acao }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.mensagem) {
-                alert(data.mensagem);
-                obterSaldo(); // Atualiza saldo após a ação
-            } else {
-                console.error(data.erro);
-            }
-        })
-        .catch(error => console.error('Erro ao executar ação:', error));
-    }
-
-    // Função para obter sugestão da IA
-    function obterSugestaoIA() {
-        fetch('/obter_sugestao_ia')
-            .then(response => response.json())
-            .then(data => {
-                const respostaElement = document.getElementById("respostaIA").querySelector("p");
-                if (data.resposta) {
-                    respostaElement.innerText = data.resposta;
-                } else {
-                    console.error(data.erro);
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: false }
                 }
-            })
-            .catch(error => console.error('Erro ao obter sugestão:', error));
+            }
+        });
     }
 
-    // Chama as funções ao carregar o painel
-    obterSaldo();
-    obterSugestaoIA();
-
-    // Adiciona event listeners para os botões
-    document.getElementById("comprarBtn").addEventListener("click", function() {
-        executarAcao('comprar');
-    });
-
-    document.getElementById("venderBtn").addEventListener("click", function() {
-        executarAcao('vender');
-    });
-
-    document.getElementById("sugerirBtn").addEventListener("click", function() {
-        obterSugestaoIA();
-    });
-});
+    atualizarPreco();
+    atualizarSaldo();
+    setInterval(() => {
+        atualizarPreco();
+        atualizarSaldo();
+    }, 7000);
+};
