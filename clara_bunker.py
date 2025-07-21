@@ -16,27 +16,29 @@ OPENAI_KEY = fernet.decrypt(b"gAAAAABoe_xqx7jAACfbXHrmoFSrEU_x2uJbVsrYNvjpn-IWOD
 # CLIENTES
 binance = Client(API_KEY, API_SECRET)
 openai.api_key = OPENAI_KEY
-app = Flask(__name__)
+
+# Instância da aplicação Flask
+application = Flask(__name__)
 
 # Rotas para as páginas HTML
-@app.route("/", methods=["GET"])
+@application.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
 
-@app.route("/configurar", methods=["GET"])
+@application.route("/configurar", methods=["GET"])
 def configurar():
     return render_template("configurar.html")
 
-@app.route("/login", methods=["GET"])
+@application.route("/login", methods=["GET"])
 def login():
     return render_template("login.html")
 
-@app.route("/painel", methods=["GET"])
+@application.route("/painel", methods=["GET"])
 def painel():
     return render_template("painel.html")
 
 # Endpoints da API
-@app.route('/obter_preco', methods=['GET'])
+@application.route('/obter_preco', methods=['GET'])
 def obter_preco():
     try:
         ticker = binance.get_symbol_ticker(symbol="BTCUSDT")
@@ -44,7 +46,7 @@ def obter_preco():
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
 
-@app.route('/obter_saldo', methods=['GET'])
+@application.route('/obter_saldo', methods=['GET'])
 def obter_saldo():
     try:
         account_info = binance.get_account()
@@ -53,7 +55,7 @@ def obter_saldo():
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
 
-@app.route('/executar_acao', methods=['POST'])
+@application.route('/executar_acao', methods=['POST'])
 def executar_acao():
     data = request.json
     acao = data.get('acao')
@@ -70,7 +72,7 @@ def executar_acao():
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
 
-@app.route('/obter_sugestao_ia', methods=['GET'])
+@application.route('/obter_sugestao_ia', methods=['GET'])
 def obter_sugestao_ia():
     try:
         prompt = "Sugira uma ação de trading para o par BTC/USDT."
@@ -83,4 +85,4 @@ def obter_sugestao_ia():
         return jsonify({'erro': str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=7860)
+    application.run(host="0.0.0.0", port=7860)
