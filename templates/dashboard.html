@@ -2,35 +2,131 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ClaraVerse - Inteligência Financeira</title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <script src="https://kit.fontawesome.com/a2d9a66df8.js" crossorigin="anonymous"></script>
-</head>
-<body class="dashboard-body">
-  <div class="dashboard-container">
-    <header class="dashboard-header">
-      <h1><i class="fas fa-galaxy"></i> ClaraVerse</h1>
-      <p>Inteligência financeira com visão cósmica.</p>
-      <a href="/login" class="dashboard-btn"><i class="fas fa-sign-in-alt"></i> Começar</a>
-    </header>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0b0423;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
 
-    <section class="dashboard-recursos">
-      <div class="recurso">
-        <i class="fas fa-robot"></i>
-        <h3>IA Estratégica</h3>
-        <p>Análises espirituais com GPT-4 conectadas ao mercado em tempo real.</p>
-      </div>
-      <div class="recurso">
-        <i class="fas fa-shield-alt"></i>
-        <h3>Segurança Avançada</h3>
-        <p>Chaves criptografadas e decisões protegidas por Clarinha.</p>
-      </div>
-      <div class="recurso">
-        <i class="fas fa-sync-alt"></i>
-        <h3>Modo Automático</h3>
-        <p>Ative o modo auto e deixe a IA operar sozinha com consciência.</p>
-      </div>
-    </section>
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .logo img {
+      width: 40px;
+      height: 40px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #ffffff;
+    }
+
+    p {
+      font-size: 1.2em;
+      color: #ccc;
+      margin-bottom: 30px;
+    }
+
+    .botao {
+      background: #3ee2ff;
+      color: #000;
+      font-weight: bold;
+      padding: 12px 28px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 1em;
+    }
+
+    .botao:hover {
+      background: #00d0ff;
+    }
+
+    .icones {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 60px;
+      flex-wrap: wrap;
+    }
+
+    .icone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #80f2ff;
+    }
+
+    .icone img {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 10px;
+    }
+
+    @media(max-width: 600px) {
+      h1 {
+        font-size: 2em;
+      }
+
+      p {
+        font-size: 1em;
+        padding: 0 20px;
+      }
+
+      .icones {
+        gap: 25px;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">
+    <img src="/static/logo.png" alt="Logo ClaraVerse">
+    <h2>ClaraVerse</h2>
   </div>
+
+  <h1>A plataforma de<br> inteligência financeira</h1>
+  <p>A ClaraVerse oferece soluções avançadas para otimizar seus investimentos.</p>
+  <button class="botao" onclick="window.location.href='/login'">SAIBA MAIS</button>
+
+  <div class="icones">
+    <div class="icone">
+      <img src="/static/icon-analise.png" alt="Análise">
+      <span>Análise de<br> Mercado</span>
+    </div>
+    <div class="icone">
+      <img src="/static/icon-estrategia.png" alt="Estratégia">
+      <span>Estratégias<br> Automatizadas</span>
+    </div>
+    <div class="icone">
+      <img src="/static/icon-seguranca.png" alt="Segurança">
+      <span>Segurança<br> Avançada</span>
+    </div>
+    <div class="icone">
+      <img src="/static/icon-suporte.png" alt="Suporte">
+      <span>Suporte<br> Especializado</span>
+    </div>
+  </div>
+
 </body>
 </html>
