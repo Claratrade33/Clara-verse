@@ -16,7 +16,6 @@ chaves_armazenadas = {}
 saldo_simulado = 10000.00
 modo_auto_ativo = False
 
-# 🔁 Auto Loop
 def loop_automatico():
     global modo_auto_ativo, saldo_simulado
     while modo_auto_ativo:
@@ -26,10 +25,8 @@ def loop_automatico():
             from clarinha_oraculo import analisar_mercado_e_sugerir
             bin_key = fernet.decrypt(chaves_armazenadas['binance'].encode()).decode()
             bin_sec = fernet.decrypt(chaves_armazenadas['binance_secret'].encode()).decode()
-
             resposta = analisar_mercado_e_sugerir(bin_key, bin_sec, openai_key)
             conteudo = resposta.get("resposta", "").lower()
-
             if "comprar" in conteudo:
                 saldo_simulado -= 10
                 print("💚 Compra simulada!")
@@ -42,11 +39,9 @@ def loop_automatico():
             print("Erro IA:", str(e))
         time.sleep(15)
 
-# 🌐 ROTAS
-
 @app.route('/')
 def index():
-    return render_template('dashboard.html')
+    return render_template('painel.html', saldo=saldo_simulado)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -85,7 +80,6 @@ def executar_acao():
     global saldo_simulado
     dados = request.json
     acao = dados.get('acao')
-
     if acao == 'comprar':
         saldo_simulado -= 10
         return jsonify({'mensagem': 'Compra realizada (simulação)', 'saldo': saldo_simulado})
@@ -128,7 +122,6 @@ def obter_sugestao_ia():
     except Exception as e:
         return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
 
-# Render compatível
 application = app
 
 if __name__ == '__main__':
