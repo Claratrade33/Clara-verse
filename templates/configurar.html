@@ -19,8 +19,48 @@
     <label for="openai_api_key">🧠 OpenAI API Key:</label>
     <input type="text" id="openai_api_key" value="{{ chaves['openai_api_key'] }}">
 
-    <button onclick="salvarChaves()">💾 Salvar Chaves</button>
+    <button onclick="salvarChaves()">
+      💾 Salvar e Ir para o Painel
+    </button>
+
     <p id="status-chaves" class="status-sucesso"></p>
   </div>
+
+  <script>
+    function salvarChaves() {
+      const binance_api_key = document.getElementById("binance_api_key").value;
+      const binance_api_secret = document.getElementById("binance_api_secret").value;
+      const openai_api_key = document.getElementById("openai_api_key").value;
+
+      fetch("/salvar_chaves", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          binance_api_key,
+          binance_api_secret,
+          openai_api_key
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === "sucesso") {
+            document.getElementById("status-chaves").innerText = "✅ Chaves salvas com sucesso!";
+            
+            // Esconde os campos após salvar
+            document.getElementById("binance_api_key").style.display = "none";
+            document.getElementById("binance_api_secret").style.display = "none";
+            document.getElementById("openai_api_key").style.display = "none";
+
+            setTimeout(() => {
+              window.location.href = "/painel";
+            }, 1500);
+          } else {
+            document.getElementById("status-chaves").innerText = "❌ Erro ao salvar chaves.";
+          }
+        });
+    }
+  </script>
 </body>
 </html>
