@@ -8,33 +8,29 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.permanent_session_lifetime = timedelta(hours=6)
 
-# Chave fixa para criptografia
+# Chave fixa para criptografia (já combinada com você)
 CHAVE_CRIPTO_FIXA = b'xApbCQFxxa3Yy3YKkzP9JkkfE4WaXxN8eSpK7uBRuGA='
 fernet = Fernet(CHAVE_CRIPTO_FIXA)
 
 usuarios = {'admin': 'claraverse2025'}
+
+# Armazenamento em memória
 chaves_armazenadas = {}
 saldo_simulado = 10000.00
 modo_auto_ativo = False
 
-# -------------------- FUNÇÃO AUTOMÁTICA --------------------
+# 🔁 LOOP AUTOMÁTICO
 def loop_automatico():
     global modo_auto_ativo, saldo_simulado
     while modo_auto_ativo:
         try:
             print("🤖 IA Clarinha analisando...")
-
-            # Recupera as chaves
             openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
             bin_key = fernet.decrypt(chaves_armazenadas['binance'].encode()).decode()
             bin_sec = fernet.decrypt(chaves_armazenadas['binance_secret'].encode()).decode()
-
-            # Roda o oráculo
-            from inteligencia import analisar_mercado_e_sugerir
+            from clarinha_oraculo import analisar_mercado_e_sugerir
             resposta = analisar_mercado_e_sugerir(bin_key, bin_sec, openai_key)
             conteudo = resposta.get("resposta", "").lower()
-
-            # Simula entrada
             if "comprar" in conteudo:
                 saldo_simulado -= 10
                 print("💚 Compra simulada!")
@@ -47,8 +43,7 @@ def loop_automatico():
             print("Erro IA:", str(e))
         time.sleep(15)
 
-# -------------------- ROTAS --------------------
-
+# ROTAS PRINCIPAIS
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -65,16 +60,16 @@ def login():
         return render_template('login.html', erro='Credenciais inválidas.')
     return render_template('login.html')
 
-@app.route('/painel')
-def painel():
-    if 'usuario' in session:
-        return render_template('painel.html', saldo=saldo_simulado)
-    return redirect('/login')
-
 @app.route('/dashboard')
 def dashboard():
     if 'usuario' in session:
         return render_template('dashboard.html', saldo=saldo_simulado)
+    return redirect('/login')
+
+@app.route('/painel')
+def painel():
+    if 'usuario' in session:
+        return render_template('painel.html', saldo=saldo_simulado)
     return redirect('/login')
 
 @app.route('/configurar')
@@ -83,18 +78,17 @@ def configurar():
         return render_template('configurar.html')
     return redirect('/login')
 
+# SALVAR CHAVES E INICIAR SISTEMA
 @app.route('/salvar_chaves', methods=['POST'])
 def salvar_chaves():
     dados = request.json
-    try:
-        chaves_armazenadas['openai'] = fernet.encrypt(dados['openaiKey'].encode()).decode()
-        chaves_armazenadas['binance'] = fernet.encrypt(dados['binanceKey'].encode()).decode()
-        chaves_armazenadas['binance_secret'] = fernet.encrypt(dados['binanceSecret'].encode()).decode()
-        print("🔐 Chaves salvas com sucesso.")
-        return jsonify({'status': 'ok'})
-    except Exception as e:
-        return jsonify({'status': 'erro', 'detalhe': str(e)})
+    chaves_armazenadas['openai'] = fernet.encrypt(dados['openaiKey'].encode()).decode()
+    chaves_armazenadas['binance'] = fernet.encrypt(dados['binanceKey'].encode()).decode()
+    chaves_armazenadas['binance_secret'] = fernet.encrypt(dados['binanceSecret'].encode()).decode()
+    print("🔐 Chaves salvas com sucesso.")
+    return jsonify({'status': 'ok'})
 
+# EXECUTAR AÇÕES: COMPRAR, VENDER, AUTO
 @app.route('/executar_acao', methods=['POST'])
 def executar_acao():
     global saldo_simulado, modo_auto_ativo
@@ -117,6 +111,7 @@ def executar_acao():
             return jsonify({'mensagem': 'Modo automático desativado!', 'saldo': saldo_simulado})
     return jsonify({'mensagem': 'Ação inválida.', 'saldo': saldo_simulado})
 
+# ✅ API: SALDO E PREÇO
 @app.route('/obter_saldo')
 def obter_saldo():
     return jsonify({'saldo': round(saldo_simulado, 2)})
@@ -130,20 +125,20 @@ def obter_preco():
     except:
         return jsonify({'preco': '--'})
 
+# ✅ CONSULTAR IA COM CLARINHA
 @app.route('/obter_sugestao_ia')
 def obter_sugestao_ia():
     try:
-        from clarinha_oraculo import ClarinhaOraculo
-
+        from clarinha_cosmica import ClarinhaOraculo
         openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
         clarinha = ClarinhaOraculo(openai_key)
         dados = clarinha.consultar_mercado()
         sugestao = clarinha.interpretar_como_deusa(dados)
         return jsonify({'resposta': sugestao})
     except Exception as e:
-        return jsonify({'resposta': f'❌ Erro ao acessar a IA: {str(e)}'})
+        return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
 
-# -------------------- DEPLOY --------------------
+# RENDER
 application = app
 
 if __name__ == '__main__':
