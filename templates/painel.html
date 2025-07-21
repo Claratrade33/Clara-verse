@@ -3,27 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <title>ClaraVerse - Operações</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(to right, #1b0036, #220043);
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .header {
+            padding: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ffff;
+        }
+
+        .saldo-preco {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #00ff99;
+        }
+
+        #grafico {
+            width: 95%;
+            height: 300px;
+            margin: 10px auto;
+            background-color: #111;
+            border-radius: 10px;
+        }
+
+        .botoes-operacoes {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px auto;
+            width: 80%;
+        }
+
+        .botao-op {
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        #btn-entrada { background-color: #2ecc71; color: white; }
+        #btn-stop { background-color: #e74c3c; color: white; }
+        #btn-alvo { background-color: #3498db; color: white; }
+        #btn-executar { background-color: #9b59b6; color: white; }
+        #btn-sugestao { background-color: #1abc9c; color: white; }
+        #btn-auto { background-color: #f39c12; color: white; }
+        #btn-config { background-color: #34495e; color: white; }
+
+        #resposta-ia {
+            margin-top: 25px;
+            background-color: #151515;
+            padding: 15px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            color: #00ffff;
+        }
+
+        @media (min-width: 768px) {
+            .botoes-operacoes {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .botao-op {
+                width: 180px;
+                margin: 5px;
+            }
+        }
+    </style>
 </head>
-<body class="painel-body">
-    <div class="painel-container">
-        <h1>🌌 ClaraVerse</h1>
-        <div class="saldo">Saldo Atual: ${{ saldo }} USDT</div>
+<body>
+    <div class="header">ClaraVerse</div>
+    <div class="saldo-preco">Saldo Atual: ${{ saldo }} USDT | BTC: <span id="preco-btc">--</span></div>
 
-        <div class="botoes">
-            <button class="entrada" onclick="executarAcao('comprar')">ENTRADA</button>
-            <button class="stop" onclick="executarAcao('vender')">STOP</button>
-            <button class="alvo" onclick="executarAcao('comprar')">ALVO</button>
-            <button class="executar" onclick="executarAcao('executar')">EXECUTAR</button>
-            <button class="sugestao" onclick="obterSugestaoIA()">SUGESTÃO IA</button>
-            <button class="auto" onclick="executarAcao('auto')">AUTO</button>
-        </div>
-
-        <div id="resposta-ia">
-            Olá! Sou a Clarinha. Pronta para guiar você no mercado.
-        </div>
+    <div id="grafico">
+        <iframe src="https://widget.coinlib.io/widget?type=chart&theme=dark&coin_id=859&pref_coin_id=1505" 
+                width="100%" height="100%" scrolling="auto" marginwidth="0" marginheight="0" frameborder="0"
+                style="border:0; margin:0; padding:0;"></iframe>
     </div>
 
-    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+    <div class="botoes-operacoes">
+        <button class="botao-op" id="btn-entrada" onclick="executarAcao('comprar')">ENTRADA</button>
+        <button class="botao-op" id="btn-stop" onclick="executarAcao('vender')">STOP</button>
+        <button class="botao-op" id="btn-alvo">ALVO</button>
+        <button class="botao-op" id="btn-executar">EXECUTAR</button>
+        <button class="botao-op" id="btn-sugestao" onclick="obterSugestaoIA()">SUGESTÃO IA</button>
+        <button class="botao-op" id="btn-auto" onclick="executarAcao('auto')">AUTO</button>
+        <button class="botao-op" id="btn-config" onclick="window.location.href='/configurar'">CONFIGURAR</button>
+    </div>
+
+    <div id="resposta-ia">Olá! Sou a Clarinha. Pronta para guiar você no mercado.</div>
 </body>
 </html>
