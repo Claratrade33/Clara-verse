@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request, jsonify, render_template_string
 from binance.client import Client
-from openai import OpenAI
+import openai
 from cryptography.fernet import Fernet
 
 # CHAVE FERNET
@@ -15,7 +15,7 @@ OPENAI_KEY = fernet.decrypt(b"gAAAAABoe_xqx7jAACfbXHrmoFSrEU_x2uJbVsrYNvjpn-IWOD
 
 # CLIENTES
 binance = Client(API_KEY, API_SECRET)
-openai = OpenAI(api_key=OPENAI_KEY)
+openai.api_key = OPENAI_KEY
 app = Flask(__name__)
 
 # HTML EMBUTIDO
@@ -27,7 +27,7 @@ html = """
   <script src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body>
-  <h1>≡ƒæü∩╕Å Clara Bunker - Opera├º├╡es Automatizadas</h1>
+  <h1>Clara Bunker - Operações Automatizadas</h1>
   <div id="tv_chart_container"></div>
   <script>
     new TradingView.widget({
@@ -48,7 +48,7 @@ html = """
     });
   </script>
   <form method="post" action="/auto">
-    <button type="submit">AUTOM├üTICO ≡ƒñû</button>
+    <button type="submit">AUTOMÁTICO</button>
   </form>
 </body>
 </html>
@@ -60,16 +60,16 @@ def home():
 
 @app.route("/auto", methods=["POST"])
 def auto_trade():
-    msg = "Clara, analise os pares BTC/USDT, SUI/USDT e PEPE/USDT e diga: entrada, alvo, stop e confian├ºa."
-    response = openai.chat.completions.create(
-        model="gpt-4o",
+    msg = "Clara, analise os pares BTC/USDT, SUI/USDT e PEPE/USDT e diga: entrada, alvo, stop e confiança."
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
         messages=[{"role": "user", "content": msg}]
     )
     result = response.choices[0].message.content
 
-    # Aqui voc├¬ pode adicionar l├│gica para enviar ordens reais para Binance com base no resultado.
+    # Lógica para enviar ordens reais para Binance
     print("GPT respondeu:", result)
-    return f"<h2>≡ƒôê Resultado da Clara:</h2><pre>{result}</pre><a href='/'>Voltar</a>"
+    return f"<h2>Resultado da Clara:</h2><pre>{result}</pre><a href='/'>Voltar</a>"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=7860)
