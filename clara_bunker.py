@@ -1,112 +1,153 @@
-import os
-import json
-from flask import Flask, request, jsonify, render_template, redirect, url_for
-from binance.client import Client
-import openai
+from flask import Flask, render_template, request, redirect, session, jsonify
 from cryptography.fernet import Fernet
+from binance.client import Client
+from datetime import timedelta
+import requests, openai, threading, time, os, json
 
-# CHAVE FERNET
-FERNET_KEY = "ylh-urjGFbF60dGJcGjEWY5SKGbhui-8SUItRz7YMZk="
-fernet = Fernet(FERNET_KEY.encode())
+app = Flask(__name__)
+app.secret_key = os.urandom(24)
+app.permanent_session_lifetime = timedelta(hours=6)
 
-# CLIENTES
-application = Flask(__name__)
+CHAVE_CRIPTO_FIXA = b'xApbCQFxxa3Yy3YKkzP9JkkfE4WaXxN8eSpK7uBRuGA='
+fernet = Fernet(CHAVE_CRIPTO_FIXA)
 
-# Variáveis globais para chaves API
-API_KEY = None
-API_SECRET = None
-OPENAI_KEY = None
-binance = None
+usuarios = {'admin': 'claraverse2025'}
+chaves_armazenadas = {}
+chave_arquivo = 'chaves.dat'
+saldo_simulado = 10000.00
+modo_auto_ativo = False
 
-# Rotas para as páginas HTML
-@application.route("/", methods=["GET"])
-def index():
-    return render_template("index.html")
+def carregar_chaves():
+    global chaves_armazenadas
+    if os.path.exists(chave_arquivo):
+        with open(chave_arquivo, 'rb') as f:
+            dados = f.read()
+            descriptografado = fernet.decrypt(dados).decode()
+            chaves_armazenadas = json.loads(descriptografado)
 
-@application.route("/login", methods=["GET", "POST"])
+def salvar_chaves_em_arquivo():
+    dados = json.dumps(chaves_armazenadas).encode()
+    criptografado = fernet.encrypt(dados)
+    with open(chave_arquivo, 'wb') as f:
+        f.write(criptografado)
+
+def loop_automatico():
+    global modo_auto_ativo, saldo_simulado
+    while modo_auto_ativo:
+        try:
+            print("🤖 IA Clarinha analisando...")
+            openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
+            bin_key = fernet.decrypt(chaves_armazenadas['binance'].encode()).decode()
+            bin_sec = fernet.decrypt(chaves_armazenadas['binance_secret'].encode()).decode()
+            from clarinha_oraculo import analisar_mercado_e_sugerir
+            resposta = analisar_mercado_e_sugerir(bin_key, bin_sec, openai_key)
+            conteudo = resposta.get("resposta", "").lower()
+            if "comprar" in conteudo:
+                saldo_simulado -= 10
+                print("💚 Compra simulada!")
+            elif "vender" in conteudo:
+                saldo_simulado += 10
+                print("❤️ Venda simulada!")
+            else:
+                print("⚪ IA recomendou aguardar.")
+        except Exception as e:
+            print("Erro no modo automático:", str(e))
+        time.sleep(15)
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == "POST":
-        return redirect(url_for('configurar'))
-    return render_template("login.html")
+    if request.method == 'POST':
+        usuario = request.form['usuario']
+        senha = request.form['senha']
+        if usuario in usuarios and usuarios[usuario] == senha:
+            session['usuario'] = usuario
+            session.permanent = True
+            return redirect('/painel')
+        return render_template('login.html', erro='Credenciais inválidas.')
+    return render_template('login.html')
 
-@application.route("/configurar", methods=["GET", "POST"])
-def configurar():
-    if request.method == "POST":
-        global API_KEY, API_SECRET, OPENAI_KEY
-        data = request.form
-        API_KEY = data['binanceApiKey']
-        API_SECRET = data['binanceSecretKey']
-        OPENAI_KEY = data['openaiKey']
-        
-        # Salvar as chaves em um arquivo
-        with open('config.json', 'w') as config_file:
-            json.dump({
-                'openai_key': OPENAI_KEY,
-                'binance_api_key': API_KEY,
-                'binance_secret_key': API_SECRET
-            }, config_file)
+@app.route('/dashboard')
+def dashboard():
+    if 'usuario' in session:
+        return render_template('dashboard.html', saldo=saldo_simulado)
+    return redirect('/login')
 
-        return redirect(url_for('painel'))
-    
-    return render_template("configurar.html")
-
-@application.route("/painel", methods=["GET"])
+@app.route('/painel')
 def painel():
-    global binance, openai
-    if not API_KEY or not API_SECRET or not OPENAI_KEY:
-        return redirect(url_for('configurar'))
-    
-    binance = Client(API_KEY, API_SECRET)
-    openai.api_key = OPENAI_KEY
-    
-    return render_template("painel.html")
+    if 'usuario' in session:
+        return render_template('painel.html', saldo=saldo_simulado)
+    return redirect('/login')
 
-# Endpoints da API
-@application.route('/obter_preco', methods=['GET'])
+@app.route('/configurar')
+def configurar():
+    if 'usuario' in session:
+        return render_template('configurar.html')
+    return redirect('/login')
+
+@app.route('/salvar_chaves', methods=['POST'])
+def salvar_chaves():
+    dados = request.json
+    chaves_armazenadas['openai'] = fernet.encrypt(dados['openaiKey'].encode()).decode()
+    chaves_armazenadas['binance'] = fernet.encrypt(dados['binanceKey'].encode()).decode()
+    chaves_armazenadas['binance_secret'] = fernet.encrypt(dados['binanceSecret'].encode()).decode()
+    salvar_chaves_em_arquivo()
+    return jsonify({'status': 'ok'})
+
+@app.route('/executar_acao', methods=['POST'])
+def executar_acao():
+    global saldo_simulado, modo_auto_ativo
+    dados = request.json
+    acao = dados.get('acao')
+
+    if acao == 'comprar':
+        saldo_simulado -= 10
+        return jsonify({'mensagem': 'Compra realizada (simulação)', 'saldo': saldo_simulado})
+    elif acao == 'vender':
+        saldo_simulado += 10
+        return jsonify({'mensagem': 'Venda realizada (simulação)', 'saldo': saldo_simulado})
+    elif acao == 'auto':
+        if not modo_auto_ativo:
+            modo_auto_ativo = True
+            threading.Thread(target=loop_automatico).start()
+            return jsonify({'mensagem': 'Modo automático ativado!', 'saldo': saldo_simulado})
+        else:
+            modo_auto_ativo = False
+            return jsonify({'mensagem': 'Modo automático desativado!', 'saldo': saldo_simulado})
+    return jsonify({'mensagem': 'Ação inválida.', 'saldo': saldo_simulado})
+
+@app.route('/obter_saldo')
+def obter_saldo():
+    return jsonify({'saldo': round(saldo_simulado, 2)})
+
+@app.route('/obter_preco')
 def obter_preco():
     try:
-        ticker = binance.get_symbol_ticker(symbol="BTCUSDT")
-        return jsonify({'preco': ticker['price']})
-    except Exception as e:
-        return jsonify({'erro': str(e)}), 500
+        r = requests.get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT")
+        preco = float(r.json()['price'])
+        return jsonify({'preco': preco})
+    except:
+        return jsonify({'preco': '--'})
 
-@application.route('/obter_saldo', methods=['GET'])
-def obter_saldo():
-    try:
-        account_info = binance.get_account()
-        usdt_balance = next((item for item in account_info['balances'] if item['asset'] == 'USDT'), None)
-        return jsonify({'saldo': usdt_balance['free'] if usdt_balance else 0})
-    except Exception as e:
-        return jsonify({'erro': str(e)}), 500
-
-@application.route('/executar_acao', methods=['POST'])
-def executar_acao():
-    data = request.json
-    acao = data.get('acao')
-    
-    try:
-        if acao == 'comprar':
-            order = binance.order_market_buy(symbol='BTCUSDT', quantity=0.001)
-            return jsonify({'mensagem': 'Compra realizada com sucesso!', 'detalhes': order})
-        elif acao == 'vender':
-            order = binance.order_market_sell(symbol='BTCUSDT', quantity=0.001)
-            return jsonify({'mensagem': 'Venda realizada com sucesso!', 'detalhes': order})
-        else:
-            return jsonify({'mensagem': 'Ação inválida'}), 400
-    except Exception as e:
-        return jsonify({'erro': str(e)}), 500
-
-@application.route('/obter_sugestao_ia', methods=['GET'])
+@app.route('/obter_sugestao_ia')
 def obter_sugestao_ia():
     try:
-        prompt = "Sugira uma ação de trading para o par BTC/USDT."
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return jsonify({'resposta': response.choices[0].message.content})
+        from clarinha_cosmica import ClarinhaOraculo
+        openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
+        clarinha = ClarinhaOraculo(openai_key)
+        dados = clarinha.consultar_mercado()
+        sugestao = clarinha.interpretar_como_deusa(dados)
+        return jsonify({'resposta': sugestao})
     except Exception as e:
-        return jsonify({'erro': str(e)}), 500
+        return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
 
-if __name__ == "__main__":
-    application.run(host="0.0.0.0", port=7860)
+# Carrega as chaves criptografadas ao iniciar
+carregar_chaves()
+
+application = app
+
+if __name__ == '__main__':
+    app.run(debug=True)
