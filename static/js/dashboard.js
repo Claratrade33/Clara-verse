@@ -61,3 +61,11 @@ function salvarChaves() {
       }
     });
 }
+
+// Atualização contínua mesmo após o carregamento
+document.addEventListener("DOMContentLoaded", function () {
+  if (window.location.pathname === "/painel") {
+    atualizarDadosMercado();
+    setInterval(atualizarDadosMercado, 10000);
+  }
+});
