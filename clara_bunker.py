@@ -41,7 +41,7 @@ def loop_automatico():
 
 @app.route('/')
 def home():
-    return redirect('/login')
+    return render_template('index.html')  # ← agora abre a página inicial correta
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -51,7 +51,7 @@ def login():
         if usuario in usuarios and usuarios[usuario] == senha:
             session['usuario'] = usuario
             session.permanent = True
-            return redirect('/dashboard')
+            return redirect('/painel')
         return render_template('login.html', erro='Credenciais inválidas.')
     return render_template('login.html')
 
