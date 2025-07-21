@@ -1,1 +1,8 @@
+flask
+openai
+binance
+cryptography
+gunicorn
+requests
+aiohttp
 
