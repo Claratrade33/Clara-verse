@@ -48,17 +48,20 @@ async function executarAcao(acao) {
 
 async function obterSugestaoIA() {
     try {
-        document.getElementById('texto-ia').innerText = '⏳ Consultando Clarinha...';
+        document.getElementById('respostaTexto').innerText = '⏳ Consultando Clarinha...';
         const res = await fetch('/obter_sugestao_ia');
         const data = await res.json();
-        document.getElementById('texto-ia').innerText = data.resposta;
+        document.getElementById('respostaTexto').innerText = data.resposta;
     } catch {
-        document.getElementById('texto-ia').innerText = 'Erro ao consultar IA.';
+        document.getElementById('respostaTexto').innerText = 'Erro ao consultar IA.';
     }
 }
 
 window.onload = () => {
-    const ctx = document.getElementById('graficoBTC').getContext('2d');
+    const ctx = document.createElement("canvas");
+    ctx.id = "graficoBTC";
+    document.getElementById("grafico").appendChild(ctx);
+
     chart = new Chart(ctx, {
         type: 'line',
         data: {
