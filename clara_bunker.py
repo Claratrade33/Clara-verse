@@ -1,23 +1,31 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
+import os, requests, openai
 from cryptography.fernet import Fernet
-import requests, os, openai
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Geração e uso de chave de criptografia
-chave_fernet = Fernet.generate_key()
-cipher = Fernet(chave_fernet)
+# Geração/armazenamento de chave criptográfica (fixa em memória)
+fernet_key = Fernet.generate_key()
+fernet = Fernet(fernet_key)
 
-# Armazenamento seguro na memória
-chaves_criptografadas = {
-    "binance_api_key": b"",
-    "binance_api_secret": b"",
-    "openai_api_key": b""
-}
-
+# Dados persistentes simulados
 USUARIO_PADRAO = "admin"
 SENHA_PADRAO = "claraverse2025"
+saldo_simulado = 5000
+
+# Armazenamento criptografado em memória
+chaves_criptografadas = {
+    "binance_api_key": "",
+    "binance_api_secret": "",
+    "openai_api_key": ""
+}
+
+def criptografar(valor):
+    return fernet.encrypt(valor.encode()).decode()
+
+def descriptografar(valor):
+    return fernet.decrypt(valor.encode()).decode()
 
 @app.route("/")
 def home():
@@ -41,34 +49,39 @@ def logout():
 def painel():
     if "usuario" not in session:
         return redirect("/login")
-    saldo_simulado = 5000
-    return render_template("painel.html", saldo=saldo_simulado)
 
-@app.route("/dashboard")
-def dashboard():
-    return render_template("dashboard.html")
+    chaves = {
+        "binance_api_key": descriptografar(chaves_criptografadas["binance_api_key"]) if chaves_criptografadas["binance_api_key"] else "",
+        "binance_api_secret": descriptografar(chaves_criptografadas["binance_api_secret"]) if chaves_criptografadas["binance_api_secret"] else "",
+        "openai_api_key": descriptografar(chaves_criptografadas["openai_api_key"]) if chaves_criptografadas["openai_api_key"] else ""
+    }
+
+    return render_template("painel.html", saldo=saldo_simulado, chaves=chaves)
 
 @app.route("/configurar")
 def configurar():
     if "usuario" not in session:
         return redirect("/login")
-    def dec(b): return cipher.decrypt(b).decode() if b else ""
-    return render_template("configurar.html", chaves={
-        "binance_api_key": dec(chaves_criptografadas["binance_api_key"]),
-        "binance_api_secret": dec(chaves_criptografadas["binance_api_secret"]),
-        "openai_api_key": dec(chaves_criptografadas["openai_api_key"]),
-    })
+
+    chaves = {
+        "binance_api_key": descriptografar(chaves_criptografadas["binance_api_key"]) if chaves_criptografadas["binance_api_key"] else "",
+        "binance_api_secret": descriptografar(chaves_criptografadas["binance_api_secret"]) if chaves_criptografadas["binance_api_secret"] else "",
+        "openai_api_key": descriptografar(chaves_criptografadas["openai_api_key"]) if chaves_criptografadas["openai_api_key"] else ""
+    }
+
+    return render_template("configurar.html", chaves=chaves)
 
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
-    try:
-        data = request.json
-        chaves_criptografadas["binance_api_key"] = cipher.encrypt(data.get("binance_api_key", "").encode())
-        chaves_criptografadas["binance_api_secret"] = cipher.encrypt(data.get("binance_api_secret", "").encode())
-        chaves_criptografadas["openai_api_key"] = cipher.encrypt(data.get("openai_api_key", "").encode())
-        return jsonify({"status": "sucesso", "redirect": "/painel"})
-    except Exception as e:
-        return jsonify({"status": "erro", "mensagem": str(e)})
+    data = request.json
+    if "usuario" not in session:
+        return jsonify({"status": "erro", "mensagem": "Não autenticado."})
+
+    chaves_criptografadas["binance_api_key"] = criptografar(data.get("binance_api_key", ""))
+    chaves_criptografadas["binance_api_secret"] = criptografar(data.get("binance_api_secret", ""))
+    chaves_criptografadas["openai_api_key"] = criptografar(data.get("openai_api_key", ""))
+
+    return jsonify({"status": "sucesso"})
 
 @app.route("/dados_mercado")
 def dados_mercado():
@@ -83,8 +96,8 @@ def dados_mercado():
         suporte = round(float(variacao) - 0.8, 2)
         resistencia = round(float(variacao) + 0.8, 2)
 
-        openai.api_key = cipher.decrypt(chaves_criptografadas["openai_api_key"]).decode()
-        prompt = f"O preço do BTC está em {preco}, variação de {variacao}%, RSI em {rsi}. Qual a melhor estratégia?"
+        openai.api_key = descriptografar(chaves_criptografadas["openai_api_key"]) if chaves_criptografadas["openai_api_key"] else ""
+        prompt = f"O preço do BTC é {preco}, com variação de {variacao}%. RSI: {rsi}. Suporte: {suporte}, Resistência: {resistencia}. Qual a melhor decisão agora?"
         resposta = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
@@ -93,27 +106,40 @@ def dados_mercado():
         sugestao = resposta["choices"][0]["message"]["content"]
 
         return jsonify({
-            "preco": preco, "variacao": variacao, "volume": volume,
-            "rsi": rsi, "suporte": suporte, "resistencia": resistencia,
+            "preco": preco,
+            "variacao": variacao,
+            "volume": volume,
+            "rsi": rsi,
+            "suporte": suporte,
+            "resistencia": resistencia,
             "sugestao": sugestao
         })
-    except:
+    except Exception as e:
         return jsonify({
             "preco": "--", "variacao": "--", "volume": "--",
             "rsi": "--", "suporte": "--", "resistencia": "--",
-            "sugestao": "Erro ao carregar dados."
+            "sugestao": "Erro ao consultar IA ou API pública."
         })
 
 @app.route("/executar/<acao>", methods=["POST"])
 def executar_acao(acao):
+    global saldo_simulado
     respostas = {
-        "entrada": "✅ Entrada simulada com sucesso!",
-        "stop": "🛑 Stop acionado.",
-        "alvo": "🎯 Alvo atingido.",
-        "executar": "🚀 Ordem executada pela IA.",
-        "automatico": "🤖 Modo automático ativado."
+        "entrada": "✅ ENTRADA: posição aberta com sucesso.",
+        "stop": "🛑 STOP: proteção acionada.",
+        "alvo": "🎯 ALVO: meta atingida.",
+        "executar": "🚀 EXECUTAR: operação confirmada.",
+        "automatico": "🤖 MODO AUTOMÁTICO ativado."
     }
-    return jsonify({"mensagem": respostas.get(acao, "Ação não reconhecida.")})
 
-# Compatível com Render
+    if acao == "entrada":
+        saldo_simulado -= 100
+    elif acao == "alvo":
+        saldo_simulado += 150
+    elif acao == "stop":
+        saldo_simulado -= 80
+
+    return jsonify({"mensagem": respostas.get(acao, "Ação desconhecida.")})
+
+# Para Render
 application = app
