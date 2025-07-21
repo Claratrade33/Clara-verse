@@ -1,42 +1,67 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>ClaraVerse - Painel</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
-</head>
-<body>
-  <header>
-    <h1>ClaraVerse</h1>
-    <p class="saldo">
-      🔥 Saldo Atual: ${{ saldo }} USDT
-    </p>
-  </header>
+// dashboard.js
 
-  <section id="grafico">
-    <iframe
-      src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark&style=1&timezone=America/Sao_Paulo&withdateranges=1&hideideas=1"
-      width="100%"
-      height="350"
-      frameborder="0"
-      allowtransparency="true"
-      scrolling="no"
-    ></iframe>
-  </section>
+document.addEventListener("DOMContentLoaded", function() {
+    // Função para obter o saldo
+    function obterSaldo() {
+        fetch('/obter_saldo')
+            .then(response => response.json())
+            .then(data => {
+                if (data.saldo) {
+                    document.getElementById("saldo").innerText = `🔥 Saldo Atual: $${data.saldo} USDT`;
+                } else {
+                    console.error(data.erro);
+                }
+            });
+    }
 
-  <section id="botoes">
-    <button onclick="executarAcao('comprar')">Entrar</button>
-    <button onclick="executarAcao('vender')">Vender</button>
-    <button onclick="executarAcao('auto')">Modo Automático</button>
-    <button onclick="obterSugestaoIA()">Sugestão IA</button>
-    <button onclick="window.location.href='/configurar'">Configurar</button>
-  </section>
+    // Função para executar uma ação de compra ou venda
+    function executarAcao(acao) {
+        fetch('/executar_acao', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ acao: acao }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.mensagem) {
+                alert(data.mensagem);
+                obterSaldo(); // Atualiza saldo após a ação
+            } else {
+                console.error(data.erro);
+            }
+        });
+    }
 
-  <section id="resposta-ia">
-    <h3>💬 Resposta da IA:</h3>
-    <p id="respostaTexto">Aguardando consulta...</p>
-  </section>
-</body>
-</html>
+    // Função para obter sugestão da IA
+    function obterSugestaoIA() {
+        fetch('/obter_sugestao_ia')
+            .then(response => response.json())
+            .then(data => {
+                const respostaElement = document.getElementById("respostaIA").querySelector("p");
+                if (data.resposta) {
+                    respostaElement.innerText = data.resposta;
+                } else {
+                    console.error(data.erro);
+                }
+            });
+    }
+
+    // Chama as funções ao carregar o painel
+    obterSaldo();
+    obterSugestaoIA();
+
+    // Adiciona event listeners para os botões
+    document.getElementById("comprarBtn").addEventListener("click", function() {
+        executarAcao('comprar');
+    });
+
+    document.getElementById("venderBtn").addEventListener("click", function() {
+        executarAcao('vender');
+    });
+
+    document.getElementById("sugerirBtn").addEventListener("click", function() {
+        obterSugestaoIA();
+    });
+});
