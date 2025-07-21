@@ -41,13 +41,13 @@ def loop_automatico():
         except Exception as e:
             print("Erro IA:", str(e))
 
-        time.sleep(15)  # executa a cada 15 segundos
+        time.sleep(15)
 
 # 🌐 ROTAS
 
 @app.route('/')
 def index():
-    return redirect('/login')
+    return render_template('dashboard.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
