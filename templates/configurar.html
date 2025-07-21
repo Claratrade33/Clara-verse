@@ -1,53 +1,60 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Configurar API - ClaraVerse</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script>
-    async function salvarChaves() {
-      const openaiKey = document.getElementById('openaiKey').value;
-      const binanceKey = document.getElementById('binanceKey').value;
-      const binanceSecret = document.getElementById('binanceSecret').value;
-      const mensagemDiv = document.getElementById('mensagem');
-
-      // Validação dos campos
-      if (!openaiKey || !binanceKey || !binanceSecret) {
-        mensagemDiv.innerText = "Preencha todos os campos.";
-        return;
-      }
-
-      try {
-        const res = await fetch('/salvar_chaves', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ openaiKey, binanceKey, binanceSecret })
-        });
-
-        const data = await res.json();
-        if (data.status === 'ok') {
-          mensagemDiv.innerText = '🔐 Chaves salvas com sucesso!';
-          setTimeout(() => window.location.href = '/painel', 2000);
-        } else {
-          mensagemDiv.innerText = `Erro: ${data.mensagem}`;
-        }
-      } catch (error) {
-        mensagemDiv.innerText = 'Erro ao conectar ao servidor. Tente novamente mais tarde.';
-      }
-    }
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar API</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="config-container">
-    <h2>🔧 Configurar Chaves de API</h2>
-    <label for="openaiKey">OpenAI API Key:</label>
-    <input type="text" id="openaiKey" placeholder="🔑 OpenAI API Key"><br>
-    <label for="binanceKey">Binance API Key:</label>
-    <input type="text" id="binanceKey" placeholder="🔑 Binance API Key"><br>
-    <label for="binanceSecret">Binance Secret Key:</label>
-    <input type="password" id="binanceSecret" placeholder="🔒 Binance Secret Key"><br>
-    <button onclick="salvarChaves()">💾 Salvar</button>
-    <div id="mensagem" class="mensagem" style="color: red;"></div>
-  </div>
+    <header>
+        <h1>Configurar API</h1>
+    </header>
+    
+    <main>
+        <form id="configForm">
+            <label for="openaiKey">Chave OpenAI:</label>
+            <input type="text" id="openaiKey" name="openaiKey" required>
+
+            <label for="binanceApiKey">Binance API Key:</label>
+            <input type="text" id="binanceApiKey" name="binanceApiKey" required>
+
+            <label for="binanceSecretKey">Binance Secret Key:</label>
+            <input type="text" id="binanceSecretKey" name="binanceSecretKey" required>
+
+            <button type="submit">Salvar e Iniciar</button>
+        </form>
+    </main>
+
+    <script>
+        document.getElementById('configForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Evita o envio padrão do formulário
+
+            const openaiKey = document.getElementById('openaiKey').value;
+            const binanceApiKey = document.getElementById('binanceApiKey').value;
+            const binanceSecretKey = document.getElementById('binanceSecretKey').value;
+
+            fetch('/salvar_configuracao', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    openaiKey: openaiKey,
+                    binanceApiKey: binanceApiKey,
+                    binanceSecretKey: binanceSecretKey
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    alert('Configuração salva com sucesso!');
+                    window.location.href = '/painel'; // Redireciona para o painel
+                } else {
+                    alert('Erro ao salvar configuração: ' + data.erro);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
