@@ -2,24 +2,38 @@ from flask import Flask, render_template, request, redirect, session, jsonify
 from cryptography.fernet import Fernet
 from binance.client import Client
 from datetime import timedelta
-import requests, openai, threading, time, os
+import requests, openai, threading, time, os, json
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.permanent_session_lifetime = timedelta(hours=6)
 
-# Chave fixa para criptografia (já combinada com você)
 CHAVE_CRIPTO_FIXA = b'xApbCQFxxa3Yy3YKkzP9JkkfE4WaXxN8eSpK7uBRuGA='
 fernet = Fernet(CHAVE_CRIPTO_FIXA)
 
 usuarios = {'admin': 'claraverse2025'}
-
-# Armazenamento em memória
 chaves_armazenadas = {}
+chave_arquivo = 'chaves.dat'
 saldo_simulado = 10000.00
 modo_auto_ativo = False
 
-# 🔁 LOOP AUTOMÁTICO
+# 🔄 Carregar chaves do arquivo
+def carregar_chaves():
+    global chaves_armazenadas
+    if os.path.exists(chave_arquivo):
+        with open(chave_arquivo, 'rb') as f:
+            dados = f.read()
+            descriptografado = fernet.decrypt(dados).decode()
+            chaves_armazenadas = json.loads(descriptografado)
+
+# 💾 Salvar chaves no arquivo
+def salvar_chaves_em_arquivo():
+    dados = json.dumps(chaves_armazenadas).encode()
+    criptografado = fernet.encrypt(dados)
+    with open(chave_arquivo, 'wb') as f:
+        f.write(criptografado)
+
+# 🔁 Loop automático com IA
 def loop_automatico():
     global modo_auto_ativo, saldo_simulado
     while modo_auto_ativo:
@@ -43,7 +57,6 @@ def loop_automatico():
             print("Erro IA:", str(e))
         time.sleep(15)
 
-# ROTAS PRINCIPAIS
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -78,17 +91,15 @@ def configurar():
         return render_template('configurar.html')
     return redirect('/login')
 
-# SALVAR CHAVES E INICIAR SISTEMA
 @app.route('/salvar_chaves', methods=['POST'])
 def salvar_chaves():
     dados = request.json
     chaves_armazenadas['openai'] = fernet.encrypt(dados['openaiKey'].encode()).decode()
     chaves_armazenadas['binance'] = fernet.encrypt(dados['binanceKey'].encode()).decode()
     chaves_armazenadas['binance_secret'] = fernet.encrypt(dados['binanceSecret'].encode()).decode()
-    print("🔐 Chaves salvas com sucesso.")
+    salvar_chaves_em_arquivo()
     return jsonify({'status': 'ok'})
 
-# EXECUTAR AÇÕES: COMPRAR, VENDER, AUTO
 @app.route('/executar_acao', methods=['POST'])
 def executar_acao():
     global saldo_simulado, modo_auto_ativo
@@ -111,7 +122,6 @@ def executar_acao():
             return jsonify({'mensagem': 'Modo automático desativado!', 'saldo': saldo_simulado})
     return jsonify({'mensagem': 'Ação inválida.', 'saldo': saldo_simulado})
 
-# ✅ API: SALDO E PREÇO
 @app.route('/obter_saldo')
 def obter_saldo():
     return jsonify({'saldo': round(saldo_simulado, 2)})
@@ -125,7 +135,6 @@ def obter_preco():
     except:
         return jsonify({'preco': '--'})
 
-# ✅ CONSULTAR IA COM CLARINHA
 @app.route('/obter_sugestao_ia')
 def obter_sugestao_ia():
     try:
@@ -138,7 +147,9 @@ def obter_sugestao_ia():
     except Exception as e:
         return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
 
-# RENDER
+# 🔁 Carrega as chaves no início
+carregar_chaves()
+
 application = app
 
 if __name__ == '__main__':
