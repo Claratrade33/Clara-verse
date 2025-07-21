@@ -1,37 +1,25 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
-import os, requests, openai
-from cryptography.fernet import Fernet
+import requests, os, openai, json
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Caminhos dos arquivos
-KEY_PATH = "chave_secreta.key"
-DADOS_PATH = "dados_criptografados.bin"
+USUARIO_PADRAO = "admin"
+SENHA_PADRAO = "claraverse2025"
 
-# Criar chave criptográfica se não existir
-if not os.path.exists(KEY_PATH):
-    with open(KEY_PATH, "wb") as f:
-        f.write(Fernet.generate_key())
+# Arquivo local para persistência
+ARQUIVO_CHAVES = "chaves_claraverse.json"
 
-with open(KEY_PATH, "rb") as f:
-    fernet = Fernet(f.read())
-
-# Funções de criptografia
-def salvar_dados(dados):
-    criptografado = fernet.encrypt(str(dados).encode())
-    with open(DADOS_PATH, "wb") as f:
-        f.write(criptografado)
-
-def carregar_dados():
-    if not os.path.exists(DADOS_PATH):
-        return {"binance_api_key": "", "binance_api_secret": "", "openai_api_key": ""}
-    with open(DADOS_PATH, "rb") as f:
-        return eval(fernet.decrypt(f.read()).decode())
-
-# Dados iniciais
-chaves_salvas = carregar_dados()
-saldo_simulado = 5000
+# Carregar chaves salvas
+if os.path.exists(ARQUIVO_CHAVES):
+    with open(ARQUIVO_CHAVES, "r") as f:
+        chaves_salvas = json.load(f)
+else:
+    chaves_salvas = {
+        "binance_api_key": "",
+        "binance_api_secret": "",
+        "openai_api_key": ""
+    }
 
 @app.route("/")
 def home():
@@ -40,8 +28,8 @@ def home():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        if request.form.get("usuario") == "admin" and request.form.get("senha") == "claraverse2025":
-            session["usuario"] = "admin"
+        if request.form.get("usuario") == USUARIO_PADRAO and request.form.get("senha") == SENHA_PADRAO:
+            session["usuario"] = USUARIO_PADRAO
             return redirect("/painel")
         return render_template("login.html", erro="Login inválido.")
     return render_template("login.html")
@@ -55,7 +43,7 @@ def logout():
 def painel():
     if "usuario" not in session:
         return redirect("/login")
-    return render_template("painel.html", saldo=saldo_simulado)
+    return render_template("painel.html", chaves=chaves_salvas, saldo=5000)
 
 @app.route("/dashboard")
 def dashboard():
@@ -71,8 +59,9 @@ def salvar_chaves():
     chaves_salvas["binance_api_key"] = data.get("binance_api_key", "")
     chaves_salvas["binance_api_secret"] = data.get("binance_api_secret", "")
     chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
-    salvar_dados(chaves_salvas)
-    return jsonify({"status": "sucesso"})
+    with open(ARQUIVO_CHAVES, "w") as f:
+        json.dump(chaves_salvas, f)
+    return jsonify({"status": "sucesso", "redirect": "/painel"})
 
 @app.route("/dados_mercado")
 def dados_mercado():
@@ -87,12 +76,13 @@ def dados_mercado():
         suporte = round(float(variacao) - 0.8, 2)
         resistencia = round(float(variacao) + 0.8, 2)
 
-        openai.api_key = chaves_salvas["openai_api_key"]
+        openai.api_key = chaves_salvas.get("openai_api_key", "")
         prompt = f"O preço atual do BTC é {preco}, com variação de {variacao}%. RSI em {rsi}. Qual a melhor sugestão para operação agora?"
         resposta = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
+
         sugestao = resposta["choices"][0]["message"]["content"]
 
         return jsonify({
@@ -108,27 +98,20 @@ def dados_mercado():
         return jsonify({
             "preco": "--", "variacao": "--", "volume": "--",
             "rsi": "--", "suporte": "--", "resistencia": "--",
-            "sugestao": "Erro ao carregar dados da IA."
+            "sugestao": "Erro ao carregar dados ou IA não respondeu."
         })
 
 @app.route("/executar/<acao>", methods=["POST"])
 def executar_acao(acao):
-    global saldo_simulado
-    resposta = ""
-    if acao == "entrada":
-        resposta = "✅ ENTRADA realizada com sucesso."
-    elif acao == "stop":
-        saldo_simulado -= 100
-        resposta = "🛑 STOP acionado. Proteção ativada."
-    elif acao == "alvo":
-        saldo_simulado += 150
-        resposta = "🎯 ALVO atingido! Parabéns!"
-    elif acao == "executar":
-        resposta = "🚀 EXECUTAR: ordem enviada."
-    elif acao == "automatico":
-        resposta = "🤖 AUTOMÁTICO: Clarinha assumiu o controle."
+    acoes = {
+        "entrada": "Ordem de ENTRADA simulada com sucesso.",
+        "stop": "STOP ativado! Proteção acionada.",
+        "alvo": "ALVO definido e operação encerrada.",
+        "automatico": "Modo automático ativado. Clarinha vai operar por você.",
+        "executar": "Ordem executada conforme análise da IA."
+    }
+    msg = acoes.get(acao, "Ação desconhecida.")
+    return jsonify({"mensagem": msg})
 
-    return jsonify({"mensagem": resposta, "novo_saldo": saldo_simulado})
-
-# Render compat
+# Compatibilidade Render
 application = app
