@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 from cryptography.fernet import Fernet
-from binance.client import Client
 from datetime import timedelta
 import requests, openai, threading, time, os, json
 
@@ -37,11 +36,11 @@ def loop_automatico():
         try:
             print("🤖 IA Clarinha analisando...")
             openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
-            bin_key = fernet.decrypt(chaves_armazenadas['binance'].encode()).decode()
-            bin_sec = fernet.decrypt(chaves_armazenadas['binance_secret'].encode()).decode()
-            from clarinha_oraculo import analisar_mercado_e_sugerir
-            resposta = analisar_mercado_e_sugerir(bin_key, bin_sec, openai_key)
-            conteudo = resposta.get("resposta", "").lower()
+            from clarinha_cosmica import ClarinhaOraculo
+            clarinha = ClarinhaOraculo(openai_key)
+            dados = clarinha.consultar_mercado()
+            resposta = clarinha.interpretar_como_deusa(dados)
+            conteudo = resposta.lower()
             if "comprar" in conteudo:
                 saldo_simulado -= 10
                 print("💚 Compra simulada!")
@@ -55,38 +54,8 @@ def loop_automatico():
         time.sleep(15)
 
 @app.route('/')
-def home():
-    return render_template('index.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        usuario = request.form['usuario']
-        senha = request.form['senha']
-        if usuario in usuarios and usuarios[usuario] == senha:
-            session['usuario'] = usuario
-            session.permanent = True
-            return redirect('/painel')
-        return render_template('login.html', erro='Credenciais inválidas.')
-    return render_template('login.html')
-
-@app.route('/dashboard')
-def dashboard():
-    if 'usuario' in session:
-        return render_template('dashboard.html', saldo=saldo_simulado)
-    return redirect('/login')
-
-@app.route('/painel')
-def painel():
-    if 'usuario' in session:
-        return render_template('painel.html', saldo=saldo_simulado)
-    return redirect('/login')
-
-@app.route('/configurar')
-def configurar():
-    if 'usuario' in session:
-        return render_template('configurar.html')
-    return redirect('/login')
+def index():
+    return render_template('index.html', saldo=saldo_simulado)
 
 @app.route('/salvar_chaves', methods=['POST'])
 def salvar_chaves():
@@ -144,9 +113,7 @@ def obter_sugestao_ia():
     except Exception as e:
         return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
 
-# Carrega as chaves criptografadas ao iniciar
 carregar_chaves()
-
 application = app
 
 if __name__ == '__main__':
