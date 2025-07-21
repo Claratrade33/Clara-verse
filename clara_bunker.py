@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 from cryptography.fernet import Fernet
 from binance.client import Client
+from datetime import timedelta
 import requests, openai, threading, time, os
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+app.permanent_session_lifetime = timedelta(hours=6)
 
 CHAVE_CRIPTO_FIXA = b'xApbCQFxxa3Yy3YKkzP9JkkfE4WaXxN8eSpK7uBRuGA='
 fernet = Fernet(CHAVE_CRIPTO_FIXA)
@@ -26,7 +28,6 @@ def loop_automatico():
             bin_sec = fernet.decrypt(chaves_armazenadas['binance_secret'].encode()).decode()
 
             resposta = analisar_mercado_e_sugerir(bin_key, bin_sec, openai_key)
-
             conteudo = resposta.get("resposta", "").lower()
 
             if "comprar" in conteudo:
@@ -37,10 +38,8 @@ def loop_automatico():
                 print("❤️ Venda simulada!")
             else:
                 print("⚪ IA recomendou aguardar.")
-
         except Exception as e:
             print("Erro IA:", str(e))
-
         time.sleep(15)
 
 # 🌐 ROTAS
@@ -56,6 +55,7 @@ def login():
         senha = request.form['senha']
         if usuario in usuarios and usuarios[usuario] == senha:
             session['usuario'] = usuario
+            session.permanent = True
             return redirect('/painel')
         return render_template('login.html', erro='Credenciais inválidas.')
     return render_template('login.html')
@@ -89,11 +89,9 @@ def executar_acao():
     if acao == 'comprar':
         saldo_simulado -= 10
         return jsonify({'mensagem': 'Compra realizada (simulação)', 'saldo': saldo_simulado})
-
     elif acao == 'vender':
         saldo_simulado += 10
         return jsonify({'mensagem': 'Venda realizada (simulação)', 'saldo': saldo_simulado})
-
     elif acao == 'auto':
         global modo_auto_ativo
         if not modo_auto_ativo:
@@ -103,7 +101,6 @@ def executar_acao():
         else:
             modo_auto_ativo = False
             return jsonify({'mensagem': 'Modo automático desativado!', 'saldo': saldo_simulado})
-
     return jsonify({'mensagem': 'Ação inválida.', 'saldo': saldo_simulado})
 
 @app.route('/obter_saldo')
