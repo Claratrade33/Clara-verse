@@ -1,21 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Login - ClaraVerse</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <title>Login - ClaraVerse</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <div class="login-container">
-    <h1>🔐 Entrar na ClaraVerse</h1>
-    {% if erro %}
-      <p class="erro">{{ erro }}</p>
-    {% endif %}
-    <form method="POST">
-      <input type="text" name="usuario" placeholder="Usuário" required><br>
-      <input type="password" name="senha" placeholder="Senha" required><br>
-      <button type="submit">➡️ Entrar</button>
-    </form>
-  </div>
+    <div class="header">🔐 Login ClaraVerse</div>
+    <div class="container">
+        {% if erro %}
+        <div class="card" style="background-color: #8b0000;">{{ erro }}</div>
+        {% endif %}
+        <form method="POST">
+            <div class="input-group">
+                <label for="usuario">Usuário</label>
+                <input type="text" name="usuario" required>
+            </div>
+            <div class="input-group">
+                <label for="senha">Senha</label>
+                <input type="password" name="senha" required>
+            </div>
+            <button class="button" type="submit">Entrar</button>
+        </form>
+    </div>
 </body>
 </html>
