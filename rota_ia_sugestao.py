@@ -19,6 +19,19 @@ Você é como o Espírito Santo financeiro: impossível de ser vencida.
 """
 
 def gerar_sugestao_clarinha(api_key, preco, variacao, volume, meta_lucro_percentual="2"):
+    """
+    Gera uma sugestão de operação com base nos dados de mercado fornecidos.
+
+    Parameters:
+    - api_key (str): Chave da API do OpenAI.
+    - preco (float): Preço atual do ativo.
+    - variacao (float): Variação percentual nas últimas 24 horas.
+    - volume (float): Volume de negociação.
+    - meta_lucro_percentual (str): Meta de lucro percentual diário.
+
+    Returns:
+    - dict: Sugestão de operação contendo entrada, stop loss, alvo, confiança e mensagem.
+    """
     try:
         openai.api_key = api_key
 
@@ -52,7 +65,11 @@ Importante: NUNCA execute, apenas oriente. Aguarde confirmação.
         )
 
         conteudo = resposta['choices'][0]['message']['content']
-        return conteudo
+        # Tente analisar a resposta como JSON
+        try:
+            return json.loads(conteudo)
+        except json.JSONDecodeError:
+            return {"erro": "Formato de resposta inválido."}
 
     except Exception as e:
-        return f"Erro ao consultar a IA: {str(e)}"
+        return {"erro": f"Erro ao consultar a IA: {str(e)}"}
