@@ -5,19 +5,21 @@ import os, requests, openai
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Chave fixa para manter criptografia entre execuções
-CHAVE_FIXA = b'YXNjbGFyYXZlcnNldGVzdGVjb2Rpbmhh'
-fernet = Fernet(CHAVE_FIXA)
+# Chave fixa para manter a criptografia viva entre deploys
+CHAVE_CRIPTO_FIXA = b'xApbCQFxxa3Yy3YKkzP9JkkfE4WaXxN8eSpK7uBRuGA='
+fernet = Fernet(CHAVE_CRIPTO_FIXA)
 
+# Dados simulados
 USUARIO_PADRAO = "admin"
 SENHA_PADRAO = "claraverse2025"
 saldo_simulado = 5000.0
-
 chaves_criptografadas = {
     "binance_api_key": None,
     "binance_api_secret": None,
     "openai_api_key": None
 }
+
+# ===== ROTAS =====
 
 @app.route("/")
 def home():
@@ -51,10 +53,8 @@ def dashboard():
 def configurar():
     if "usuario" not in session:
         return redirect("/login")
-
     def descriptografar(valor):
         return fernet.decrypt(valor).decode() if valor else ""
-    
     return render_template("configurar.html", chaves={
         "binance_api_key": descriptografar(chaves_criptografadas["binance_api_key"]),
         "binance_api_secret": descriptografar(chaves_criptografadas["binance_api_secret"]),
@@ -88,40 +88,49 @@ def dados_mercado():
         chave_openai = fernet.decrypt(chaves_criptografadas["openai_api_key"]).decode() if chaves_criptografadas["openai_api_key"] else ""
         if not chave_openai:
             raise Exception("Chave OpenAI ausente.")
+
         openai.api_key = chave_openai
-        prompt = f"O preço do BTC é {preco} com variação {variacao}%. RSI {rsi}. Qual sugestão de operação?"
         resposta = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
+            messages=[{
+                "role": "user",
+                "content": f"O preço atual do BTC é {preco}, com variação de {variacao}%. RSI em {rsi}. Qual a melhor sugestão para operação agora?"
+            }]
         )
         sugestao = resposta["choices"][0]["message"]["content"]
-
         return jsonify({
-            "preco": preco, "variacao": variacao, "volume": volume,
-            "rsi": rsi, "suporte": suporte, "resistencia": resistencia,
+            "preco": preco,
+            "variacao": variacao,
+            "volume": volume,
+            "rsi": rsi,
+            "suporte": suporte,
+            "resistencia": resistencia,
             "sugestao": sugestao
         })
-    except:
+    except Exception:
         return jsonify({
             "preco": "--", "variacao": "--", "volume": "--",
             "rsi": "--", "suporte": "--", "resistencia": "--",
-            "sugestao": "IA não disponível ou chave ausente."
+            "sugestao": "Aguardando IA ou API incompleta."
         })
 
 @app.route("/executar/<acao>", methods=["POST"])
 def executar_acao(acao):
     global saldo_simulado
     respostas = {
-        "entrada": "✅ Entrada realizada com sucesso!",
-        "stop": "🛑 Stop acionado.",
-        "alvo": "🎯 Alvo atingido!",
-        "automatico": "🤖 Modo automático ativado.",
-        "executar": "🚀 Ordem executada!"
+        "entrada": "✅ Entrada realizada com base na análise!",
+        "stop": "🛑 Stop acionado! Proteção ativada.",
+        "alvo": "🎯 Alvo atingido! Lucro contabilizado.",
+        "automatico": "🤖 Modo automático ativado. Clarinha assume!",
+        "executar": "🚀 Ordem executada com sucesso!"
     }
-    if acao == "entrada": saldo_simulado -= 50
-    if acao == "alvo": saldo_simulado += 100
-    if acao == "stop": saldo_simulado -= 30
+    if acao == "entrada":
+        saldo_simulado -= 50
+    elif acao == "alvo":
+        saldo_simulado += 100
+    elif acao == "stop":
+        saldo_simulado -= 30
     return jsonify({"mensagem": respostas.get(acao, "Ação desconhecida.")})
 
-# Render compatível
+# Ponto de entrada do Render
 application = app
