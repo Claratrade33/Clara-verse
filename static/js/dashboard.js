@@ -10,6 +10,9 @@ function atualizarDadosMercado() {
       document.getElementById("suporte").innerText = data.suporte;
       document.getElementById("resistencia").innerText = data.resistencia;
       document.getElementById("sugestao").innerText = data.sugestao;
+    })
+    .catch(() => {
+      document.getElementById("sugestao").innerText = "Erro ao obter dados.";
     });
 }
 
@@ -29,7 +32,10 @@ function enviarAcao(acao) {
       const status = document.getElementById("mensagemStatus");
       status.innerText = data.mensagem;
       status.style.display = "block";
-      setTimeout(() => status.style.display = "none", 5000);
+      setTimeout(() => status.style.display = "none", 4000);
+    })
+    .catch(() => {
+      alert("Erro ao enviar ação.");
     });
 }
 
@@ -52,9 +58,21 @@ function salvarChaves() {
   })
     .then(response => response.json())
     .then(data => {
-      document.getElementById("status-chaves").innerText = "Chaves salvas com sucesso!";
-      setTimeout(() => {
-        window.location.href = "/painel";
-      }, 1500);
+      const status = document.getElementById("status-chaves");
+      if (data.status === "sucesso") {
+        status.innerText = "🔐 Chaves salvas com sucesso!";
+        status.style.color = "lightgreen";
+        setTimeout(() => {
+          window.location.href = "/painel";
+        }, 1500);
+      } else {
+        status.innerText = "❌ Erro ao salvar: " + data.mensagem;
+        status.style.color = "red";
+      }
+    })
+    .catch(() => {
+      const status = document.getElementById("status-chaves");
+      status.innerText = "❌ Erro ao salvar as chaves.";
+      status.style.color = "red";
     });
 }
