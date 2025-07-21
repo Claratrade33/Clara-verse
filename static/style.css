@@ -1,20 +1,24 @@
 body {
   margin: 0;
-  padding: 0;
-  background-color: #0e0f1b;
-  color: #ffffff;
   font-family: 'Segoe UI', sans-serif;
+  background-color: #0b0f1a;
+  color: #fff;
 }
 
 .painel-body {
-  background: #0e0f1b;
-  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(to bottom, #0b0f1a, #121c2f);
 }
 
 .painel-container {
-  padding: 20px;
+  width: 100%;
   max-width: 1200px;
-  margin: auto;
+  padding: 20px;
+  background-color: #141b2d;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 183, 255, 0.2);
 }
 
 .painel-header {
@@ -22,84 +26,89 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  color: #00f9ff;
 }
 
 .painel-header h1 {
-  font-size: 24px;
+  font-size: 1.6em;
+  color: #00bfff;
 }
 
 .painel-saldo {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 1em;
+  color: #33ff99;
 }
 
 .btn-sair {
-  background-color: #ff5555;
+  background-color: #ff4d4d;
   border: none;
-  color: white;
   padding: 8px 16px;
+  color: white;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.btn-sair:hover {
-  background-color: #ff2222;
-}
-
 .grafico-frame iframe {
-  border: 2px solid #00f9ff;
-  border-radius: 5px;
+  border: 2px solid #00bfff;
+  border-radius: 10px;
 }
 
 .dados-mercado p {
-  margin: 8px 0;
-  font-size: 16px;
+  font-size: 1em;
+  margin: 5px 0;
 }
 
 .ia-resposta {
+  background-color: #1c2333;
+  padding: 15px;
+  border-radius: 10px;
   margin-top: 20px;
-  padding: 10px;
-  background-color: #14152a;
-  border-left: 4px solid #00f9ff;
-  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
 }
 
 .ia-resposta h3 {
-  color: #00f9ff;
-  margin-bottom: 10px;
+  margin-top: 0;
+  color: #ffcc00;
 }
 
 .painel-botoes {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 30px;
-  justify-content: space-between;
+  margin-top: 20px;
+  justify-content: center;
 }
 
 .painel-botoes button {
-  flex: 1 1 30%;
-  padding: 14px;
-  font-size: 16px;
+  background: linear-gradient(145deg, #0055aa, #00bfff);
+  color: white;
   border: none;
+  padding: 12px 24px;
+  font-size: 1em;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
-  background-color: #1b1d33;
-  color: #ffffff;
-  border: 2px solid #00f9ff;
-  transition: 0.3s;
+  transition: transform 0.2s ease;
 }
 
 .painel-botoes button:hover {
-  background-color: #00f9ff;
-  color: #0e0f1b;
+  transform: scale(1.05);
+  background: linear-gradient(145deg, #0077cc, #33ccff);
 }
 
 .mensagem-status {
   margin-top: 20px;
-  font-size: 16px;
-  color: #00ff99;
   text-align: center;
+  color: #66ffcc;
+  font-weight: bold;
+}
+
+input[type="text"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  margin: 10px auto;
+  display: block;
+  border-radius: 5px;
+  border: 1px solid #0077cc;
+  background-color: #0b0f1a;
+  color: white;
 }
