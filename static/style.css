@@ -1,134 +1,107 @@
 body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to bottom, #0a0f24, #121b40);
-  color: #fff;
+    background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+    color: #ffffff;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
 }
 
-a {
-  color: #00f0ff;
-  text-decoration: none;
+.topo {
+    background-color: #1a1a2e;
+    padding: 20px;
+    border-bottom: 2px solid #00ffff;
 }
 
-h1, h2, h3 {
-  color: #00f0ff;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-input, button {
-  font-size: 1rem;
-  padding: 10px;
-  margin: 10px 0;
-  width: 100%;
-  border: none;
-  border-radius: 5px;
-}
-
-input {
-  background-color: #1c2541;
-  color: #fff;
-}
-
-button {
-  background-color: #00f0ff;
-  color: #000;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-button:hover {
-  background-color: #00c2cc;
-}
-
-.dashboard-btn {
-  margin-top: 20px;
+h1 {
+    margin: 0;
+    font-size: 32px;
+    color: #00ffff;
 }
 
 .saldo {
-  font-size: 1.1rem;
-  text-align: center;
-  margin: 20px;
-  color: #ffffff;
-}
-
-#resposta-ia {
-  background-color: #1c2541;
-  padding: 15px;
-  border-radius: 10px;
-  margin: 20px auto;
-  width: 90%;
-  max-width: 600px;
-  text-align: center;
-  font-size: 1rem;
-  border: 1px solid #00f0ff;
-}
-
-.painel-container {
-  max-width: 500px;
-  margin: 50px auto;
-  padding: 30px;
-  background-color: #151e3d;
-  border-radius: 15px;
-  box-shadow: 0 0 10px #00f0ff33;
-}
-
-.painel-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+    font-size: 20px;
+    margin-top: 10px;
+    color: #00ff99;
 }
 
 .botoes {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 30px;
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-.botoes button {
-  padding: 12px 20px;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 8px;
-  min-width: 120px;
+button {
+    padding: 15px 25px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s ease-in-out;
 }
 
-.botoes .entrada {
-  background-color: #4caf50;
-  color: white;
+button:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
 }
 
-.botoes .stop {
-  background-color: #e53935;
-  color: white;
+button:active {
+    transform: scale(0.98);
 }
 
-.botoes .alvo {
-  background-color: #2196f3;
-  color: white;
+.grafico-container {
+    margin-top: 20px;
+    padding: 0 10px;
 }
 
-.botoes .executar {
-  background-color: #9c27b0;
-  color: white;
+.resultado {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #121212;
+    color: #00ffff;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    white-space: pre-wrap;
+    font-size: 16px;
+    text-align: left;
 }
 
-.botoes .auto {
-  background-color: #ffa000;
-  color: white;
+/* Formulários de configuração */
+input[type="text"], input[type="password"] {
+    padding: 12px;
+    margin: 10px 0;
+    width: 80%;
+    max-width: 400px;
+    border: none;
+    border-radius: 5px;
+    background-color: #292a2d;
+    color: #fff;
+    font-size: 14px;
 }
 
-.botoes .sugestao {
-  background-color: #00bcd4;
-  color: white;
+button:focus, input:focus {
+    outline: none;
+    box-shadow: 0 0 8px #00ffff;
 }
 
-footer {
-  margin-top: 30px;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #999;
+/* Mobile */
+@media screen and (max-width: 600px) {
+    .botoes {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .resultado {
+        font-size: 14px;
+    }
+
+    button {
+        width: 90%;
+    }
 }
