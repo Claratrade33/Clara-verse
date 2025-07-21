@@ -5,12 +5,21 @@ async function atualizarPreco() {
     try {
         const res = await fetch('/obter_preco');
         const data = await res.json();
-        document.getElementById('preco').innerText = `$${parseFloat(data.preco).toFixed(2)}`;
-        historico.push(parseFloat(data.preco));
-        if (historico.length > 20) historico.shift();
-        atualizarGrafico();
-    } catch {
-        document.getElementById('preco').innerText = 'Erro';
+
+        if (data.preco) {
+            document.getElementById('preco').innerText = `$${parseFloat(data.preco).toFixed(2)}`;
+            historico.push(parseFloat(data.preco));
+
+            if (historico.length > 20) {
+                historico.shift(); // Remove o primeiro elemento se o histórico exceder 20
+            }
+            atualizarGrafico();
+        } else {
+            throw new Error('Preço não disponível');
+        }
+    } catch (error) {
+        console.error('Erro ao obter preço:', error);
+        document.getElementById('preco').innerText = 'Erro ao obter preço';
     }
 }
 
@@ -19,8 +28,9 @@ async function atualizarSaldo() {
         const res = await fetch('/obter_saldo');
         const data = await res.json();
         document.querySelector('.saldo').innerText = `💰 Saldo Atual: $${data.saldo} USDT`;
-    } catch (e) {
-        console.log('Erro saldo:', e);
+    } catch (error) {
+        console.error('Erro ao obter saldo:', error);
+        document.querySelector('.saldo').innerText = 'Erro ao obter saldo';
     }
 }
 
@@ -41,8 +51,8 @@ async function executarAcao(acao) {
         const data = await res.json();
         alert(data.mensagem);
         atualizarSaldo();
-    } catch (e) {
-        alert('Erro ao executar ação');
+    } catch (error) {
+        alert('Erro ao executar ação: ' + error.message);
     }
 }
 
@@ -51,9 +61,14 @@ async function obterSugestaoIA() {
         document.getElementById('respostaTexto').innerText = '⏳ Consultando Clarinha...';
         const res = await fetch('/obter_sugestao_ia');
         const data = await res.json();
-        document.getElementById('respostaTexto').innerText = data.resposta;
-    } catch {
-        document.getElementById('respostaTexto').innerText = 'Erro ao consultar IA.';
+
+        if (data.resposta) {
+            document.getElementById('respostaTexto').innerText = data.resposta;
+        } else {
+            throw new Error('Resposta da IA não disponível');
+        }
+    } catch (error) {
+        document.getElementById('respostaTexto').innerText = 'Erro ao consultar IA: ' + error.message;
     }
 }
 
