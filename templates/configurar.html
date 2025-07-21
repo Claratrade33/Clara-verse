@@ -1,57 +1,51 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>ClaraVerse - Configurar API</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="https://kit.fontawesome.com/a2d9a66df8.js" crossorigin="anonymous"></script>
+  <meta charset="UTF-8" />
+  <title>ClaraVerse - Configurações</title>
+  <link rel="stylesheet" href="/static/style.css" />
 </head>
-<body class="configurar-body">
-    <div class="container-config">
-        <h2><i class="fas fa-key"></i> Configurar Chaves de API</h2>
+<body class="painel-body">
+  <div class="painel-container">
+    <h1>🔐 Configurar APIs</h1>
+    
+    <form id="form-chaves">
+      <label>🔑 OpenAI API Key:</label>
+      <input type="password" id="openaiKey" placeholder="sk-..." required />
 
-        <div id="formulario">
-            <label for="openaiKey">Chave OpenAI:</label>
-            <input type="password" id="openaiKey" placeholder="sk-...">
+      <label>🟡 Binance API Key:</label>
+      <input type="text" id="binanceKey" placeholder="..." required />
 
-            <label for="binanceKey">Chave Binance:</label>
-            <input type="password" id="binanceKey" placeholder="Binance API Key">
+      <label>🛡️ Binance Secret Key:</label>
+      <input type="password" id="binanceSecret" placeholder="..." required />
 
-            <label for="binanceSecret">Segredo Binance:</label>
-            <input type="password" id="binanceSecret" placeholder="Binance API Secret">
+      <button type="submit" class="dashboard-btn">💾 Salvar e Acessar</button>
+    </form>
 
-            <button id="salvarBtn">
-                <i class="fas fa-save"></i> Salvar e Iniciar
-            </button>
-        </div>
+    <div id="mensagem" style="margin-top: 15px;"></div>
+  </div>
 
-        <div id="mensagem" class="mensagem-sucesso" style="display: none;">
-            ✅ Chaves salvas com sucesso! Redirecionando...
-        </div>
-    </div>
+  <script>
+    document.getElementById("form-chaves").addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    <script>
-        document.getElementById("salvarBtn").addEventListener("click", function () {
-            const openaiKey = document.getElementById("openaiKey").value;
-            const binanceKey = document.getElementById("binanceKey").value;
-            const binanceSecret = document.getElementById("binanceSecret").value;
+      const openaiKey = document.getElementById("openaiKey").value;
+      const binanceKey = document.getElementById("binanceKey").value;
+      const binanceSecret = document.getElementById("binanceSecret").value;
 
-            fetch("/salvar_chaves", {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ openaiKey, binanceKey, binanceSecret })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "ok") {
-                    document.getElementById("formulario").style.display = "none";
-                    document.getElementById("mensagem").style.display = "block";
-                    setTimeout(() => {
-                        window.location.href = "/painel";
-                    }, 2000);
-                }
-            });
-        });
-    </script>
+      const resposta = await fetch("/salvar_chaves", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ openaiKey, binanceKey, binanceSecret }),
+      });
+
+      const resultado = await resposta.json();
+      if (resultado.status === "ok") {
+        window.location.href = "/painel";
+      } else {
+        document.getElementById("mensagem").innerText = "Erro ao salvar as chaves.";
+      }
+    });
+  </script>
 </body>
 </html>
