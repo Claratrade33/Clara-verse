@@ -1,25 +1,23 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
-import requests, os, openai, json
+from cryptography.fernet import Fernet
+import requests, os, openai
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
+# Geração e uso de chave de criptografia
+chave_fernet = Fernet.generate_key()
+cipher = Fernet(chave_fernet)
+
+# Armazenamento seguro na memória
+chaves_criptografadas = {
+    "binance_api_key": b"",
+    "binance_api_secret": b"",
+    "openai_api_key": b""
+}
+
 USUARIO_PADRAO = "admin"
 SENHA_PADRAO = "claraverse2025"
-
-# Arquivo local para persistência
-ARQUIVO_CHAVES = "chaves_claraverse.json"
-
-# Carregar chaves salvas
-if os.path.exists(ARQUIVO_CHAVES):
-    with open(ARQUIVO_CHAVES, "r") as f:
-        chaves_salvas = json.load(f)
-else:
-    chaves_salvas = {
-        "binance_api_key": "",
-        "binance_api_secret": "",
-        "openai_api_key": ""
-    }
 
 @app.route("/")
 def home():
@@ -43,7 +41,8 @@ def logout():
 def painel():
     if "usuario" not in session:
         return redirect("/login")
-    return render_template("painel.html", chaves=chaves_salvas, saldo=5000)
+    saldo_simulado = 5000
+    return render_template("painel.html", saldo=saldo_simulado)
 
 @app.route("/dashboard")
 def dashboard():
@@ -51,17 +50,25 @@ def dashboard():
 
 @app.route("/configurar")
 def configurar():
-    return render_template("configurar.html", chaves=chaves_salvas)
+    if "usuario" not in session:
+        return redirect("/login")
+    def dec(b): return cipher.decrypt(b).decode() if b else ""
+    return render_template("configurar.html", chaves={
+        "binance_api_key": dec(chaves_criptografadas["binance_api_key"]),
+        "binance_api_secret": dec(chaves_criptografadas["binance_api_secret"]),
+        "openai_api_key": dec(chaves_criptografadas["openai_api_key"]),
+    })
 
 @app.route("/salvar_chaves", methods=["POST"])
 def salvar_chaves():
-    data = request.json
-    chaves_salvas["binance_api_key"] = data.get("binance_api_key", "")
-    chaves_salvas["binance_api_secret"] = data.get("binance_api_secret", "")
-    chaves_salvas["openai_api_key"] = data.get("openai_api_key", "")
-    with open(ARQUIVO_CHAVES, "w") as f:
-        json.dump(chaves_salvas, f)
-    return jsonify({"status": "sucesso", "redirect": "/painel"})
+    try:
+        data = request.json
+        chaves_criptografadas["binance_api_key"] = cipher.encrypt(data.get("binance_api_key", "").encode())
+        chaves_criptografadas["binance_api_secret"] = cipher.encrypt(data.get("binance_api_secret", "").encode())
+        chaves_criptografadas["openai_api_key"] = cipher.encrypt(data.get("openai_api_key", "").encode())
+        return jsonify({"status": "sucesso", "redirect": "/painel"})
+    except Exception as e:
+        return jsonify({"status": "erro", "mensagem": str(e)})
 
 @app.route("/dados_mercado")
 def dados_mercado():
@@ -76,8 +83,8 @@ def dados_mercado():
         suporte = round(float(variacao) - 0.8, 2)
         resistencia = round(float(variacao) + 0.8, 2)
 
-        openai.api_key = chaves_salvas.get("openai_api_key", "")
-        prompt = f"O preço atual do BTC é {preco}, com variação de {variacao}%. RSI em {rsi}. Qual a melhor sugestão para operação agora?"
+        openai.api_key = cipher.decrypt(chaves_criptografadas["openai_api_key"]).decode()
+        prompt = f"O preço do BTC está em {preco}, variação de {variacao}%, RSI em {rsi}. Qual a melhor estratégia?"
         resposta = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
@@ -86,32 +93,27 @@ def dados_mercado():
         sugestao = resposta["choices"][0]["message"]["content"]
 
         return jsonify({
-            "preco": preco,
-            "variacao": variacao,
-            "volume": volume,
-            "rsi": rsi,
-            "suporte": suporte,
-            "resistencia": resistencia,
+            "preco": preco, "variacao": variacao, "volume": volume,
+            "rsi": rsi, "suporte": suporte, "resistencia": resistencia,
             "sugestao": sugestao
         })
-    except Exception as e:
+    except:
         return jsonify({
             "preco": "--", "variacao": "--", "volume": "--",
             "rsi": "--", "suporte": "--", "resistencia": "--",
-            "sugestao": "Erro ao carregar dados ou IA não respondeu."
+            "sugestao": "Erro ao carregar dados."
         })
 
 @app.route("/executar/<acao>", methods=["POST"])
 def executar_acao(acao):
-    acoes = {
-        "entrada": "Ordem de ENTRADA simulada com sucesso.",
-        "stop": "STOP ativado! Proteção acionada.",
-        "alvo": "ALVO definido e operação encerrada.",
-        "automatico": "Modo automático ativado. Clarinha vai operar por você.",
-        "executar": "Ordem executada conforme análise da IA."
+    respostas = {
+        "entrada": "✅ Entrada simulada com sucesso!",
+        "stop": "🛑 Stop acionado.",
+        "alvo": "🎯 Alvo atingido.",
+        "executar": "🚀 Ordem executada pela IA.",
+        "automatico": "🤖 Modo automático ativado."
     }
-    msg = acoes.get(acao, "Ação desconhecida.")
-    return jsonify({"mensagem": msg})
+    return jsonify({"mensagem": respostas.get(acao, "Ação não reconhecida.")})
 
-# Compatibilidade Render
+# Compatível com Render
 application = app
