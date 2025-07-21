@@ -1,51 +1,36 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>ClaraVerse - Configurações</title>
-  <link rel="stylesheet" href="/static/style.css" />
+    <meta charset="UTF-8">
+    <title>Configurar APIs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        async function salvarChaves() {
+            const openaiKey = document.getElementById("openaiKey").value;
+            const binanceKey = document.getElementById("binanceKey").value;
+            const binanceSecret = document.getElementById("binanceSecret").value;
+
+            const resposta = await fetch("/salvar_chaves", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ openaiKey, binanceKey, binanceSecret })
+            });
+
+            const resultado = await resposta.json();
+            if (resultado.status === 'ok') {
+                alert("🔐 Chaves salvas com sucesso!");
+                window.location.href = "/painel";
+            } else {
+                alert("Erro ao salvar.");
+            }
+        }
+    </script>
 </head>
-<body class="painel-body">
-  <div class="painel-container">
-    <h1>🔐 Configurar APIs</h1>
-    
-    <form id="form-chaves">
-      <label>🔑 OpenAI API Key:</label>
-      <input type="password" id="openaiKey" placeholder="sk-..." required />
-
-      <label>🟡 Binance API Key:</label>
-      <input type="text" id="binanceKey" placeholder="..." required />
-
-      <label>🛡️ Binance Secret Key:</label>
-      <input type="password" id="binanceSecret" placeholder="..." required />
-
-      <button type="submit" class="dashboard-btn">💾 Salvar e Acessar</button>
-    </form>
-
-    <div id="mensagem" style="margin-top: 15px;"></div>
-  </div>
-
-  <script>
-    document.getElementById("form-chaves").addEventListener("submit", async function (e) {
-      e.preventDefault();
-
-      const openaiKey = document.getElementById("openaiKey").value;
-      const binanceKey = document.getElementById("binanceKey").value;
-      const binanceSecret = document.getElementById("binanceSecret").value;
-
-      const resposta = await fetch("/salvar_chaves", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ openaiKey, binanceKey, binanceSecret }),
-      });
-
-      const resultado = await resposta.json();
-      if (resultado.status === "ok") {
-        window.location.href = "/painel";
-      } else {
-        document.getElementById("mensagem").innerText = "Erro ao salvar as chaves.";
-      }
-    });
-  </script>
+<body>
+    <h2>🔐 Configurar Chaves da API</h2>
+    <input type="text" id="openaiKey" placeholder="🔑 OpenAI API Key"><br><br>
+    <input type="text" id="binanceKey" placeholder="🟡 Binance API Key"><br><br>
+    <input type="text" id="binanceSecret" placeholder="🔒 Binance Secret Key"><br><br>
+    <button onclick="salvarChaves()">💾 Salvar</button>
 </body>
 </html>
