@@ -1,43 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Configurar API - ClaraVerse</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script>
-    async function salvarChaves() {
-      const openaiKey = document.getElementById('openaiKey').value;
-      const binanceKey = document.getElementById('binanceKey').value;
-      const binanceSecret = document.getElementById('binanceSecret').value;
-
-      if (!openaiKey || !binanceKey || !binanceSecret) {
-        alert("Preencha todos os campos.");
-        return;
-      }
-
-      const res = await fetch('/salvar_chaves', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ openaiKey, binanceKey, binanceSecret })
-      });
-
-      const data = await res.json();
-      if (data.status === 'ok') {
-        alert('🔐 Chaves salvas com sucesso!');
-        window.location.href = '/painel';
-      } else {
-        alert('Erro ao salvar chaves.');
-      }
-    }
-  </script>
+    <meta charset="UTF-8">
+    <title>Configurar API - ClaraVerse</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <div class="config-container">
-    <h2>🔧 Configurar Chaves de API</h2>
-    <input type="text" id="openaiKey" placeholder="🔑 OpenAI API Key"><br>
-    <input type="text" id="binanceKey" placeholder="🔑 Binance API Key"><br>
-    <input type="text" id="binanceSecret" placeholder="🔒 Binance Secret Key"><br>
-    <button onclick="salvarChaves()">💾 Salvar</button>
-  </div>
+    <div class="header">⚙️ Configurar API Keys</div>
+    <div class="container">
+        <form method="POST" action="/salvar_chaves">
+            <div class="input-group">
+                <label for="binance_key">Binance API Key</label>
+                <input type="text" name="binance_key" required>
+            </div>
+            <div class="input-group">
+                <label for="binance_secret">Binance API Secret</label>
+                <input type="text" name="binance_secret" required>
+            </div>
+            <div class="input-group">
+                <label for="openai_key">OpenAI API Key</label>
+                <input type="text" name="openai_key" required>
+            </div>
+            <button type="submit" class="button">Salvar e Ativar</button>
+        </form>
+    </div>
 </body>
 </html>
