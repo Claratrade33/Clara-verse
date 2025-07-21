@@ -2,113 +2,169 @@ body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
   background-color: #0b0f1a;
-  color: #fff;
+  color: #ffffff;
 }
 
+a {
+  color: #00f7ff;
+  text-decoration: none;
+}
+
+.login-page,
+.configurar-body,
 .painel-body {
   display: flex;
   justify-content: center;
-  padding: 20px;
-  background: linear-gradient(to bottom, #0b0f1a, #121c2f);
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(145deg, #0f1322, #0b0f1a);
 }
 
+.login-container,
+.configurar-container,
 .painel-container {
+  background-color: #151b2e;
+  border-radius: 12px;
+  padding: 30px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 20px rgba(0, 247, 255, 0.2);
+}
+
+.logo-login {
+  display: block;
+  margin: 0 auto 20px;
+  width: 80px;
+}
+
+.login-form input,
+.configurar-container input {
   width: 100%;
-  max-width: 1200px;
-  padding: 20px;
-  background-color: #141b2d;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 183, 255, 0.2);
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+  background-color: #1e253f;
+  color: white;
+  font-size: 16px;
+}
+
+.login-form button,
+.configurar-container button,
+.painel-botoes button {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  background: #00f7ff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #0b0f1a;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.login-form button:hover,
+.configurar-container button:hover,
+.painel-botoes button:hover {
+  background: #00d4dd;
 }
 
 .painel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: #101624;
+  padding: 10px 20px;
+  border-radius: 10px;
   margin-bottom: 20px;
 }
 
-.painel-header h1 {
-  font-size: 1.6em;
-  color: #00bfff;
-}
-
 .painel-saldo {
-  font-size: 1em;
-  color: #33ff99;
+  font-size: 16px;
+  color: #00f7ff;
 }
 
 .btn-sair {
-  background-color: #ff4d4d;
-  border: none;
+  background-color: #ff4b5c;
+  color: white;
   padding: 8px 16px;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.grafico-frame iframe {
-  border: 2px solid #00bfff;
-  border-radius: 10px;
-}
-
-.dados-mercado p {
-  font-size: 1em;
-  margin: 5px 0;
-}
-
-.ia-resposta {
-  background-color: #1c2333;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 20px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
-}
-
-.ia-resposta h3 {
-  margin-top: 0;
-  color: #ffcc00;
-}
-
-.painel-botoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 20px;
-  justify-content: center;
-}
-
-.painel-botoes button {
-  background: linear-gradient(145deg, #0055aa, #00bfff);
-  color: white;
   border: none;
-  padding: 12px 24px;
-  font-size: 1em;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.painel-botoes button:hover {
-  transform: scale(1.05);
-  background: linear-gradient(145deg, #0077cc, #33ccff);
-}
-
-.mensagem-status {
-  margin-top: 20px;
-  text-align: center;
-  color: #66ffcc;
   font-weight: bold;
 }
 
-input[type="text"] {
-  width: 100%;
-  max-width: 400px;
+.painel-conteudo {
+  background-color: #151b2e;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.grafico-frame {
+  margin-bottom: 20px;
+  border: 2px solid #00f7ff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dados-mercado p,
+.ia-resposta p {
+  margin: 8px 0;
+  font-size: 15px;
+}
+
+.ia-resposta {
+  background-color: #1d263f;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.painel-botoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.mensagem-status {
+  margin-top: 15px;
   padding: 10px;
-  margin: 10px auto;
-  display: block;
-  border-radius: 5px;
-  border: 1px solid #0077cc;
-  background-color: #0b0f1a;
-  color: white;
+  background-color: #00f7ff;
+  color: #0b0f1a;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  display: none;
+}
+
+.status-sucesso {
+  color: #00ffb3;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.erro {
+  color: #ff4b5c;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.btn-voltar {
+  background-color: #444c72;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+}
+
+.btn-voltar:hover {
+  background-color: #2d3253;
 }
