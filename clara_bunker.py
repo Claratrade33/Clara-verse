@@ -1,25 +1,40 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 from cryptography.fernet import Fernet
-import os, requests, openai
+import os, requests, openai, pickle
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Criptografia fixa para persistência temporária no deploy
-CHAVE_CRIPTO = Fernet.generate_key()
+# Caminhos para persistência
+CHAVE_CRIPTO_FILE = "chave.key"
+CHAVES_SALVAS_FILE = "chaves.pkl"
+
+# Gera ou carrega chave de criptografia
+if os.path.exists(CHAVE_CRIPTO_FILE):
+    with open(CHAVE_CRIPTO_FILE, "rb") as f:
+        CHAVE_CRIPTO = f.read()
+else:
+    CHAVE_CRIPTO = Fernet.generate_key()
+    with open(CHAVE_CRIPTO_FILE, "wb") as f:
+        f.write(CHAVE_CRIPTO)
+
 fernet = Fernet(CHAVE_CRIPTO)
 
-# Simulação de saldo e armazenamento criptografado
+# Carrega ou inicializa as chaves criptografadas
+if os.path.exists(CHAVES_SALVAS_FILE):
+    with open(CHAVES_SALVAS_FILE, "rb") as f:
+        chaves_criptografadas = pickle.load(f)
+else:
+    chaves_criptografadas = {
+        "binance_api_key": None,
+        "binance_api_secret": None,
+        "openai_api_key": None
+    }
+
+# Dados de sessão
 USUARIO_PADRAO = "admin"
 SENHA_PADRAO = "claraverse2025"
 saldo_simulado = 5000.0
-chaves_criptografadas = {
-    "binance_api_key": None,
-    "binance_api_secret": None,
-    "openai_api_key": None
-}
-
-# ========== ROTAS ==========
 
 @app.route("/")
 def home():
@@ -45,10 +60,6 @@ def painel():
         return redirect("/login")
     return render_template("painel.html", saldo=saldo_simulado)
 
-@app.route("/dashboard")
-def dashboard():
-    return render_template("dashboard.html")
-
 @app.route("/configurar")
 def configurar():
     if "usuario" not in session:
@@ -68,6 +79,8 @@ def salvar_chaves():
         chaves_criptografadas["binance_api_key"] = fernet.encrypt(data.get("binance_api_key", "").encode())
         chaves_criptografadas["binance_api_secret"] = fernet.encrypt(data.get("binance_api_secret", "").encode())
         chaves_criptografadas["openai_api_key"] = fernet.encrypt(data.get("openai_api_key", "").encode())
+        with open(CHAVES_SALVAS_FILE, "wb") as f:
+            pickle.dump(chaves_criptografadas, f)
         return jsonify({"status": "sucesso"})
     except Exception as e:
         return jsonify({"status": "erro", "mensagem": str(e)})
@@ -75,7 +88,6 @@ def salvar_chaves():
 @app.route("/dados_mercado")
 def dados_mercado():
     try:
-        # Dados da Binance
         url = "https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT"
         r = requests.get(url).json()
         preco = r.get("lastPrice", "--")
@@ -86,10 +98,10 @@ def dados_mercado():
         suporte = round(float(variacao) - 0.8, 2)
         resistencia = round(float(variacao) + 0.8, 2)
 
-        # IA Clarinha (OpenAI)
         chave_openai = fernet.decrypt(chaves_criptografadas["openai_api_key"]).decode() if chaves_criptografadas["openai_api_key"] else ""
         if not chave_openai:
             raise Exception("Chave OpenAI ausente.")
+
         openai.api_key = chave_openai
         prompt = f"O preço atual do BTC é {preco}, com variação de {variacao}%. RSI em {rsi}. Qual a melhor sugestão para operação agora?"
         resposta = openai.ChatCompletion.create(
@@ -97,6 +109,7 @@ def dados_mercado():
             messages=[{"role": "user", "content": prompt}]
         )
         sugestao = resposta["choices"][0]["message"]["content"]
+
         return jsonify({
             "preco": preco,
             "variacao": variacao,
@@ -110,7 +123,7 @@ def dados_mercado():
         return jsonify({
             "preco": "--", "variacao": "--", "volume": "--",
             "rsi": "--", "suporte": "--", "resistencia": "--",
-            "sugestao": "Erro ao carregar dados ou IA indisponível."
+            "sugestao": "Erro: IA ou mercado indisponível."
         })
 
 @app.route("/executar/<acao>", methods=["POST"])
@@ -131,5 +144,4 @@ def executar_acao(acao):
         saldo_simulado -= 30
     return jsonify({"mensagem": respostas.get(acao, "Ação desconhecida.")})
 
-# Compatível com Render
 application = app
