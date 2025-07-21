@@ -1,8 +1,7 @@
 flask
 openai
-binance
+python-binance
 cryptography
 gunicorn
 requests
 aiohttp
-
