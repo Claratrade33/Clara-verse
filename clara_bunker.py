@@ -5,14 +5,14 @@ import os, requests, openai
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Chave fixa para manter a criptografia entre deploys
+# Chave fixa para criptografia entre reinícios
 CHAVE_CRIPTO_FIXA = b'xApbCQFxxa3Yy3YKkzP9JkkfE4WaXxN8eSpK7uBRuGA='
 fernet = Fernet(CHAVE_CRIPTO_FIXA)
 
-# Simulação de banco de dados simples em memória
+# Banco de dados simples em memória
 usuarios = {'admin': 'claraverse2025'}
-chaves_armazenadas = {}  # Formato: {'openai': ..., 'binance': ...}
-saldo_simulado = 1000.0  # Saldo inicial fictício
+chaves_armazenadas = {}
+saldo_simulado = 1000.0
 
 @app.route('/')
 def index():
@@ -26,8 +26,7 @@ def login():
         if usuario in usuarios and usuarios[usuario] == senha:
             session['usuario'] = usuario
             return redirect('/painel')
-        else:
-            return render_template('login.html', erro='Credenciais inválidas.')
+        return render_template('login.html', erro='Credenciais inválidas.')
     return render_template('login.html')
 
 @app.route('/dashboard')
@@ -58,6 +57,7 @@ def salvar_chaves():
     chaves_armazenadas['openai'] = fernet.encrypt(openai_key.encode()).decode()
     chaves_armazenadas['binance'] = fernet.encrypt(binance_key.encode()).decode()
     chaves_armazenadas['binance_secret'] = fernet.encrypt(binance_secret.encode()).decode()
+
     return jsonify({'status': 'ok', 'mensagem': 'Chaves salvas com sucesso!'})
 
 @app.route('/executar_acao', methods=['POST'])
@@ -87,37 +87,36 @@ def executar_acao():
 def obter_saldo():
     return jsonify({'saldo': saldo_simulado})
 
+@app.route('/obter_preco')
+def obter_preco():
+    try:
+        r = requests.get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT")
+        preco = float(r.json()['price'])
+        return jsonify({'preco': preco})
+    except:
+        return jsonify({'preco': 'Erro'})
+
 @app.route('/obter_sugestao_ia')
 def obter_sugestao_ia():
     try:
         openai_key = fernet.decrypt(chaves_armazenadas['openai'].encode()).decode()
         openai.api_key = openai_key
 
-        mensagem_sistema = "Você é uma IA financeira que sugere operações com base no mercado BTC/USDT."
-        mensagem_usuario = "Qual a melhor sugestão para operar agora?"
-
         resposta = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": mensagem_sistema},
-                {"role": "user", "content": mensagem_usuario}
+                {"role": "system", "content": "Você é uma IA financeira que sugere operações no par BTC/USDT."},
+                {"role": "user", "content": "Qual a melhor operação agora?"}
             ],
             temperature=0.7
         )
-        texto = resposta['choices'][0]['message']['content']
-        return jsonify({'resposta': texto})
-    except Exception as e:
+        conteudo = resposta['choices'][0]['message']['content']
+        return jsonify({'resposta': conteudo})
+    except:
         return jsonify({'resposta': 'IA indisponível no momento.'})
 
-@app.route('/obter_preco')
-def obter_preco():
-    try:
-        url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
-        resposta = requests.get(url)
-        preco = resposta.json()['price']
-        return jsonify({'preco': preco})
-    except:
-        return jsonify({'preco': 'Erro'})
+# Compatível com Render
+application = app
 
 if __name__ == '__main__':
     app.run(debug=True)
