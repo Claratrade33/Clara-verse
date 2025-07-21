@@ -1,45 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>ClaraVerse - Painel</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+    <meta charset="UTF-8">
+    <title>Painel ClaraVerse</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <header>
-    <h1 style="color:#00ffff">ClaraVerse</h1>
-    <p style="color: #00ff99; font-weight: bold;">
-      🔥 Saldo Atual: ${{ saldo }} USDT
-    </p>
-  </header>
+    <div class="header">📊 Painel ClaraVerse</div>
+    <div class="container">
+        <div class="card">
+            <p class="saldo">💰 Saldo Atual: ${{ saldo }} USDT</p>
+            <div id="grafico"></div>
+        </div>
 
-  <section id="grafico">
-    <iframe
-      src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_7e1d1&symbol=BINANCE:BTCUSDT&interval=1&symboledit=1&saveimage=1&toolbarbg=F1F3F6&studies=[]&theme=dark&style=1&timezone=America/Sao_Paulo&withdateranges=1&hideideas=1&studies_overrides={}&overrides={}"
-      width="100%"
-      height="350"
-      frameborder="0"
-      allowtransparency="true"
-      scrolling="no"
-    ></iframe>
-  </section>
+        <div class="card">
+            <button class="button" onclick="executarAcao('compra')">🟢 Entrada (Comprar)</button>
+            <button class="button" onclick="executarAcao('venda')">🔴 Stop (Vender)</button>
+            <button class="button" onclick="obterSugestaoIA()">🔮 Sugestão da IA</button>
+            <a href="/configurar" class="button">⚙️ Configurar Chaves</a>
+        </div>
 
-  <section id="botoes">
-    <button onclick="executarAcao('comprar')">🟢 ENTRADA</button>
-    <button onclick="executarAcao('vender')">🔴 STOP</button>
-    <button onclick="executarAcao('auto')">⚙️ AUTO</button>
-    <button onclick="obterSugestaoIA()">🔮 SUGESTÃO IA</button>
-    <button onclick="window.location.href='/configurar'">
-      <img src="{{ url_for('static', filename='icons/settings.svg') }}" alt="Configurar" style="height:16px; vertical-align:middle; margin-right:5px;">
-      CONFIGURAR
-    </button>
-  </section>
-
-  <section id="resposta-ia">
-    <h3 style="color:#00ffff">💬 Resposta da IA:</h3>
-    <p id="respostaTexto">Aguardando consulta...</p>
-  </section>
+        <div class="card">
+            <h3>📡 Sugestão da Clarinha:</h3>
+            <p id="respostaTexto">Clique no botão acima para consultar.</p>
+        </div>
+    </div>
+    <script src="/static/dashboard.js"></script>
 </body>
 </html>
