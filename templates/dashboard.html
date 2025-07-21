@@ -2,19 +2,41 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>ClaraVerse • Dashboard</title>
+  <title>ClaraVerse • Inteligência Financeira</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="dashboard-body">
-  <div class="dashboard-container">
-    <h1>🌠 Bem-vindo ao ClaraVerse</h1>
-    <p>Selecione uma opção para iniciar:</p>
+<body class="home-body">
+  <div class="home-container">
+    <header class="home-header">
+      <img src="{{ url_for('static', filename='logo_claraverse.png') }}" alt="ClaraVerse Logo" class="home-logo">
+      <h1 class="home-title">ClaraVerse</h1>
+    </header>
 
-    <div class="dashboard-botoes">
-      <a href="/login" class="btn-dashboard">🔐 Login</a>
-      <a href="/painel" class="btn-dashboard">📊 Acessar Painel</a>
-      <a href="/configurar" class="btn-dashboard">⚙️ Configurar API</a>
-    </div>
+    <main class="home-main">
+      <h2 class="home-slogan">A plataforma de<br><span>inteligência financeira</span></h2>
+      <p class="home-subtext">A ClaraVerse oferece soluções avançadas<br>para otimizar seus investimentos.</p>
+
+      <a href="/login" class="home-button">SAIBA MAIS</a>
+
+      <div class="home-features">
+        <div class="feature">
+          <img src="{{ url_for('static', filename='icons/chart.svg') }}" alt="Ícone de Análise">
+          <p>Análise de<br><strong>Mercado</strong></p>
+        </div>
+        <div class="feature">
+          <img src="{{ url_for('static', filename='icons/ai.svg') }}" alt="Ícone de Estratégias">
+          <p>Estratégias<br><strong>Automatizadas</strong></p>
+        </div>
+        <div class="feature">
+          <img src="{{ url_for('static', filename='icons/target.svg') }}" alt="Ícone de Segurança">
+          <p>Segurança<br><strong>Avançada</strong></p>
+        </div>
+        <div class="feature">
+          <img src="{{ url_for('static', filename='icons/wallet.svg') }}" alt="Ícone de Suporte">
+          <p>Suporte<br><strong>Especializado</strong></p>
+        </div>
+      </div>
+    </main>
   </div>
 </body>
 </html>
