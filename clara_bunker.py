@@ -23,7 +23,7 @@ chaves_criptografadas = {
 
 @app.route("/")
 def home():
-    return redirect("/painel")
+    return redirect("/dashboard")  # Agora vai direto pro dashboard inicial
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -132,5 +132,5 @@ def executar_acao(acao):
         saldo_simulado -= 30
     return jsonify({"mensagem": respostas.get(acao, "Ação desconhecida.")})
 
-# Ponto de entrada do Render
+# Compatível com Render
 application = app
