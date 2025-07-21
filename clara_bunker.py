@@ -12,15 +12,24 @@ CHAVE_CRIPTO_FIXA = b'xApbCQFxxa3Yy3YKkzP9JkkfE4WaXxN8eSpK7uBRuGA='
 fernet = Fernet(CHAVE_CRIPTO_FIXA)
 
 usuarios = {'admin': 'claraverse2025'}
+chaves_armazenadas = {}
+chave_arquivo = 'chaves.dat'
 saldo_simulado = 10000.00
 modo_auto_ativo = False
 
-# Chaves criptografadas embutidas
-chaves_armazenadas = {
-    "binance": "gAAAAABofh51AucJK0rK5J5A9DwHOh3b3EPL-l6s8-snYTklf_L0Ad9DVkHfHCA9rx35nSvHewI8lB3aKCqO0Sk3dUndZovo8sOEwsa0oKzkZijAaF9XvV1vNdCQQf2vJoaNZdDsyDdM7X0GJgAkDfiMTUwa9qkOGgs58nss74TX2Ejd9VeCAeE=",
-    "binance_secret": "gAAAAABofh51uzzxCX2sL7ZetXoosEue7pYABue5ve6I4_t23sQU9B-dOJhLlkDc7Z_YPm0P59PhGGGCU50p-T7wCnNZhUJuQlI7GPhTFhdAcBNO_RDqJjo4ixaPebbkXK8l6EkmTdPyFQz_ANinBJ5QeGPgqtEqFWqi0TbrfmEiBZi-YoTHMTY=",
-    "openai": "gAAAAABofh51Olb8C8EztOIxuEUPw6C4-r6Odj53xfdnO3VzvvGYEMAGyUPhmaxe1lDh3H_lcRun3SKW8HRBD1MNHrygbyYsCOBCjAnDU8tj_z-ZjiiF1GcOZmTAI86UOoB3ieEF06LKw8OlT44I0-wZz5k-16t-dYydvH4hyIt_jPu3ohlG3o8aBPZGyeXRolgc4SeUCiO-P3dSuNJt5UU3oxYHYsrjbPEOn85AvmGz1bsko3RfpFTXzOeG-uuXc6qaUjp5h86K1CRBiTEI32Juiy_qkxf2K0aQR5oIh5fHMzEsv21cH3g="
-}
+def carregar_chaves():
+    global chaves_armazenadas
+    if os.path.exists(chave_arquivo):
+        with open(chave_arquivo, 'rb') as f:
+            dados = f.read()
+            descriptografado = fernet.decrypt(dados).decode()
+            chaves_armazenadas = json.loads(descriptografado)
+
+def salvar_chaves_em_arquivo():
+    dados = json.dumps(chaves_armazenadas).encode()
+    criptografado = fernet.encrypt(dados)
+    with open(chave_arquivo, 'wb') as f:
+        f.write(criptografado)
 
 def loop_automatico():
     global modo_auto_ativo, saldo_simulado
@@ -73,6 +82,21 @@ def painel():
         return render_template('painel.html', saldo=saldo_simulado)
     return redirect('/login')
 
+@app.route('/configurar')
+def configurar():
+    if 'usuario' in session:
+        return render_template('configurar.html')
+    return redirect('/login')
+
+@app.route('/salvar_chaves', methods=['POST'])
+def salvar_chaves():
+    dados = request.json
+    chaves_armazenadas['openai'] = fernet.encrypt(dados['openaiKey'].encode()).decode()
+    chaves_armazenadas['binance'] = fernet.encrypt(dados['binanceKey'].encode()).decode()
+    chaves_armazenadas['binance_secret'] = fernet.encrypt(dados['binanceSecret'].encode()).decode()
+    salvar_chaves_em_arquivo()
+    return jsonify({'status': 'ok'})
+
 @app.route('/executar_acao', methods=['POST'])
 def executar_acao():
     global saldo_simulado, modo_auto_ativo
@@ -119,6 +143,9 @@ def obter_sugestao_ia():
         return jsonify({'resposta': sugestao})
     except Exception as e:
         return jsonify({'resposta': f'Erro ao acessar a IA: {str(e)}'})
+
+# Carregar chaves no inÃ­cio
+carregar_chaves()
 
 application = app
 
