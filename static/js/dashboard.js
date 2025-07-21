@@ -53,10 +53,16 @@ async function obterSugestaoIA() {
     try {
         const respostaElem = document.getElementById('respostaTexto');
         if (respostaElem) respostaElem.innerText = '⏳ Consultando Clarinha...';
-        const res = await fetch('/obter_sugestao_ia');
+
+        const res = await fetch('/obter_sugestao_ia', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: 'Sugira uma ação de trading para o par BTC/USDT.' })
+        });
+
         const data = await res.json();
-        if (respostaElem) respostaElem.innerText = data.resposta;
-    } catch {
+        if (respostaElem) respostaElem.innerText = data.resposta || '❌ Erro na resposta da IA';
+    } catch (e) {
         const respostaElem = document.getElementById('respostaTexto');
         if (respostaElem) respostaElem.innerText = 'Erro ao consultar IA.';
     }
