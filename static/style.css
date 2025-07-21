@@ -1,124 +1,156 @@
-/* ===== Estilo Geral ===== */
+/* GERAL */
 body {
   margin: 0;
+  padding: 0;
   font-family: 'Segoe UI', sans-serif;
-  background: #0f0f1a;
-  color: #ffffff;
+  background-color: #0a0f2c;
+  color: #e6e6f0;
 }
 
-h1, h2, h3 {
-  color: #ffffff;
-}
-
-button {
-  background: #00c2ff;
-  border: none;
-  color: white;
-  padding: 12px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s ease;
+/* CONTAINER PRINCIPAL */
+.painel-body, .configurar-body {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  padding: 20px;
 }
 
-button:hover {
-  background: #009fcc;
-}
-
-input[type="text"], input[type="password"] {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  margin-bottom: 15px;
-  background-color: #1a1a2e;
-  color: white;
-  border: 1px solid #444;
-  border-radius: 6px;
-}
-
-label {
-  display: block;
-  margin-top: 10px;
-  font-weight: bold;
-  color: #bbb;
-}
-
-/* ===== Página de Configuração ===== */
-.configurar-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.configurar-container {
-  background: #1b1b2f;
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0, 194, 255, 0.3);
-  width: 100%;
-  max-width: 500px;
-}
-
-#status-chaves {
-  margin-top: 10px;
-  font-weight: bold;
-  color: #00ff99;
-}
-
-.status-sucesso {
-  color: #00ff99;
-}
-
-.status-erro {
-  color: #ff6666;
-}
-
-/* ===== Painel Principal ===== */
+/* CONTEÚDO CENTRAL */
 .painel-container {
-  padding: 20px;
   max-width: 900px;
-  margin: auto;
+  width: 100%;
 }
 
-.info-box {
-  background-color: #151525;
-  padding: 20px;
-  margin-bottom: 15px;
+/* GRÁFICO */
+.grafico-frame {
+  border: 2px solid #1f2a4c;
   border-radius: 10px;
-  box-shadow: 0 0 10px #000;
+  overflow: hidden;
+  margin-bottom: 25px;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+/* BLOCO DE INFORMAÇÕES */
+.info-box {
+  background-color: #111633;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 8px rgba(0, 128, 255, 0.1);
 }
 
 .info-box p {
-  margin: 5px 0;
-}
-
-.botao-acao {
-  margin: 10px 5px 0 0;
-}
-
-/* ===== Mensagem de Status ===== */
-#mensagemStatus {
-  margin-top: 20px;
+  margin: 10px 0;
   font-size: 16px;
-  font-weight: bold;
-  color: #00ff99;
-  display: none;
+  display: flex;
+  align-items: center;
 }
 
-/* ===== Responsivo ===== */
+.info-box strong {
+  margin-right: 8px;
+}
+
+/* BOTÕES DE AÇÃO */
+.botao-acao {
+  background-color: #1e90ff;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 20px;
+  margin: 8px 5px 0;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(30, 144, 255, 0.3);
+  transition: background-color 0.2s ease;
+}
+
+.botao-acao:hover {
+  background-color: #0072e3;
+}
+
+/* STATUS MENSAGEM */
+#mensagemStatus {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #00ffb7;
+}
+
+/* CONFIGURAR */
+.configurar-container {
+  background-color: #111633;
+  border-radius: 10px;
+  padding: 30px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+.configurar-container h1 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 22px;
+  color: #00eaff;
+}
+
+.configurar-container label {
+  display: block;
+  margin: 12px 0 6px;
+  font-weight: bold;
+}
+
+.configurar-container input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #222c50;
+  color: #fff;
+  font-size: 14px;
+}
+
+.configurar-container button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #00bfff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.configurar-container button:hover {
+  background-color: #009acd;
+}
+
+/* MENSAGEM DE STATUS */
+#status-chaves {
+  margin-top: 15px;
+  text-align: center;
+  font-weight: bold;
+  color: #00ffb7;
+}
+
+/* RESPONSIVO */
 @media (max-width: 600px) {
-  .configurar-container, .painel-container {
-    padding: 20px;
-    border-radius: 10px;
+  .botao-acao {
+    width: 100%;
+    margin: 8px 0;
   }
 
-  button {
-    width: 100%;
-    justify-content: center;
+  .grafico-frame iframe {
+    height: 300px;
+  }
+
+  .info-box {
+    padding: 10px 15px;
+  }
+
+  .configurar-container {
+    padding: 20px;
   }
 }
