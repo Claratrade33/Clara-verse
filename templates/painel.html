@@ -1,50 +1,36 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>ClaraVerse | Painel</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Painel ClaraVerse</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body class="painel-body">
-  <div class="painel-container">
-    <div class="painel-header">
-      <h1>🌌 ClaraVerse • Painel de Operações</h1>
-      <div class="painel-saldo">💰 Saldo Simulado: <span id="saldo">{{ saldo }}</span> USDT</div>
-      <button class="btn-sair" onclick="window.location.href='/logout'">Sair</button>
-    </div>
-
-    <div class="painel-conteudo">
-      <div class="grafico-frame">
-        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=dark"
-                width="100%" height="400" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
-      </div>
-
-      <div class="dados-mercado">
-        <p><strong>📈 Preço:</strong> <span id="preco">--</span></p>
-        <p><strong>📊 Variação:</strong> <span id="variacao">--</span>%</p>
-        <p><strong>📦 Volume:</strong> <span id="volume">--</span></p>
-        <p><strong>🧠 RSI:</strong> <span id="rsi">--</span></p>
-        <p><strong>📉 Suporte:</strong> <span id="suporte">--</span></p>
-        <p><strong>📈 Resistência:</strong> <span id="resistencia">--</span></p>
-      </div>
-
-      <div class="ia-resposta">
-        <h3>💡 Estratégia da Clarinha:</h3>
-        <p id="sugestao">Aguardando sugestão da IA...</p>
-      </div>
-
-      <div class="painel-botoes">
-        <button onclick="enviarAcao('entrada')">✅ ENTRADA</button>
-        <button onclick="enviarAcao('stop')">🛑 STOP</button>
-        <button onclick="enviarAcao('alvo')">🎯 ALVO</button>
-        <button onclick="enviarAcao('executar')">🚀 EXECUTAR</button>
-        <button onclick="enviarAcao('automatico')">🤖 AUTOMÁTICO</button>
-        <button onclick="window.location.href='/configurar'">⚙️ CONFIGURAR</button>
-      </div>
-
-      <p class="mensagem-status" id="mensagemStatus"></p>
-    </div>
+  <div class="grafico-container">
+    <iframe src="https://s.tradingview.com/embed-widget/mini-symbol-overview/?symbol=BINANCE:BTCUSDT&locale=br" width="100%" height="300" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
   </div>
+
+  <div class="dados-container">
+    <ul class="dados-lista">
+      <li><i class="fas fa-chart-bar"></i> Preço: <span id="preco">--</span></li>
+      <li><i class="fas fa-percent"></i> Variação: <span id="variacao">--</span></li>
+      <li><i class="fas fa-signal"></i> Volume: <span id="volume">--</span></li>
+      <li><i class="fas fa-wave-square"></i> RSI: <span id="rsi">--</span></li>
+      <li><i class="fas fa-arrows-down-to-line"></i> Suporte: <span id="suporte">--</span></li>
+      <li><i class="fas fa-arrows-up-to-line"></i> Resistência: <span id="resistencia">--</span></li>
+    </ul>
+  </div>
+
+  <div class="botoes-container">
+    <button class="botao entrada"><i class="fas fa-play"></i> ENTRADA</button>
+    <button class="botao stop"><i class="fas fa-stop"></i> STOP</button>
+    <button class="botao alvo"><i class="fas fa-bullseye"></i> EXECUTAR</button>
+    <button class="botao automatico"><i class="fas fa-robot"></i> AUTOMÁTICO</button>
+    <button class="botao configurar"><i class="fas fa-gear"></i> CONFIGURAR</button>
+  </div>
+
+  <script src="/static/dashboard.js"></script>
 </body>
 </html>
