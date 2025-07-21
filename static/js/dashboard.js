@@ -1,19 +1,89 @@
-async function executarAcao(acao) {
-    const resposta = await fetch('/executar_acao', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ acao })
-    });
+let chart;
+let historico = [];
 
-    const dados = await resposta.json();
-    document.getElementById('resposta-ia').innerText = dados.mensagem;
-    document.getElementById('saldo').innerText = `$${dados.saldo}`;
+async function atualizarPreco() {
+    try {
+        const res = await fetch('/obter_preco');
+        const data = await res.json();
+        document.getElementById('preco').innerText = `$${parseFloat(data.preco).toFixed(2)}`;
+        historico.push(parseFloat(data.preco));
+        if (historico.length > 20) historico.shift();
+        atualizarGrafico();
+    } catch {
+        document.getElementById('preco').innerText = 'Erro';
+    }
+}
+
+async function atualizarSaldo() {
+    try {
+        const res = await fetch('/obter_saldo');
+        const data = await res.json();
+        document.querySelector('.saldo').innerText = `💰 Saldo Atual: $${data.saldo} USDT`;
+    } catch (e) {
+        console.log('Erro saldo:', e);
+    }
+}
+
+function atualizarGrafico() {
+    if (!chart) return;
+    chart.data.labels = historico.map((_, i) => i + 1);
+    chart.data.datasets[0].data = historico;
+    chart.update();
+}
+
+async function executarAcao(acao) {
+    try {
+        const res = await fetch('/executar_acao', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ acao })
+        });
+        const data = await res.json();
+        alert(data.mensagem);
+        atualizarSaldo();
+    } catch (e) {
+        alert('Erro ao executar ação');
+    }
 }
 
 async function obterSugestaoIA() {
-    document.getElementById('resposta-ia').innerText = 'Consultando Clarinha...';
-
-    const resposta = await fetch('/obter_sugestao_ia');
-    const dados = await resposta.json();
-    document.getElementById('resposta-ia').innerText = dados.resposta;
+    try {
+        document.getElementById('texto-ia').innerText = '⏳ Consultando Clarinha...';
+        const res = await fetch('/obter_sugestao_ia');
+        const data = await res.json();
+        document.getElementById('texto-ia').innerText = data.resposta;
+    } catch {
+        document.getElementById('texto-ia').innerText = 'Erro ao consultar IA.';
+    }
 }
+
+window.onload = () => {
+    const ctx = document.getElementById('graficoBTC').getContext('2d');
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Preço BTC/USDT',
+                data: [],
+                borderColor: 'cyan',
+                borderWidth: 2,
+                fill: false,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: false }
+            }
+        }
+    });
+
+    atualizarPreco();
+    atualizarSaldo();
+    setInterval(() => {
+        atualizarPreco();
+        atualizarSaldo();
+    }, 7000);
+};
